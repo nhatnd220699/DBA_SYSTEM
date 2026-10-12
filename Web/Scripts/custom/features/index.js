@@ -146,6 +146,7 @@ function formatHealthLevel(health) {
 
 async function getAlwaysOnStatus() {
     let html = '';
+    const alwaysonBadge = document.getElementById('alwayson-badge');
 
     try {
         const params = {
@@ -180,6 +181,7 @@ async function getAlwaysOnStatus() {
             else {
                 html = `<tr><td colspan="50">No data to available</td></tr>`;
             }
+
         } else {
             html = `<tr><td colspan="50" class="px-3 py-2.5 whitespace-nowrap font-bold text-rose-400">${result.message}</td></tr>`;
         }
@@ -187,6 +189,7 @@ async function getAlwaysOnStatus() {
         html = `<tr><td colspan="50" class="px-3 py-2.5 whitespace-nowrap font-bold text-rose-400">${err.message}</td></tr>`;
     }
 
+    alwaysonBadge.textContent = data && data.length >= 0 ? data.length + ' REPLICAS' : 'REPLICAS';
     document.getElementById('table-alwayson').querySelector('tbody').innerHTML = html;
 }
 
@@ -240,6 +243,7 @@ function formatWarningLevel(level) {
 
 async function getLargeTable() {
     let html = '';
+    const tableLargeBadge = document.getElementById('table-large-badge');
 
     try {
         const params = {
@@ -270,7 +274,6 @@ async function getLargeTable() {
             else {
                 html = `<tr><td colspan="50">No data to available</td></tr>`;
             }
-
         } else {
             html = `<tr><td colspan="50" class="px-3 py-2.5 whitespace-nowrap font-bold text-rose-400">${result.message}</td></tr>`;
         }
@@ -278,6 +281,7 @@ async function getLargeTable() {
         html = `<tr><td colspan="50" class="px-3 py-2.5 whitespace-nowrap font-bold text-rose-400">${err.message}</td></tr>`;
     }
 
+    tableLargeBadge.textContent = data && data.length >= 0 ? data.length + ' LARGE TABLES' : 'LARGE TABLES';
     document.getElementById('table-large').querySelector('tbody').innerHTML = html;
 }
 
