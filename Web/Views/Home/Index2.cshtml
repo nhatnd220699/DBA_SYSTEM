@@ -1,0 +1,1498 @@
+﻿@{
+    Layout = "layout";
+    ViewBag.Title = "DBA Analysis";
+}
+
+<main class="w-full pt-20 bg-surface min-h-screen px-gutter">
+    <div class="flex flex-col w-full gap-space-md">
+        <!-- SECTION 1: OPERATIONAL ZONE SELECTOR & NOC ACTION BAR -->
+        <div class="w-full bg-surface-container-low rounded-xl p-space-md shadow-md flex flex-wrap items-center justify-between gap-space-md">
+            <!-- Zone Nav Pills -->
+            <div class="flex items-center gap-space-xs overflow-x-auto py-0.5">
+                <button class="zone-pill active-pill flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-container text-on-primary-container transition-all"
+                        id="zone-pill-ALL"
+                        onclick="filterZone('ALL')"
+                        type="button">
+                    <span class="material-symbols-outlined text-[18px]">domain</span>
+                    <span class="font-label-md text-label-md font-semibold">Tất cả khu vực (All Sites)</span>
+                    <span class="font-label-caps text-label-caps bg-surface-container-lowest/80 text-on-surface px-1.5 py-0.5 rounded">48 DBs</span>
+                </button>
+                <button class="zone-pill flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all"
+                        id="zone-pill-FATP"
+                        onclick="filterZone('FATP')"
+                        type="button">
+                    @Html.Icon("precision_manufacturing", "w-[18px] h-[18px] shrink-0")
+                    @*<span class="material-symbols-outlined text-[18px]">precision_manufacturing</span>*@
+                    <span class="font-label-md text-label-md font-semibold">FATP (Assembly)</span>
+                    <div class="flex items-center gap-1 font-label-caps text-label-caps">
+                        <span class="bg-error-container text-on-error-container px-1 py-0.2 rounded font-semibold">1 Crit</span>
+                        <span class="bg-surface-variant text-tertiary px-1 py-0.2 rounded font-semibold">3 Warn</span>
+                    </div>
+                </button>
+                <button class="zone-pill flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all"
+                        id="zone-pill-CR"
+                        onclick="filterZone('CR')"
+                        type="button">
+                    @*<span class="material-symbols-outlined text-[18px]">clean_hands</span>*@
+                    @Html.Icon("clean_hands", "w-[18px] h-[18px] shrink-0")
+                    <span class="font-label-md text-label-md font-semibold">CR (Clean Room)</span>
+                    <div class="flex items-center gap-1 font-label-caps text-label-caps">
+                        <span class="bg-surface-variant text-secondary px-1 py-0.2 rounded font-semibold">0 Crit</span>
+                        <span class="bg-surface-variant text-tertiary px-1 py-0.2 rounded font-semibold">1 Warn</span>
+                    </div>
+                </button>
+                <button class="zone-pill flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all"
+                        id="zone-pill-SMT"
+                        onclick="filterZone('SMT')"
+                        type="button">
+                    @*<span class="material-symbols-outlined text-[18px]">memory</span>*@
+                    @Html.Icon("memory", "w-[18px] h-[18px] shrink-0")
+                    <span class="font-label-md text-label-md font-semibold">SMT (High-Tech)</span>
+                    <div class="flex items-center gap-1 font-label-caps text-label-caps">
+                        <span class="bg-error-container text-on-error-container px-1 py-0.2 rounded animate-pulse font-semibold">2 Crit</span>
+                        <span class="bg-surface-variant text-tertiary px-1 py-0.2 rounded font-semibold">4 Warn</span>
+                    </div>
+                </button>
+            </div>
+            <!-- Quick Utilities: Range, Refresh, Comparison & Wallboard View -->
+            <div class="flex items-center gap-space-sm flex-wrap">
+                <div class="flex items-center bg-surface-container rounded-lg p-0.5">
+                    <button class="px-2 py-1 text-on-surface font-label-caps text-label-caps rounded bg-surface-container-high"
+                            type="button">
+                        1H
+                    </button>
+                    <button class="px-2 py-1 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps"
+                            type="button">
+                        6H
+                    </button>
+                    <button class="px-2 py-1 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps"
+                            type="button">
+                        24H
+                    </button>
+                    <button class="px-2 py-1 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps"
+                            type="button">
+                        7D
+                    </button>
+                </div>
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container font-code-sm text-code-sm text-secondary">
+                    @*<span class="material-symbols-outlined text-[16px] animate-spin text-secondary">autorenew</span>*@
+                    @Html.Icon("autorenew", "w-[20px] h-[20px] shrink-0 animate-spin")
+                    <span class="hidden sm:inline">Làm mới:</span>
+                    <span class="font-semibold text-secondary-fixed">10s (Auto)</span>
+                </div>
+                <button class="flex items-center gap-1 px-3 py-1 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md transition-all shadow-sm"
+                        onclick="openCompareModal()"
+                        type="button">
+                    <span class="material-symbols-outlined text-[16px] text-primary">balance</span>
+                    <span class="hidden md:inline">So sánh 3 khu vực</span>
+                </button>
+                <button class="flex items-center gap-1 px-3 py-1 rounded-lg bg-primary hover:bg-primary-fixed-dim text-on-primary font-label-md text-label-md transition-all shadow-sm"
+                        onclick="toggleWallboardMode()"
+                        type="button">
+                    <span class="material-symbols-outlined text-[16px]">tv</span>
+                    <span class="hidden md:inline">Wallboard NOC TV</span>
+                </button>
+            </div>
+        </div>
+        <!-- SECTION 2: 5 KPI CARDS (SLA TELEMETRY STANDARDS) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-gutter">
+            <!-- Card 1: Total Instances -->
+            <div class="bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between relative overflow-hidden group">
+                <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Tổng SQL Server</span>
+                    <span class="material-symbols-outlined text-[20px] text-primary">database</span>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="font-metric-xl text-metric-xl text-on-surface font-bold">48</span>
+                    <span class="font-label-caps text-label-caps text-primary bg-primary/10 px-1.5 py-0.5 rounded">FLEET PROD</span>
+                </div>
+                <div class="mt-2 flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant pt-2 border-t-0 bg-surface-container-low/50 px-2 py-1 rounded">
+                    <span class="flex items-center gap-1 text-secondary"><span class="h-1.5 w-1.5 rounded-full bg-secondary"></span>46 Online</span>
+                    <span class="flex items-center gap-1 text-tertiary"><span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span>2 Degr</span>
+                    <span class="flex items-center gap-1 text-outline">0 Off</span>
+                </div>
+            </div>
+            <!-- Card 2: Healthy Instances -->
+            <div class="bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Trạng thái Healthy</span>
+                    <div class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"></span>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="font-metric-xl text-metric-xl text-secondary font-bold">85.4%</span>
+                    <span class="font-code-sm text-code-sm text-on-surface">41/48 Hosts</span>
+                </div>
+                <div class="mt-2 flex items-center gap-1 text-secondary font-code-sm text-code-sm pt-2 bg-secondary/5 px-2 py-1 rounded">
+                    <span class="material-symbols-outlined text-[16px]">monitor_heart</span>
+                    <span class="">SLA Cam kết: &gt; 99.95%</span>
+                </div>
+            </div>
+            <!-- Card 3: Warning Alerts -->
+            <div class="bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Cảnh báo Warning</span>
+                    <span class="material-symbols-outlined text-[20px] text-tertiary">warning</span>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="font-metric-xl text-metric-xl text-tertiary font-bold">08</span>
+                    <span class="font-label-caps text-label-caps bg-tertiary/15 text-tertiary px-1.5 py-0.5 rounded font-semibold">Tier-2 Alert</span>
+                </div>
+                <div class="mt-2 flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm pt-2 bg-surface-container-low/50 px-2 py-1 rounded">
+                    <span class="truncate">CPU &gt; 85% • Delay Diff BKP</span>
+                    <span class="text-tertiary font-semibold">+2 mới</span>
+                </div>
+            </div>
+            <!-- Card 4: Critical Incidents -->
+            <div class="bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Sự cố Critical</span>
+                    <span class="material-symbols-outlined text-[20px] text-error animate-bounce">report</span>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="font-metric-xl text-metric-xl text-error font-bold">03</span>
+                    <span class="font-label-caps text-label-caps bg-error-container text-on-error-container px-1.5 py-0.5 rounded font-bold animate-pulse">ACTION REQ</span>
+                </div>
+                <div class="mt-2 flex items-center justify-between font-code-sm text-code-sm text-error pt-2 bg-error-container/20 px-2 py-1 rounded">
+                    <span class="truncate">SMT Chain Lock • LUN 96%</span>
+                    <span class="font-bold">P1</span>
+                </div>
+            </div>
+            <!-- Card 5: MTTR & 24h Alerts -->
+            <div class="bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Alerts 24h &amp; MTTR</span>
+                    <span class="material-symbols-outlined text-[20px] text-primary">timer</span>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="font-metric-xl text-metric-xl text-on-surface font-bold">142</span>
+                    <span class="font-code-sm text-code-sm text-secondary font-semibold">131 Đã xong</span>
+                </div>
+                <div class="mt-2 flex items-center justify-between font-code-sm text-code-sm pt-2 bg-surface-container-low/50 px-2 py-1 rounded">
+                    <span class="text-on-surface-variant">MTTR trung bình:</span>
+                    <span class="font-metric-md text-metric-md text-primary font-bold">8.4 ph</span>
+                </div>
+            </div>
+        </div>
+        <!-- ROW 1: ALERT DISTRIBUTION & REALTIME RESOURCE GAUGES -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+            <!-- Col-lg-5: Alert Distribution & Site Percentages -->
+            <div class="lg:col-span-5 bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-space-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[18px]">pie_chart</span>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                            Phân bổ Cảnh báo theo Trạng thái &amp; Khu vực
+                        </h2>
+                    </div>
+                    <span class="font-label-caps text-label-caps bg-surface-container-high px-2 py-0.5 rounded text-outline font-semibold">TELEMETRY RING</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-space-md items-center my-auto">
+                    <!-- SVG Ring Chart -->
+                    <div class="sm:col-span-6 flex flex-col items-center justify-center relative">
+                        <svg class="w-36 h-36 transform -rotate-90" viewbox="0 0 36 36">
+                            <!-- Background circle -->
+                            <path class="text-surface-container-highest"
+                                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="3.5"></path>
+                            <!-- Healthy 82% (Stroke array 82 100) -->
+                            <path class="text-secondary"
+                                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-dasharray="82, 100"
+                                  stroke-linecap="round"
+                                  stroke-width="3.8"></path>
+                            <!-- Warning 12% (dasharray 12, 100, offset -82) -->
+                            <path class="text-tertiary"
+                                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-dasharray="12, 100"
+                                  stroke-dashoffset="-82"
+                                  stroke-linecap="round"
+                                  stroke-width="3.8"></path>
+                            <!-- Critical 6% (dasharray 6, 100, offset -94) -->
+                            <path class="text-error"
+                                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-dasharray="6, 100"
+                                  stroke-dashoffset="-94"
+                                  stroke-linecap="round"
+                                  stroke-width="3.8"></path>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span class="font-display-lg text-[22px] font-bold text-on-surface">82%</span>
+                            <span class="font-label-caps text-[9px] text-secondary uppercase font-semibold">HEALTHY</span>
+                        </div>
+                    </div>
+                    <!-- Legend & Breakdown -->
+                    <div class="sm:col-span-6 flex flex-col gap-2 font-code-sm text-code-sm">
+                        <div class="p-2 rounded bg-surface-container-low flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full bg-secondary"></span>
+                                <span class="text-on-surface">Healthy</span>
+                            </div>
+                            <span class="font-bold text-secondary">82% (41 Nodes)</span>
+                        </div>
+                        <div class="p-2 rounded bg-surface-container-low flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full bg-tertiary"></span>
+                                <span class="text-on-surface">Warning</span>
+                            </div>
+                            <span class="font-bold text-tertiary">12% (5 Nodes)</span>
+                        </div>
+                        <div class="p-2 rounded bg-surface-container-low flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full bg-error"></span>
+                                <span class="text-on-surface">Critical</span>
+                            </div>
+                            <span class="font-bold text-error">6% (2 Nodes)</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Site Tỷ lệ cảnh báo -->
+                <div class="mt-space-sm pt-2 bg-surface-container-low rounded-lg p-2.5">
+                    <span class="font-label-caps text-label-caps text-outline block mb-1.5 uppercase font-semibold">Tỷ lệ tải trọng lỗi theo 3 Phân khu:</span>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1">
+                            <div class="flex justify-between font-label-caps text-label-caps mb-0.5">
+                                <span class="text-on-surface">SMT Floor</span>
+                                <span class="text-tertiary font-bold">45%</span>
+                            </div>
+                            <div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-tertiary h-full rounded-full w-[45%]"></div>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between font-label-caps text-label-caps mb-0.5">
+                                <span class="text-on-surface">FATP Plant</span>
+                                <span class="text-primary font-bold">38%</span>
+                            </div>
+                            <div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-primary h-full rounded-full w-[38%]"></div>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between font-label-caps text-label-caps mb-0.5">
+                                <span class="text-on-surface">Clean Room</span>
+                                <span class="text-secondary font-bold">17%</span>
+                            </div>
+                            <div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-secondary h-full rounded-full w-[17%]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Col-lg-7: Real-time Resource Gauges & Load Comparison -->
+            <div class="lg:col-span-7 bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-space-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary text-[18px]">speed</span>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                            Đồng hồ &amp; Thước đo Tài nguyên Real-time
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-code-sm text-code-sm text-on-surface-variant">Host Spike:</span>
+                        <span class="font-code-sm text-code-sm bg-error-container text-on-error-container px-1.5 py-0.5 rounded font-bold">SMT-SQL01 (94%)</span>
+                    </div>
+                </div>
+                <!-- 4 Resource Indicators -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
+                    <!-- CPU Gauge -->
+                    <div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col items-center text-center">
+                        <span class="font-label-caps text-label-caps text-outline uppercase font-semibold">CPU Fleet Avg</span>
+                        <div class="my-2 relative w-20 h-20 flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+                                <circle class="text-surface-container-highest"
+                                        cx="18"
+                                        cy="18"
+                                        fill="none"
+                                        r="14"
+                                        stroke="currentColor"
+                                        stroke-width="3"></circle>
+                                <circle class="text-tertiary"
+                                        cx="18"
+                                        cy="18"
+                                        fill="none"
+                                        r="14"
+                                        stroke="currentColor"
+                                        stroke-dasharray="68, 100"
+                                        stroke-linecap="round"
+                                        stroke-width="3"></circle>
+                            </svg>
+                            <span class="absolute font-metric-md text-metric-md text-on-surface font-bold">68%</span>
+                        </div>
+                        <span class="font-code-sm text-[10px] text-tertiary font-semibold">Đỉnh 94% SMT-01</span>
+                    </div>
+                    <!-- Buffer Cache -->
+                    <div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col items-center text-center">
+                        <span class="font-label-caps text-label-caps text-outline uppercase font-semibold">Buffer Cache Hit</span>
+                        <div class="my-2 relative w-20 h-20 flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+                                <circle class="text-surface-container-highest"
+                                        cx="18"
+                                        cy="18"
+                                        fill="none"
+                                        r="14"
+                                        stroke="currentColor"
+                                        stroke-width="3"></circle>
+                                <circle class="text-secondary"
+                                        cx="18"
+                                        cy="18"
+                                        fill="none"
+                                        r="14"
+                                        stroke="currentColor"
+                                        stroke-dasharray="98.4, 100"
+                                        stroke-linecap="round"
+                                        stroke-width="3"></circle>
+                            </svg>
+                            <span class="absolute font-metric-md text-metric-md text-secondary font-bold">98.4%</span>
+                        </div>
+                        <span class="font-code-sm text-[10px] text-secondary font-semibold">SLA Tối ưu (&gt;95%)</span>
+                    </div>
+                    <!-- Disk I/O Queue -->
+                    <div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col items-center text-center">
+                        <span class="font-label-caps text-label-caps text-outline uppercase font-semibold">Disk I/O Queue</span>
+                        <div class="my-2 relative w-20 h-20 flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+                                <circle class="text-surface-container-highest"
+                                        cx="18"
+                                        cy="18"
+                                        fill="none"
+                                        r="14"
+                                        stroke="currentColor"
+                                        stroke-width="3"></circle>
+                                <circle class="text-primary"
+                                        cx="18"
+                                        cy="18"
+                                        fill="none"
+                                        r="14"
+                                        stroke="currentColor"
+                                        stroke-dasharray="45, 100"
+                                        stroke-linecap="round"
+                                        stroke-width="3"></circle>
+                            </svg>
+                            <span class="absolute font-metric-md text-metric-md text-primary font-bold">3.2</span>
+                        </div>
+                        <span class="font-code-sm text-[10px] text-on-surface-variant font-semibold">Queue Depth (LUNs)</span>
+                    </div>
+                    <!-- Network Throughput -->
+                    <div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col items-center text-center">
+                        <span class="font-label-caps text-label-caps text-outline uppercase font-semibold">Network Fleet</span>
+                        <div class="my-2 relative w-20 h-20 flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+                                <circle class="text-surface-container-highest"
+                                        cx="18"
+                                        cy="18"
+                                        fill="none"
+                                        r="14"
+                                        stroke="currentColor"
+                                        stroke-width="3"></circle>
+                                <circle class="text-secondary-fixed-dim"
+                                        cx="18"
+                                        cy="18"
+                                        fill="none"
+                                        r="14"
+                                        stroke="currentColor"
+                                        stroke-dasharray="60, 100"
+                                        stroke-linecap="round"
+                                        stroke-width="3"></circle>
+                            </svg>
+                            <span class="absolute font-metric-md text-metric-md text-on-surface font-bold">1.2G</span>
+                        </div>
+                        <span class="font-code-sm text-[10px] text-secondary font-semibold">Gbps Synced Traffic</span>
+                    </div>
+                </div>
+                <!-- Comparative Load Matrix: FATP vs CR vs SMT -->
+                <div class="mt-space-sm bg-surface-container-low p-space-sm rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-label-caps text-label-caps text-outline uppercase font-semibold">Phân tích tải 3 khu vực (CPU / Memory / IOPS)</span>
+                        <span class="font-code-sm text-code-sm text-on-surface-variant">Đồng bộ: 500ms</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-space-sm text-center font-code-sm text-code-sm">
+                        <div class="bg-surface-container p-2 rounded">
+                            <div class="text-on-surface font-bold mb-1">FATP Assembly</div>
+                            <div class="text-tertiary">CPU: 74%</div>
+                            <div class="text-secondary">RAM: 86%</div>
+                            <div class="text-on-surface-variant">IOPS: 12.4k</div>
+                        </div>
+                        <div class="bg-surface-container p-2 rounded">
+                            <div class="text-on-surface font-bold mb-1">CR Clean Room</div>
+                            <div class="text-secondary">CPU: 42%</div>
+                            <div class="text-secondary">RAM: 71%</div>
+                            <div class="text-on-surface-variant">IOPS: 4.8k</div>
+                        </div>
+                        <div class="bg-surface-container p-2 rounded">
+                            <div class="text-error font-bold mb-1">SMT Surface</div>
+                            <div class="text-error">CPU: 89% [Spike]</div>
+                            <div class="text-tertiary">RAM: 94%</div>
+                            <div class="text-tertiary">IOPS: 24.1k</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ROW 2: ERROR LOG TRENDS & BLOCKING/DEADLOCK MONITORING -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+            <!-- Col-lg-6: Error Log Trends (Severity 16-25 & Hourly Heatmap) -->
+            <div class="lg:col-span-6 bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-space-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-tertiary text-[18px]">query_stats</span>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                            Xu hướng phát sinh Error Log (24 Giờ qua)
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-2 font-code-sm text-[11px]">
+                        <span class="flex items-center gap-1 text-error"><span class="h-2 w-2 rounded bg-error"></span>Sev 20-25 (Fatal)</span>
+                        <span class="flex items-center gap-1 text-tertiary"><span class="h-2 w-2 rounded bg-tertiary"></span>Sev 16-19</span>
+                    </div>
+                </div>
+                <!-- Interactive SVG Line & Area chart -->
+                <div class="w-full h-44 bg-surface-container-low rounded-lg p-2 relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute inset-0 flex justify-between px-4 pointer-events-none opacity-10">
+                        <div class="w-[1px] h-full bg-outline"></div>
+                        <div class="w-[1px] h-full bg-outline"></div>
+                        <div class="w-[1px] h-full bg-outline"></div>
+                        <div class="w-[1px] h-full bg-outline"></div>
+                        <div class="w-[1px] h-full bg-outline"></div>
+                    </div>
+                    <svg class="w-full h-32" preserveaspectratio="none" viewbox="0 0 500 120">
+                        <defs>
+                            <lineargradient id="gradWarn" x1="0%" x2="0%" y1="0%" y2="100%">
+                                <stop offset="0%" stop-color="#ffb3ad" stop-opacity="0.35"></stop>
+                                <stop offset="100%" stop-color="#ffb3ad" stop-opacity="0.0"></stop>
+                            </lineargradient>
+                            <lineargradient id="gradError" x1="0%" x2="0%" y1="0%" y2="100%">
+                                <stop offset="0%" stop-color="#ff5451" stop-opacity="0.5"></stop>
+                                <stop offset="100%" stop-color="#ff5451" stop-opacity="0.0"></stop>
+                            </lineargradient>
+                        </defs>
+                        <path d="M 0,90 Q 60,70 120,80 T 240,40 T 360,65 T 440,30 L 500,50 L 500,120 L 0,120 Z"
+                              fill="url(#gradWarn)"></path>
+                        <path d="M 0,90 Q 60,70 120,80 T 240,40 T 360,65 T 440,30 L 500,50"
+                              fill="none"
+                              stroke="#ffb3ad"
+                              stroke-width="2"></path>
+                        <path d="M 0,115 Q 70,110 140,112 T 260,105 T 350,70 T 430,35 L 500,80 L 500,120 L 0,120 Z"
+                              fill="url(#gradError)"></path>
+                        <path d="M 0,115 Q 70,110 140,112 T 260,105 T 350,70 T 430,35 L 500,80"
+                              fill="none"
+                              stroke="#ff5451"
+                              stroke-width="2.5"></path>
+                        <circle class="animate-ping" cx="430" cy="35" fill="#ff5451" r="4"></circle>
+                        <circle cx="430" cy="35" fill="#ffffff" r="3"></circle>
+                    </svg>
+                    <div class="flex justify-between font-label-caps text-[9px] text-outline pt-1">
+                        <span class="">00:00</span>
+                        <span class="">04:00</span>
+                        <span class="">08:00</span>
+                        <span class="">12:00</span>
+                        <span class="text-error font-bold">14:15 (Đỉnh Sev 24)</span>
+                        <span class="">18:00</span>
+                        <span class="">23:59</span>
+                    </div>
+                </div>
+                <!-- Mini Heatmap 24h Density -->
+                <div class="mt-space-sm bg-surface-container-low p-2 rounded-lg">
+                    <div class="flex items-center justify-between mb-1.5 font-label-caps text-label-caps">
+                        <span class="text-outline uppercase font-semibold">Ma trận mật độ phát sinh lỗi theo khung giờ (00:00 - 23:00)</span>
+                        <span class="text-tertiary font-bold">Đỉnh điểm: Ca Chiều</span>
+                    </div>
+                    <div class="grid grid-cols-12 gap-1 h-3.5">
+                        <div class="bg-surface-container-highest rounded" title="00-02h: 0 lỗi"></div>
+                        <div class="bg-surface-container-highest rounded" title="02-04h: 1 lỗi"></div>
+                        <div class="bg-secondary-container/40 rounded" title="04-06h: 3 lỗi"></div>
+                        <div class="bg-secondary-container/60 rounded" title="06-08h: 5 lỗi"></div>
+                        <div class="bg-tertiary-container/50 rounded" title="08-10h: 12 lỗi"></div>
+                        <div class="bg-tertiary-container/80 rounded" title="10-12h: 18 lỗi"></div>
+                        <div class="bg-error-container/60 rounded" title="12-14h: 24 lỗi"></div>
+                        <div class="bg-error-container rounded animate-pulse"
+                             title="14-16h: 48 lỗi (Đỉnh)"></div>
+                        <div class="bg-error-container/80 rounded" title="16-18h: 32 lỗi"></div>
+                        <div class="bg-tertiary-container/70 rounded" title="18-20h: 15 lỗi"></div>
+                        <div class="bg-secondary-container/50 rounded" title="20-22h: 4 lỗi"></div>
+                        <div class="bg-surface-container-highest rounded" title="22-24h: 1 lỗi"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Col-lg-6: Blocking & Deadlock Monitor -->
+            <div class="lg:col-span-6 bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-space-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-error text-[18px]">lock_clock</span>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                            Giám sát Blocking &amp; Deadlock Thời gian thực
+                        </h2>
+                    </div>
+                    <button class="flex items-center gap-1 px-2.5 py-1 rounded bg-error-container text-on-error-container font-label-caps text-label-caps font-bold hover:brightness-110"
+                            onclick="showDeadlockXML()"
+                            type="button">
+                        <span class="material-symbols-outlined text-[14px]">code</span>
+                        Xem Deadlock Graph XML
+                    </button>
+                </div>
+                <!-- Status Header stats -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-2 font-code-sm text-code-sm">
+                    <div class="bg-surface-container-low p-2 rounded">
+                        <span class="text-outline block text-[10px]">Blocking Hiện Tại:</span>
+                        <span class="font-metric-md text-metric-md text-tertiary font-bold">7 Sessions</span>
+                    </div>
+                    <div class="bg-surface-container-low p-2 rounded">
+                        <span class="text-outline block text-[10px]">Deadlock Hôm Nay:</span>
+                        <span class="font-metric-md text-metric-md text-error font-bold">14 Vụ</span>
+                    </div>
+                    <div class="bg-surface-container-low p-2 rounded col-span-2 sm:col-span-1">
+                        <span class="text-outline block text-[10px]">Tâm điểm nghẽn:</span>
+                        <span class="font-label-md text-label-md text-primary truncate font-bold">SMT-MES-DB</span>
+                    </div>
+                </div>
+                <!-- Visualized Blocking Hierarchy Bars -->
+                <div class="bg-surface-container-low rounded-lg p-2.5 flex flex-col gap-2">
+                    <div class="flex items-center justify-between text-[11px] font-code-sm">
+                        <span class="text-error font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">crisis_alert</span>
+                            Root Blocker: SPID 142 (UPDATE tbl_SMT_InspectionData)
+                        </span>
+                        <span class="text-tertiary font-semibold">Wait: LCK_M_X (42s)</span>
+                    </div>
+                    <!-- Tree node visual block -->
+                    <div class="pl-3 border-l-0 bg-surface-container rounded p-2 flex flex-col gap-1.5 font-code-sm text-code-sm">
+                        <div class="flex items-center justify-between text-on-surface">
+                            <span class="flex items-center gap-1.5">
+                                <span class="font-label-caps text-[9px] bg-error-container text-on-error-container px-1 py-0.2 rounded font-bold">VICTIM</span>
+                                SPID 198 • SELECT FROM tbl_SMT_InspectionData
+                            </span>
+                            <span class="text-error font-semibold">Blocked by 142 (28s)</span>
+                        </div>
+                        <div class="flex items-center justify-between text-on-surface-variant">
+                            <span class="flex items-center gap-1.5">
+                                <span class="font-label-caps text-[9px] bg-tertiary-container text-on-tertiary-container px-1 py-0.2 rounded font-bold">WAITING</span>
+                                SPID 215 • INSERT INTO tbl_SMT_Logs
+                            </span>
+                            <span class="text-tertiary font-semibold">Blocked by 198 (19s)</span>
+                        </div>
+                        <div class="flex items-center justify-between text-on-surface-variant">
+                            <span class="flex items-center gap-1.5">
+                                <span class="font-label-caps text-[9px] bg-tertiary-container text-on-tertiary-container px-1 py-0.2 rounded font-bold">WAITING</span>
+                                SPID 304 • sp_SyncMESStationTelemetry
+                            </span>
+                            <span class="text-tertiary font-semibold">Blocked by 142 (14s)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-1">
+                        <span class="font-label-caps text-label-caps text-outline font-semibold">Đỉnh đột biến: 14:15:32 Node SMT-MES-DB</span>
+                        <button class="px-2.5 py-0.5 rounded bg-error/10 hover:bg-error text-error hover:text-white font-label-caps text-label-caps font-bold transition-all"
+                                onclick="killSessionPrompt('142')"
+                                type="button">
+                            KILL ROOT SPID 142
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ROW 3: SQL JOB / BACKUP STATUS & ALWAYS ON AG TOPOLOGY -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+            <!-- Col-lg-6: SQL Server Agent Jobs & Backup Fleet History -->
+            <div class="lg:col-span-6 bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-space-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[18px]">history_toggle_off</span>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                            SQL Server Agent Jobs &amp; Lịch sử Backup
+                        </h2>
+                    </div>
+                    <span class="font-label-caps text-label-caps bg-surface-container-high px-2 py-0.5 rounded text-outline font-semibold">FLEET JOBS</span>
+                </div>
+                <!-- Backup SLA Indicators -->
+                <div class="grid grid-cols-2 gap-space-sm mb-2.5">
+                    <div class="bg-surface-container-low p-2 rounded flex items-center justify-between">
+                        <div>
+                            <span class="font-label-caps text-label-caps text-outline block font-semibold">Full Backup Fleet:</span>
+                            <span class="font-metric-md text-metric-md text-secondary font-bold">48/48 Thành công</span>
+                        </div>
+                        <span class="material-symbols-outlined text-secondary text-[24px]">task_alt</span>
+                    </div>
+                    <div class="bg-surface-container-low p-2 rounded flex items-center justify-between">
+                        <div>
+                            <span class="font-label-caps text-label-caps text-outline block font-semibold">Log Backup Fleet:</span>
+                            <span class="font-metric-md text-metric-md text-tertiary font-bold">46/48 Success (2 Lag)</span>
+                        </div>
+                        <span class="material-symbols-outlined text-tertiary text-[24px]">schedule</span>
+                    </div>
+                </div>
+                <!-- Recent Failed / Retrying Jobs -->
+                <div class="bg-surface-container-low rounded-lg p-2 flex flex-col gap-2 font-code-sm text-code-sm">
+                    <span class="font-label-caps text-label-caps text-outline uppercase font-semibold">Cảnh báo tác vụ lỗi gần nhất (Last Failed Jobs):</span>
+                    <!-- Job 1 -->
+                    <div class="bg-surface-container p-2 rounded flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-on-surface flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-error text-[16px]">cancel</span>
+                                Sys_Nightly_Diff_Backup
+                            </span>
+                            <span class="text-error text-[11px]">Lỗi: Disk full (LUN_BKP_02) • Host: FATP-SQL-02</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-label-caps text-[10px] bg-error-container text-on-error-container px-1.5 py-0.2 rounded font-bold">FAILED</span>
+                            <span class="block text-outline text-[10px] mt-0.5">03:15:20 AM</span>
+                        </div>
+                    </div>
+                    <!-- Job 2 -->
+                    <div class="bg-surface-container p-2 rounded flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-on-surface flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-tertiary text-[16px]">refresh</span>
+                                ETL_SMT_Hourly
+                            </span>
+                            <span class="text-tertiary text-[11px]">Cảnh báo: Query Timeout 1800s • Step 3: StageLoad</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-label-caps text-[10px] bg-tertiary-container text-on-tertiary-container px-1.5 py-0.2 rounded font-bold">RETRYING</span>
+                            <span class="block text-outline text-[10px] mt-0.5">14:00 (Try 2/3)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-center justify-between font-label-caps text-label-caps text-outline">
+                    <span class="">FATP Log Delay: &gt;15 phút tại Node FATP-DB03</span>
+                    <button class="text-primary hover:underline font-semibold" type="button">
+                        Khởi chạy lại Job thủ công →
+                    </button>
+                </div>
+            </div>
+            <!-- Col-lg-6: Always On Availability Groups (AG Topology Status) -->
+            <div class="lg:col-span-6 bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-space-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary text-[18px]">hub</span>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                            Always On Availability Groups (AG Topology)
+                        </h2>
+                    </div>
+                    <span class="font-label-caps text-label-caps bg-surface-container-high px-2 py-0.5 rounded text-secondary font-semibold">2 CLUSTERS ACTIVE</span>
+                </div>
+                <div class="flex flex-col gap-2.5">
+                    <!-- AG Group 1: Healthy AG-FATP-PROD -->
+                    <div class="bg-surface-container-low rounded-lg p-2.5 flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="h-2 w-2 rounded-full bg-secondary"></span>
+                                <span class="font-bold text-on-surface font-code-sm text-code-sm">AG-FATP-PROD</span>
+                                <span class="font-label-caps text-[9px] bg-secondary/15 text-secondary px-1.5 py-0.2 rounded font-semibold">FAILOVER READY</span>
+                            </div>
+                            <span class="font-code-sm text-code-sm text-secondary font-semibold">Synchronized (0s Lag)</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 font-code-sm text-code-sm">
+                            <div class="bg-surface-container p-2 rounded flex items-center justify-between">
+                                <div>
+                                    <span class="text-outline text-[10px] block font-semibold">PRIMARY REPLICA</span>
+                                    <span class="font-semibold text-on-surface">FATP-NODE01</span>
+                                </div>
+                                <span class="material-symbols-outlined text-secondary text-[16px]">verified</span>
+                            </div>
+                            <div class="bg-surface-container p-2 rounded flex items-center justify-between">
+                                <div>
+                                    <span class="text-outline text-[10px] block font-semibold">SECONDARY (SYNC)</span>
+                                    <span class="font-semibold text-on-surface">FATP-NODE02</span>
+                                </div>
+                                <span class="material-symbols-outlined text-secondary text-[16px]">sync</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- AG Group 2: Critical AG-SMT-CORE -->
+                    <div class="bg-surface-container-low rounded-lg p-2.5 flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="h-2 w-2 rounded-full bg-error animate-ping"></span>
+                                <span class="font-bold text-on-surface font-code-sm text-code-sm">AG-SMT-CORE</span>
+                                <span class="font-label-caps text-[9px] bg-error-container text-on-error-container px-1.5 py-0.2 rounded font-bold animate-pulse">NOT SYNCHRONIZING</span>
+                            </div>
+                            <span class="font-code-sm text-code-sm text-error font-bold">Redo Lag: 420 MB</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 font-code-sm text-code-sm">
+                            <div class="bg-surface-container p-2 rounded flex items-center justify-between">
+                                <div>
+                                    <span class="text-outline text-[10px] block font-semibold">PRIMARY REPLICA</span>
+                                    <span class="font-semibold text-on-surface">SMT-DB01</span>
+                                </div>
+                                <span class="material-symbols-outlined text-secondary text-[16px]">dns</span>
+                            </div>
+                            <div class="bg-surface-container p-2 rounded flex items-center justify-between bg-error-container/10">
+                                <div>
+                                    <span class="text-error text-[10px] block font-bold">SECONDARY (SUSPENDED)</span>
+                                    <span class="font-semibold text-error">SMT-DB02</span>
+                                </div>
+                                <span class="material-symbols-outlined text-error text-[18px]">sync_problem</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-center justify-between font-label-caps text-label-caps">
+                    <span class="text-error font-semibold">Cảnh báo gián đoạn Redo Thread trên SMT-DB02</span>
+                    <button class="px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-variant text-on-surface font-bold transition-all"
+                            type="button">
+                        Resume Replication
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- ROW 4: INCIDENT ACTION TABLE (REAL-TIME TELEMETRY ALERTS) -->
+        <div class="w-full bg-surface-container rounded-xl p-space-md shadow-md flex flex-col gap-space-sm">
+            <div class="flex flex-wrap items-center justify-between gap-space-sm">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-error text-[20px]">notification_important</span>
+                    <h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                        Bảng cảnh báo sự cố mới nhất Real-Time (Incident Action Table)
+                    </h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <input class="bg-surface-container-lowest text-on-surface placeholder:text-outline text-body-sm font-body-sm px-2.5 py-1 rounded-lg outline-none focus:ring-1 focus:ring-primary w-56"
+                               id="alertSearchInput"
+                               onkeyup="searchAlerts()"
+                               placeholder="Tìm kiếm mã lỗi, SPID, Host..."
+                               type="text" />
+                        <span class="material-symbols-outlined absolute right-2 top-1.5 text-[16px] text-outline pointer-events-none">search</span>
+                    </div>
+                    <button class="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md flex items-center gap-1"
+                            onclick="exportAlertsCSV()"
+                            type="button">
+                        <span class="material-symbols-outlined text-[16px]">download</span>
+                        Xuất CSV
+                    </button>
+                </div>
+            </div>
+            <!-- Responsive Action Table -->
+            <div class="overflow-x-auto rounded-lg">
+                <table class="w-full text-left font-body-md text-body-md border-collapse"
+                       id="incidentTable">
+                    <thead>
+                        <tr class="bg-surface-container-high text-outline font-label-caps text-label-caps">
+                            <th class="py-2.5 px-3">MỨC ĐỘ</th>
+                            <th class="py-2.5 px-3">NHÓM (CATEGORY)</th>
+                            <th class="py-2.5 px-3">KHU VỰC</th>
+                            <th class="py-2.5 px-3">MÔ TẢ CHI TIẾT SỰ CỐ</th>
+                            <th class="py-2.5 px-3">PHIÊN BẢN / HOST</th>
+                            <th class="py-2.5 px-3">THỜI GIAN</th>
+                            <th class="py-2.5 px-3 text-right">THAO TÁC XỬ LÝ NHANH</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y-0 text-on-surface">
+                        <!-- Row 1: Critical Deadlock Chain -->
+                        <tr class="hover:bg-surface-container-high/80 bg-error-container/10 transition-colors alert-row"
+                            data-zone="SMT">
+                            <td class="py-2.5 px-3">
+                                <span class="font-label-caps text-[10px] bg-error-container text-on-error-container px-2 py-0.5 rounded font-bold flex items-center gap-1 w-max animate-pulse">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-error"></span>CRITICAL
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm font-semibold text-tertiary">
+                                Deadlock / Concurrency
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <span class="font-label-caps text-[10px] bg-surface-container-highest px-2 py-0.5 rounded font-bold text-on-surface">SMT</span>
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <div class="font-semibold text-on-surface">
+                                    Chuỗi Deadlock phức tạp gây tắc nghẽn 7 phiên SPID
+                                </div>
+                                <div class="font-code-sm text-[11px] text-tertiary">
+                                    Root SPID 142 khoá bảng tbl_SMT_InspectionData (X Lock)
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm text-on-surface-variant">
+                                SMT-SQL-01 • 2019 CU18
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm text-tertiary font-semibold">
+                                14:15:32 (Vừa xong)
+                            </td>
+                            <td class="py-2.5 px-3 text-right">
+                                <div class="inline-flex items-center gap-1">
+                                    <button class="px-2 py-1 bg-surface-container-high hover:bg-surface-variant text-primary rounded font-label-caps text-[10px] font-semibold"
+                                            onclick="showDeadlockXML()"
+                                            type="button">
+                                        Xem Graph
+                                    </button>
+                                    <button class="px-2 py-1 bg-error-container hover:bg-error text-on-error-container hover:text-white rounded font-label-caps text-[10px] font-bold"
+                                            onclick="killSessionPrompt('142')"
+                                            type="button">
+                                        Kill SPID
+                                    </button>
+                                    <button class="px-2 py-1 bg-primary-container text-on-primary-container rounded font-label-caps text-[10px] font-semibold"
+                                            onclick="openTicket('INC-9912')"
+                                            type="button">
+                                        Tạo Ticket
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 2: Critical Disk LUN -->
+                        <tr class="hover:bg-surface-container-high/80 bg-error-container/10 transition-colors alert-row"
+                            data-zone="FATP">
+                            <td class="py-2.5 px-3">
+                                <span class="font-label-caps text-[10px] bg-error-container text-on-error-container px-2 py-0.5 rounded font-bold flex items-center gap-1 w-max">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-error"></span>CRITICAL
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm font-semibold text-error">
+                                Storage / Capacity
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <span class="font-label-caps text-[10px] bg-surface-container-highest px-2 py-0.5 rounded font-bold text-on-surface">FATP</span>
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <div class="font-semibold text-on-surface">
+                                    Dung lượng ổ Transaction Log L:\ vượt ngưỡng 96.2%
+                                </div>
+                                <div class="font-code-sm text-[11px] text-error">
+                                    Còn lại &lt; 18GB trước khi treo Transaction Log Writer
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm text-on-surface-variant">
+                                FATP-DB-NODE01 • 2022 CU6
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm text-tertiary font-semibold">
+                                14:02:10 (16p trước)
+                            </td>
+                            <td class="py-2.5 px-3 text-right">
+                                <div class="inline-flex items-center gap-1">
+                                    <button class="px-2 py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface rounded font-label-caps text-[10px] font-semibold"
+                                            onclick="quickShrinkModal('FATP-DB-NODE01')"
+                                            type="button">
+                                        Shrink Log
+                                    </button>
+                                    <button class="px-2 py-1 bg-surface-container-highest hover:bg-surface-variant text-on-surface rounded font-label-caps text-[10px] font-semibold"
+                                            onclick="ackAlert(this)"
+                                            type="button">
+                                        Acknowledge
+                                    </button>
+                                    <button class="px-2 py-1 bg-primary-container text-on-primary-container rounded font-label-caps text-[10px] font-semibold"
+                                            onclick="openTicket('INC-9910')"
+                                            type="button">
+                                        Tạo Ticket
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 3: Warning Always On Sync Lag -->
+                        <tr class="hover:bg-surface-container-high/80 transition-colors alert-row"
+                            data-zone="SMT">
+                            <td class="py-2.5 px-3">
+                                <span class="font-label-caps text-[10px] bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded font-bold flex items-center gap-1 w-max">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span>WARNING
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm font-semibold text-tertiary">
+                                Always On AG
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <span class="font-label-caps text-[10px] bg-surface-container-highest px-2 py-0.5 rounded font-bold text-on-surface">SMT</span>
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <div class="font-semibold text-on-surface">
+                                    Secondary replica SMT-DB02 dừng đồng bộ (Redo Queue 420MB)
+                                </div>
+                                <div class="font-code-sm text-[11px] text-outline">
+                                    Cluster AG-SMT-CORE chuyển sang chế độ Asynchronous Fallback
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm text-on-surface-variant">
+                                SMT-DB02 • 2019 CU18
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm text-on-surface-variant">
+                                13:45:00 (33p trước)
+                            </td>
+                            <td class="py-2.5 px-3 text-right">
+                                <div class="inline-flex items-center gap-1">
+                                    <button class="px-2 py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface rounded font-label-caps text-[10px] font-semibold"
+                                            type="button">
+                                        Resume Sync
+                                    </button>
+                                    <button class="px-2 py-1 bg-surface-container-highest hover:bg-surface-variant text-on-surface rounded font-label-caps text-[10px] font-semibold"
+                                            onclick="ackAlert(this)"
+                                            type="button">
+                                        Acknowledge
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 4: Warning CPU Pressure -->
+                        <tr class="hover:bg-surface-container-high/80 transition-colors alert-row"
+                            data-zone="CR">
+                            <td class="py-2.5 px-3">
+                                <span class="font-label-caps text-[10px] bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded font-bold flex items-center gap-1 w-max">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span>WARNING
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm font-semibold text-primary">
+                                Performance / CPU
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <span class="font-label-caps text-[10px] bg-surface-container-highest px-2 py-0.5 rounded font-bold text-on-surface">CR</span>
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <div class="font-semibold text-on-surface">
+                                    Mức chiếm dụng CPU liên tục &gt; 85% trong 15 phút qua
+                                </div>
+                                <div class="font-code-sm text-[11px] text-outline">
+                                    Signal Wait: SOS_SCHEDULER_YIELD chiếm 44% tổng thời gian chờ
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm text-on-surface-variant">
+                                CR-SQL-MES01 • 2019 CU14
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm text-on-surface-variant">
+                                13:30:12 (48p trước)
+                            </td>
+                            <td class="py-2.5 px-3 text-right">
+                                <div class="inline-flex items-center gap-1">
+                                    <button class="px-2 py-1 bg-surface-container-high hover:bg-surface-variant text-primary rounded font-label-caps text-[10px] font-semibold"
+                                            type="button">
+                                        Top Queries
+                                    </button>
+                                    <button class="px-2 py-1 bg-surface-container-highest hover:bg-surface-variant text-on-surface rounded font-label-caps text-[10px] font-semibold"
+                                            onclick="ackAlert(this)"
+                                            type="button">
+                                        Acknowledge
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 5: Info Log Backup -->
+                        <tr class="hover:bg-surface-container-high/80 transition-colors alert-row"
+                            data-zone="FATP">
+                            <td class="py-2.5 px-3">
+                                <span class="font-label-caps text-[10px] bg-surface-variant text-secondary px-2 py-0.5 rounded font-bold flex items-center gap-1 w-max">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-secondary"></span>INFO
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm font-semibold text-secondary">
+                                Backup Maintenance
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <span class="font-label-caps text-[10px] bg-surface-container-highest px-2 py-0.5 rounded font-bold text-on-surface">FATP</span>
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <div class="font-semibold text-on-surface">
+                                    Hoàn tất sao lưu vi mô Transaction Log tự động (15-min cycle)
+                                </div>
+                                <div class="font-code-sm text-[11px] text-outline">
+                                    Dung lượng file .trn: 4.8 GB • Đã đẩy lên NAS_BKP_SAFE
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm text-on-surface-variant">
+                                FATP-DB-NODE02 • 2022 CU6
+                            </td>
+                            <td class="py-2.5 px-3 font-code-sm text-code-sm text-on-surface-variant">
+                                13:15:00 (1h trước)
+                            </td>
+                            <td class="py-2.5 px-3 text-right">
+                                <div class="inline-flex items-center gap-1">
+                                    <button class="px-2 py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface-variant rounded font-label-caps text-[10px]"
+                                            type="button">
+                                        Lịch sử BKP
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- ROW 5: TABLE GROWTH ANALYSIS & DISK SPACE / STORAGE LUNs -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+            <!-- Col-lg-6: Dung lượng ổ đĩa & Storage LUNs -->
+            <div class="lg:col-span-6 bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-space-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[18px]">hard_drive</span>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                            Dung lượng Ổ đĩa &amp; Storage LUNs
+                        </h2>
+                    </div>
+                    <span class="font-label-caps text-label-caps bg-surface-container-high px-2 py-0.5 rounded text-outline font-semibold">SAN LUN CLUSTER</span>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <!-- Drive C: OS System -->
+                    <div class="bg-surface-container-low p-2.5 rounded-lg">
+                        <div class="flex items-center justify-between font-code-sm text-code-sm mb-1">
+                            <span class="font-bold text-on-surface">Ổ Hệ Thống (C:\) - OS &amp; Binaries</span>
+                            <span class="text-secondary font-semibold">45% (180 GB / 400 GB) • 180+ ngày</span>
+                        </div>
+                        <div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+                            <div class="bg-secondary h-full rounded-full w-[45%]"></div>
+                        </div>
+                    </div>
+                    <!-- Drive D: Data Files -->
+                    <div class="bg-surface-container-low p-2.5 rounded-lg">
+                        <div class="flex items-center justify-between font-code-sm text-code-sm mb-1">
+                            <span class="font-bold text-on-surface">Ổ Dữ Liệu (D:\) - SQL Data .mdf/.ndf</span>
+                            <span class="text-tertiary font-semibold">88% (3.52 TB / 4.0 TB) • Dự báo: 24 ngày</span>
+                        </div>
+                        <div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+                            <div class="bg-tertiary h-full rounded-full w-[88%]"></div>
+                        </div>
+                    </div>
+                    <!-- Drive L: Transaction Log (CRITICAL) -->
+                    <div class="bg-surface-container-low p-2.5 rounded-lg bg-error-container/10">
+                        <div class="flex items-center justify-between font-code-sm text-code-sm mb-1">
+                            <span class="font-bold text-error flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">error</span>
+                                Ổ Nhật Ký (L:\) - SQL Log .ldf [CẤP BÁCH]
+                            </span>
+                            <span class="text-error font-bold animate-pulse">96.2% (962 GB / 1.0 TB) • Dự báo: 2.1 ngày</span>
+                        </div>
+                        <div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+                            <div class="bg-error h-full rounded-full w-[96.2%] animate-pulse"></div>
+                        </div>
+                    </div>
+                    <!-- Drive B: Backup Fleet -->
+                    <div class="bg-surface-container-low p-2.5 rounded-lg">
+                        <div class="flex items-center justify-between font-code-sm text-code-sm mb-1">
+                            <span class="font-bold text-on-surface">Ổ Sao Lưu Đệm (B:\) - Local Backup Cache</span>
+                            <span class="text-on-surface font-semibold">62% (4.96 TB / 8.0 TB) • Xoá cuộn 72h</span>
+                        </div>
+                        <div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+                            <div class="bg-primary h-full rounded-full w-[62%]"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2.5 pt-2 flex items-center justify-between font-label-caps text-label-caps text-outline">
+                    <span class="">Tự động phát tín hiệu mở rộng SAN LUN khi chạm ngưỡng 90%</span>
+                    <button class="text-primary hover:underline font-semibold" type="button">
+                        Cấu hình Tự động Dọn dẹp →
+                    </button>
+                </div>
+            </div>
+            <!-- Col-lg-6: Top bảng dữ liệu lớn nhất & Tốc độ tăng trưởng -->
+            <div class="lg:col-span-6 bg-surface-container rounded-xl p-space-md shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-space-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary text-[18px]">view_timeline</span>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                            Top Bảng Lớn Nhất &amp; Tốc Độ Tăng Trưởng (30 Ngày)
+                        </h2>
+                    </div>
+                    <span class="font-label-caps text-label-caps bg-surface-container-high px-2 py-0.5 rounded text-outline font-semibold">CAPACITY FORECAST</span>
+                </div>
+                <!-- Top Tables List with Daily deltas -->
+                <div class="flex flex-col gap-2 font-code-sm text-code-sm">
+                    <!-- Table 1 -->
+                    <div class="bg-surface-container-low p-2.5 rounded-lg flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-1.5 font-bold text-on-surface">
+                                <span class="font-label-caps text-[9px] bg-primary/20 text-primary px-1 py-0.2 rounded font-semibold">FATP</span>
+                                tbl_FATP_TestLogs
+                            </div>
+                            <div class="text-outline text-[11px]">
+                                Index Size: 410 GB • Row Count: 485,210,400
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-metric-md text-metric-md text-on-surface font-bold">1.8 TB</span>
+                            <span class="block text-tertiary text-[10px] font-semibold">+12 GB / ngày</span>
+                        </div>
+                    </div>
+                    <!-- Table 2 -->
+                    <div class="bg-surface-container-low p-2.5 rounded-lg flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-1.5 font-bold text-on-surface">
+                                <span class="font-label-caps text-[9px] bg-tertiary/20 text-tertiary px-1 py-0.2 rounded font-semibold">SMT</span>
+                                tbl_SMT_InspectionData
+                            </div>
+                            <div class="text-outline text-[11px]">
+                                Index Size: 520 GB • Row Count: 892,104,110
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-metric-md text-metric-md text-error font-bold">1.4 TB</span>
+                            <span class="block text-error text-[10px] font-bold">+28 GB / ngày (Fastest)</span>
+                        </div>
+                    </div>
+                    <!-- Table 3 -->
+                    <div class="bg-surface-container-low p-2.5 rounded-lg flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-1.5 font-bold text-on-surface">
+                                <span class="font-label-caps text-[9px] bg-secondary/20 text-secondary px-1 py-0.2 rounded font-semibold">CR</span>
+                                tbl_CR_ParticleCounter
+                            </div>
+                            <div class="text-outline text-[11px]">
+                                Index Size: 110 GB • Row Count: 140,880,000
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-metric-md text-metric-md text-secondary font-bold">850 GB</span>
+                            <span class="block text-secondary text-[10px] font-semibold">+4.5 GB / ngày</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Growth Visual Projection Bar -->
+                <div class="mt-2 bg-surface-container-low p-2.5 rounded-lg">
+                    <div class="flex items-center justify-between font-label-caps text-label-caps mb-1.5">
+                        <span class="text-outline uppercase font-semibold">Dự báo tích luỹ dung lượng 30 ngày tới:</span>
+                        <span class="text-tertiary font-bold">+1,335 GB (+1.3 TB)</span>
+                    </div>
+                    <div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden flex">
+                        <div class="bg-primary h-full w-[35%]" title="FATP: 35%"></div>
+                        <div class="bg-error h-full w-[55%]" title="SMT: 55%"></div>
+                        <div class="bg-secondary h-full w-[10%]" title="CR: 10%"></div>
+                    </div>
+                    <div class="flex justify-between font-label-caps text-[9px] text-outline mt-1">
+                        <span class="">Hôm nay: 4.05 TB</span>
+                        <span class="text-tertiary font-semibold">Ngày thứ 15: 4.7 TB</span>
+                        <span class="text-error font-bold">Ngày thứ 30: 5.38 TB (Cần Partitioning)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- NOC WALLBOARD NOTIFICATION / MODAL OVERLAY (FOR DEMO INTERACTIVITY) -->
+        <div class="fixed inset-0 z-50 hidden bg-surface-container-lowest/80 backdrop-blur-sm flex items-center justify-center p-space-md"
+             id="deadlockModal">
+            <div class="bg-surface-container rounded-xl w-full max-w-3xl p-space-lg shadow-2xl flex flex-col gap-space-md max-h-[921px] border border-outline-variant/30">
+                <div class="flex items-center justify-between pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-error text-[22px]">code</span>
+                        <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                            T-SQL Deadlock Graph XML (SMT-MES-DB - 14:15:32)
+                        </h3>
+                    </div>
+                    <button class="p-1 rounded text-outline hover:text-on-surface"
+                            onclick="closeDeadlockXML()"
+                            type="button">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="bg-surface-container-lowest p-3 rounded-lg overflow-y-auto font-code-sm text-code-sm text-on-surface-variant flex flex-col gap-1 max-h-96 border border-surface-container">
+                    <span class="text-outline">&lt;deadlock-list&gt;</span>
+                    <span class="text-outline pl-4">&lt;deadlock&gt;</span>
+                    <span class="text-primary pl-8">&lt;victim-list&gt;</span>
+                    <span class="text-error pl-12">&lt;victimProcess id="process198" /&gt;</span>
+                    <span class="text-primary pl-8">&lt;/victim-list&gt;</span>
+                    <span class="text-tertiary pl-8">&lt;process-list&gt;</span>
+                    <span class="text-on-surface pl-12">&lt;process id="process142" spid="142" lockMode="X" status="suspended"&gt;</span>
+                    <span class="text-secondary pl-16">
+                        &lt;executionStack&gt; UPDATE tbl_SMT_InspectionData SET status = 'DONE' WHERE
+                        LotId = 9481; &lt;/executionStack&gt;
+                    </span>
+                    <span class="text-on-surface pl-12">&lt;/process&gt;</span>
+                    <span class="text-on-surface pl-12">&lt;process id="process198" spid="198" lockMode="S" status="suspended"&gt;</span>
+                    <span class="text-secondary pl-16">
+                        &lt;executionStack&gt; SELECT * FROM tbl_SMT_InspectionData WITH (HOLDLOCK) WHERE
+                        LotId = 9481; &lt;/executionStack&gt;
+                    </span>
+                    <span class="text-on-surface pl-12">&lt;/process&gt;</span>
+                    <span class="text-tertiary pl-8">&lt;/process-list&gt;</span>
+                    <span class="text-outline pl-4">&lt;/deadlock&gt;</span>
+                    <span class="text-outline">&lt;/deadlock-list&gt;</span>
+                </div>
+                <div class="flex items-center justify-between pt-2">
+                    <span class="font-code-sm text-code-sm text-outline">Graph Id: DLG-20231124-00142</span>
+                    <div class="flex items-center gap-2">
+                        <button class="px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md"
+                                onclick="closeDeadlockXML()"
+                                type="button">
+                            Đóng
+                        </button>
+                        <button class="px-3 py-1.5 rounded-lg bg-error hover:bg-error-container text-white font-label-md text-label-md font-bold"
+                                onclick="
+                                        killSessionPrompt('142');
+                                        closeDeadlockXML();
+                                    "
+                                type="button">
+                            Kill SPID 142
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- COMPARISON MODAL -->
+        <div class="fixed inset-0 z-50 hidden bg-surface-container-lowest/80 backdrop-blur-sm flex items-center justify-center p-space-md"
+             id="compareModal">
+            <div class="bg-surface-container rounded-xl w-full max-w-4xl p-space-lg shadow-2xl flex flex-col gap-space-md border border-outline-variant/30">
+                <div class="flex items-center justify-between pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[22px]">balance</span>
+                        <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                            So sánh Chỉ số Vận hành 3 Khu vực (FATP vs CR vs SMT)
+                        </h3>
+                    </div>
+                    <button class="p-1 rounded text-outline hover:text-on-surface"
+                            onclick="closeCompareModal()"
+                            type="button">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+                    <!-- FATP -->
+                    <div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-on-surface font-headline-sm text-headline-sm">FATP Plant</span>
+                            <span class="font-label-caps text-label-caps bg-primary/20 text-primary px-1.5 py-0.5 rounded font-semibold">18 Hosts</span>
+                        </div>
+                        <div class="font-code-sm text-code-sm flex flex-col gap-1 text-on-surface-variant">
+                            <div class="flex justify-between">
+                                <span class="">Healthy:</span><span class="text-secondary font-bold">16 / 18</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Average CPU:</span><span class="text-on-surface font-bold">74%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Throughput:</span><span class="text-on-surface font-bold">480 MB/s</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Critical Alerts:</span><span class="text-error font-bold">1 (Disk LUN 96%)</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Log Sync Lag:</span><span class="text-tertiary font-bold">15 min</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- CR -->
+                    <div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-on-surface font-headline-sm text-headline-sm">Clean Room (CR)</span>
+                            <span class="font-label-caps text-label-caps bg-secondary/20 text-secondary px-1.5 py-0.5 rounded font-semibold">12 Hosts</span>
+                        </div>
+                        <div class="font-code-sm text-code-sm flex flex-col gap-1 text-on-surface-variant">
+                            <div class="flex justify-between">
+                                <span class="">Healthy:</span><span class="text-secondary font-bold">11 / 12</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Average CPU:</span><span class="text-secondary font-bold">42%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Throughput:</span><span class="text-on-surface font-bold">190 MB/s</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Critical Alerts:</span><span class="text-secondary font-bold">0 Clean</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Log Sync Lag:</span><span class="text-secondary font-bold">0 min</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- SMT -->
+                    <div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-2 border border-error-container/30 bg-error-container/10">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-error font-headline-sm text-headline-sm">SMT Tech</span>
+                            <span class="font-label-caps text-label-caps bg-error-container text-on-error-container px-1.5 py-0.5 rounded font-bold">18 Hosts (HOT)</span>
+                        </div>
+                        <div class="font-code-sm text-code-sm flex flex-col gap-1 text-on-surface-variant">
+                            <div class="flex justify-between">
+                                <span class="">Healthy:</span><span class="text-tertiary font-bold">14 / 18</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Average CPU:</span><span class="text-error font-bold">89% [Spike 94%]</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Throughput:</span><span class="text-on-surface font-bold">820 MB/s</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Critical Alerts:</span><span class="text-error font-bold">2 (Deadlock Chain)</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="">Log Sync Lag:</span><span class="text-error font-bold">Redo 420MB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end pt-2">
+                    <button class="px-4 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold"
+                            onclick="closeCompareModal()"
+                            type="button">
+                        Hoàn tất kiểm tra
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- CLIENT JAVASCRIPT: FILTERING, TOGGLE MODES & ACTIONS -->
+    <script>
+        // 1. Dynamic Site Filter Function
+        function filterZone(zoneKey) {
+            const pills = document.querySelectorAll('.zone-pill');
+            pills.forEach((pill) => {
+                pill.classList.remove('bg-primary-container', 'text-on-primary-container');
+                pill.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+            });
+
+            const activePill = document.getElementById('zone-pill-' + zoneKey);
+            if (activePill) {
+                activePill.classList.remove('bg-surface-container-high', 'text-on-surface-variant');
+                activePill.classList.add('bg-primary-container', 'text-on-primary-container');
+            }
+
+            const rows = document.querySelectorAll('.alert-row');
+            rows.forEach((row) => {
+                if (zoneKey === 'ALL' || row.getAttribute('data-zone') === zoneKey) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // 2. Incident Search Filter
+        function searchAlerts() {
+            const filter = document.getElementById('alertSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.alert-row');
+            rows.forEach((row) => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.indexOf(filter) > -1 ? '' : 'none';
+            });
+        }
+
+        // 3. Modals and Triggers
+        function showDeadlockXML() {
+            document.getElementById('deadlockModal').classList.remove('hidden');
+        }
+
+        function closeDeadlockXML() {
+            document.getElementById('deadlockModal').classList.add('hidden');
+        }
+
+        function openCompareModal() {
+            document.getElementById('compareModal').classList.remove('hidden');
+        }
+
+        function closeCompareModal() {
+            document.getElementById('compareModal').classList.add('hidden');
+        }
+
+        function killSessionPrompt(spid) {
+            if (
+                confirm(
+                    `XÁC NHẬN: Bạn có chắc chắn muốn phát lệnh KILL SPID ${spid} để gỡ Deadlock chuỗi không?`,
+                )
+            ) {
+                alert(
+                    `Đã gửi lệnh [KILL ${spid}] tới SQL Instance thành công. Telemetry đang giải phóng tài nguyên...`,
+                );
+            }
+        }
+
+        function openTicket(ticketId) {
+            alert(`Đã khởi tạo vé sự cố ${ticketId} trên ITSM ServiceDesk! Phân nhóm: L2 DBA On-call.`);
+        }
+
+        function quickShrinkModal(host) {
+            alert(`Gửi yêu cầu DBCC SHRINKFILE (Target 15% Free Space) cho Transaction Log tại ${host}`);
+        }
+
+        function ackAlert(buttonElement) {
+            const row = buttonElement.closest('tr');
+            buttonElement.innerText = 'Đã nhận (ACK)';
+            buttonElement.disabled = true;
+            buttonElement.classList.add('opacity-50');
+            if (row) {
+                row.classList.remove('bg-error-container/10');
+                row.classList.add('opacity-75');
+            }
+        }
+
+        function exportAlertsCSV() {
+            alert('Đang trích xuất 142 sự cố trong 24h qua thành file NOC_Telemetry_Report.csv...');
+        }
+
+        // 4. Wallboard NOC TV Mode (Scales and zooms UI for large display)
+        let isWallboard = false;
+        function toggleWallboardMode() {
+            isWallboard = !isWallboard;
+            if (isWallboard) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(() => { });
+                }
+                alert(
+                    'Đã chuyển sang chế độ Wallboard NOC TV Mode (Hiển thị tối ưu trên màn hình lớn 4K/8K)',
+                );
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => { });
+                }
+            }
+        }
+    </script>
+</main>
+<div class="fixed inset-0 z-50 hidden bg-surface-container-lowest/80 backdrop-blur-sm flex items-center justify-center p-space-md"
+     id="accountConfigModal">
+    <div class="bg-surface-container rounded-xl w-full max-w-lg p-space-lg shadow-2xl flex flex-col gap-space-md border border-outline-variant/30">
+        <div class="flex items-center justify-between pb-2">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary text-[22px]">tune</span>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                    Cấu hình Tài khoản &amp; Telemetry
+                </h3>
+            </div>
+            <button class="p-1 rounded text-outline hover:text-on-surface"
+                    id="closeConfigModalBtn"
+                    type="button">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-3 text-body-sm">
+            <label class="flex items-center justify-between cursor-pointer">
+                <span class="text-on-surface">Âm thanh thông báo khi có P1/Critical:</span><input checked=""
+                                                                                                  class="rounded bg-surface-container-highest text-primary focus:ring-0"
+                                                                                                  type="checkbox" />
+            </label><label class="flex items-center justify-between cursor-pointer">
+                <span class="text-on-surface">Chu kỳ tự động làm mới:</span><select class="bg-surface-container text-on-surface px-2 py-1 rounded text-code-sm">
+                    <option value="5">5 giây</option>
+                    <option selected="" value="10">10 giây</option>
+                    <option value="30">30 giây</option>
+                </select>
+            </label><label class="flex items-center justify-between cursor-pointer">
+                <span class="text-on-surface">Gửi thông báo Telegram/Slack:</span><input checked=""
+                                                                                         class="rounded bg-surface-container-highest text-secondary focus:ring-0"
+                                                                                         type="checkbox" />
+            </label>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+            <button class="px-4 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold"
+                    id="saveConfigBtn"
+                    type="button">
+                Lưu cấu hình
+            </button>
+        </div>
+    </div>
+</div>
+<div class="fixed inset-0 z-50 hidden bg-surface-container-lowest/80 backdrop-blur-sm flex items-center justify-center p-space-md"
+     id="logoutConfirmModal">
+    <div class="bg-surface-container rounded-xl w-full max-w-md p-space-lg shadow-2xl flex flex-col gap-space-md border border-outline-variant/30">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-error text-[22px]">warning</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                Xác nhận Đăng xuất
+            </h3>
+        </div>
+        <p class="text-body-sm text-on-surface-variant">
+            Bạn có chắc chắn muốn rời khỏi phiên trực Ban Vận Hành NOC DBA Telemetry không?
+        </p>
+        <div class="flex justify-end gap-2 pt-2">
+            <button class="px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md"
+                    id="cancelLogoutBtn"
+                    type="button">
+                Huỷ
+            </button>
+            @using (Html.BeginForm("Logout", "Auth", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <button class="px-4 py-1.5 rounded-lg bg-error hover:bg-error-container text-white font-label-md text-label-md font-semibold"
+                        type="submit">
+                    Đăng xuất
+                </button>
+            }
+
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="module" src="@Url.Content("~/Scripts/custom/features/index.js")"></script>
+}

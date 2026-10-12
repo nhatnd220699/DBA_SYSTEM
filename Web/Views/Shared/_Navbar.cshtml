@@ -1,0 +1,158 @@
+﻿<header class="fixed top-0 left-0 right-0 z-40 h-16 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.4)] flex flex-col justify-center px-space-lg">
+    <div class="flex items-center justify-between gap-space-md">
+        <div class="flex items-center gap-space-lg shrink-0">
+            <div class="flex items-center gap-space-sm">
+                <button aria-label="Toggle Sidebar Navigation"
+                        class="p-2 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-variant hover:text-primary transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                        id="sidebarToggleBtn"
+                        type="button">
+                    @*<span class="material-symbols-outlined text-[24px]">menu</span>*@
+                    @Html.Icon("menu", "w-[24px] h-[24px] shrink-0")
+                </button>
+                <div class="relative flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-high">
+                    @*<span class="material-symbols-outlined text-primary text-[20px]">database</span>*@
+                    @Html.Icon("database", "w-[20px] h-[20px] shrink-0")
+                    <span class="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"></span>
+                    </span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-headline-sm text-headline-sm tracking-tight text-on-surface uppercase font-bold">DBA Telemetry &amp; NOC</span><span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Mission Critical Fleet Core</span>
+                </div>
+            </div>
+            <div class="hidden xl:flex items-center bg-surface-container-low p-0.5 rounded-lg">
+                <button class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high text-on-surface font-label-md text-label-md"
+                        type="button">
+                    <span class="font-code-sm text-code-sm">All Zones</span><span class="px-1.5 py-0.2 rounded font-label-caps text-label-caps bg-surface-container-highest text-on-surface-variant">3 Sites</span>
+                </button><button class="flex items-center gap-1.5 px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface font-label-md text-label-md"
+                                 type="button">
+                    <span class="font-code-sm text-code-sm">FATP</span><span class="px-1.5 py-0.2 rounded font-label-caps text-label-caps bg-error-container text-on-error-container">2 Crit</span>
+                </button><button class="flex items-center gap-1.5 px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface font-label-md text-label-md"
+                                 type="button">
+                    <span class="font-code-sm text-code-sm">CR</span><span class="px-1.5 py-0.2 rounded font-label-caps text-label-caps bg-surface-container-highest text-secondary">0 Err</span>
+                </button><button class="flex items-center gap-1.5 px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface font-label-md text-label-md"
+                                 type="button">
+                    <span class="font-code-sm text-code-sm">SMT</span><span class="px-1.5 py-0.2 rounded font-label-caps text-label-caps bg-tertiary-container text-on-tertiary-container">1 Warn</span>
+                </button>
+            </div>
+        </div>
+        <div class="flex items-center gap-space-md">
+            <div class="hidden lg:flex items-center gap-space-sm bg-surface-container-low px-space-sm py-1 rounded-lg">
+                <div class="flex items-center gap-1 text-on-surface-variant">
+                    @Html.Icon("sync", "w-[16px] h-[16px] shrink-0")
+                    <span class="font-code-sm text-code-sm">LIVE: 10s</span>
+                </div>
+                <div class="h-3 w-[1px] bg-surface-variant"></div>
+                <span class="font-label-caps text-label-caps text-on-surface-variant">SYNCED: 14:02:18 UTC</span>
+                @*<button class="text-on-surface-variant hover:text-on-surface flex items-center"
+                        title="Mute Audio Alerts"
+                        type="button">
+                    <span class="material-symbols-outlined text-[16px]">volume_up</span>
+                </button>*@
+            </div>
+            <div class="flex items-center gap-1">
+                <button class="p-1.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                        onclick="toggleWallboardMode()"
+                        title="Toggle Wallboard Fullscreen"
+                        type="button">
+                    @*<span class="material-symbols-outlined text-[18px]">fullscreen</span>*@
+                    @Html.Icon("fullscreen", "w-[18px] h-[18px] shrink-0")
+                </button>
+                @*<button class="p-1.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                        title="Toggle Theme Mode"
+                        type="button">
+                    <span class="material-symbols-outlined text-[18px]">dark_mode</span>
+                </button>*@
+            </div>
+            <div class="h-5 w-[1px] bg-surface-variant hidden sm:block"></div>
+            <div class="relative flex items-center gap-space-sm pl-1" id="userMenuWrapper">
+                <button class="flex items-center gap-space-sm p-1 rounded-lg hover:bg-surface-container-high transition-colors text-left cursor-pointer"
+                        id="userMenuBtn"
+                        type="button">
+                    <div class="hidden md:flex flex-col text-right">
+                        <span class="font-label-md text-label-md text-on-surface leading-tight font-semibold">@CurrentUser.Info.EmployeeCode</span><span class="font-label-caps text-label-caps text-outline uppercase">@CurrentUser.Info.EmployeeName</span>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+                        @*<span class="material-symbols-outlined text-on-primary text-[18px]">person</span>*@
+                        @Html.Icon("person", "w-[18px] h-[18px] shrink-0 text-on-primary")
+                    </div>
+                    @*<span class="material-symbols-outlined text-[16px] text-outline transition-transform duration-200"
+                          id="userMenuArrow">expand_more</span>*@
+                    @Html.Icon("keyboard_arrow_down", "w-[16px] h-[16px] shrink-0 text-outline transition-transform duration-200")
+                </button>
+                <div class="hidden absolute right-0 top-14 w-60 bg-surface-container-high rounded-xl shadow-2xl p-2 z-50 flex flex-col gap-1 border border-outline-variant/30"
+                     id="userDropdownMenu">
+                    @*<div class="px-3 py-2 bg-surface-container rounded-lg">
+                            <span class="text-on-surface font-semibold text-body-sm block">@CurrentUser.Info.EmployeeName</span><span class="text-outline text-label-caps font-code-sm block">@CurrentUser.Info.Email</span>
+                        </div>*@
+                    <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant text-body-sm transition-colors"
+                       href="#"
+                       id="openProfileBtn">
+                        <span class="material-symbols-outlined text-[18px] text-primary">@Html.Icon("account_circle", "w-[18px] h-[18px] shrink-0")</span><span class="">Thông tin cá nhân</span>
+                    </a>
+                    @*<a class="flex items-center gap-2 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant text-body-sm transition-colors"
+                               href="#"
+                               id="openConfigBtn">
+                            <span class="material-symbols-outlined text-[18px] text-secondary">tune</span><span class="">Cấu hình tài khoản</span>
+                        </a>*@
+                    <div class="h-[1px] bg-surface-variant my-1"></div>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-error hover:bg-error-container/20 text-body-sm transition-colors"
+                           href="#"
+                           id="openLogoutBtn">
+                            <span class="material-symbols-outlined text-[18px]">@Html.Icon("logout", "w-[18px] h-[18px] shrink-0")</span><span class="">Đăng xuất</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="fixed inset-0 z-50 hidden bg-surface-container-lowest/80 backdrop-blur-sm flex items-center justify-center p-space-md"
+     id="userProfileModal">
+    <div class="bg-surface-container rounded-xl w-full max-w-lg p-space-lg shadow-2xl flex flex-col gap-space-md border border-outline-variant/30">
+        <div class="flex items-center justify-between pb-2">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[22px]">badge</span>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                    Account information
+                </h3>
+            </div>
+            <button class="p-1 rounded text-outline hover:text-on-surface"
+                    id="closeProfileModalBtn"
+                    type="button">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="bg-surface-container-low p-space-md rounded-lg flex items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-on-primary text-[28px]">
+                <span class="material-symbols-outlined text-[32px]">person</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-headline-sm text-on-surface font-semibold">@CurrentUser.Info.EmployeeName</span>
+                <span class="font-code-sm text-secondary">@CurrentUser.Info.Department</span>
+                @*<span class="font-code-sm text-outline text-[11px] mt-1">Duty Role: Level 3 Incident Commander</span>*@
+            </div>
+        </div>
+        <div class="bg-surface-container-low p-3 rounded-lg flex flex-col gap-2 font-code-sm text-[12px]">
+            <div class="flex justify-between">
+                <span class="text-outline">Email</span><span class="text-on-surface">@CurrentUser.Info.Email</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-outline">Shift</span><span class="text-secondary">Day (08:00 - 17:00)</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-outline">Role</span><span class="text-primary font-bold">USER</span>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+            <button class="px-4 py-1.5 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md"
+                    id="closeProfileModalSecondaryBtn"
+                    type="button">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>

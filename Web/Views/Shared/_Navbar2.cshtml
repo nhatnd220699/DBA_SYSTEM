@@ -1,0 +1,283 @@
+﻿ <!-- ==================== TOP NAVIGATION BAR ==================== -->
+<header class="top-0 z-30 sticky flex justify-between items-center bg-[#070d17]/95 shadow-black/40 shadow-md backdrop-blur-md px-4 w-full h-14">
+    <div class="flex items-center gap-4">
+        <button class="flex items-center gap-2 bg-[#0e1726] hover:bg-[#152238] shadow-sm px-3 py-1.5 rounded-lg font-medium text-slate-200 text-xs transition-all"
+                id="sidebar-toggle-btn">
+            @*<span class="text-cyan-400 text-2xl material-symbols-outlined">menu</span>*@
+            @Html.Icon("menu", "w-[24px] h-[24px] shrink-0")
+            <span>Menu</span>
+        </button>
+        <div class="flex items-center gap-2.5">
+            <div class="flex justify-center items-center bg-gradient-to-tr from-blue-600/70 to-cyan-500/60 shadow-cyan-500/10 shadow-lg p-0.5 rounded-lg w-8 h-8">
+                <div class="flex justify-center items-center bg-[#09101c] rounded-[6px] w-full h-full">
+                    @*<svg class="w-4 h-4 text-cyan-400 animate-pulse"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+                            <path d="M12 2v20m10-10H2m15.07-7.07l-1.414 1.414M8.344 15.656l-1.414 1.414m10.14 0l-1.414-1.414M8.344 8.344L6.93 6.93"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"></path>
+                        </svg>*@
+                    @Html.Icon("borg", "w-[24px] h-[24px] shrink-0")
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                    <span class="font-mono font-bold text-white text-sm tracking-tight">Database Monitoring Center</span>
+                    <!-- <span
+                        class="bg-cyan-500/20 px-1.5 py-0.5 rounded font-mono font-semibold text-cyan-300 text-xs"
+                        >PROD</span
+                    > -->
+                </div>
+                <span class="font-mono font-bold text-slate-400 text-xs tracking-wider">Powered by QMS</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Center: Sub-fleet Switcher -->
+    <div class="hidden md:flex items-center gap-1.5 bg-[#09101c] shadow-black/50 shadow-inner p-1 rounded-xl">
+        <button class="flex items-center gap-2 bg-[#15243a] shadow-sm px-3 py-1.5 rounded-lg font-semibold text-cyan-300 text-xs transition-all fleet-btn"
+                data-fleet="fatp">
+            <span>FATP</span>
+            <span class="bg-rose-500/20 px-1.5 py-0.5 rounded font-mono font-bold text-rose-400 text-xs">3</span>
+        </button>
+        <button class="flex items-center gap-2 hover:bg-[#121c2d] px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white text-xs transition-all fleet-btn"
+                data-fleet="cr">
+            <span>CR</span>
+            <span class="bg-emerald-500/20 px-1.5 py-0.5 rounded font-mono font-bold text-emerald-400 text-xs">0</span>
+        </button>
+        <button class="flex items-center gap-2 hover:bg-[#121c2d] px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white text-xs transition-all fleet-btn"
+                data-fleet="smt">
+            <span>SMT</span>
+            <span class="bg-rose-500/20 px-1.5 py-0.5 rounded font-mono font-bold text-rose-400 text-xs">2</span>
+        </button>
+        <button class="flex items-center gap-2 hover:bg-[#121c2d] px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white text-xs transition-all fleet-btn"
+                data-fleet="smt">
+            <span>Bobcat</span>
+            <span class="bg-rose-500/20 px-1.5 py-0.5 rounded font-mono font-bold text-rose-400 text-xs">2</span>
+        </button>
+    </div>
+
+    <!-- Right: User Profile & Dropdown -->
+    <div class="relative">
+        <button class="flex items-center gap-3 hover:bg-[#0e1726] px-2 py-1.5 rounded-lg transition-colors"
+                id="user-menu-btn">
+            <div class="hidden lg:flex flex-col text-left">
+                <span class="font-semibold text-white text-xs">Max Nguyen</span>
+                <span class="font-mono text-slate-400 text-xs">V5120002</span>
+            </div>
+            <div class="relative">
+                <div class="flex justify-center items-center bg-gradient-to-br from-cyan-500/70 to-blue-600/70 shadow rounded-xl w-8 h-8 font-mono font-bold text-white text-xs">
+                    @Html.Icon("person", "w-[18px] h-[18px] shrink-0")
+                </div>
+                <span class="right-0 bottom-0 absolute bg-emerald-400 rounded-full ring-[#070d17] ring-2 w-2.5 h-2.5"></span>
+            </div>
+            @*<span class="text-slate-400 text-sm material-symbols-outlined">expand_more</span>*@
+            @Html.Icon("keyboard_arrow_down", "w-[14px] h-[14px] text-slate-400 shrink-0")
+        </button>
+
+        <!-- User Dropdown Menu -->
+        <div class="hidden right-0 z-50 absolute bg-[#0a1220] shadow-2xl shadow-black/30 mt-2 p-2 rounded-xl w-72"
+             id="user-dropdown">
+            <div class="bg-[#0d1728]/70 mb-1 p-3 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <!-- <span class="font-mono font-bold text-cyan-300 text-xs">NOC-10842</span> -->
+                </div>
+                <p class="mt-1.5 font-semibold text-white text-xs">
+                    Max Nguyen
+                    <span class="bg-cyan-500/20 px-2 py-0.5 rounded font-mono font-bold text-cyan-300 text-xs">Super Admin</span>
+                </p>
+                <p class="font-mono text-slate-400 text-xs">Max.Nguyen1@quantaqmh.com</p>
+            </div>
+            <div class="space-y-0.5 py-1">
+                <a class="flex items-center gap-2.5 hover:bg-[#121c2d] px-3 py-2 rounded-lg text-slate-300 hover:text-white text-xs transition-colors"
+                   href="#"
+                   onclick="openProfileModal()">
+                    @Html.Icon("badge", "w-[16px] h-[16px] shrink-0")
+                    <span>Account information</span>
+                </a>
+            </div>
+            <div class="mt-1 pt-1">
+                <button class="flex items-center gap-2.5 hover:bg-rose-500/10 px-3 py-2 rounded-lg w-full font-medium text-rose-400 text-xs transition-colors"
+                        onclick="openLogoutModal()">
+                    @Html.Icon("logout", "w-[16px] h-[16px] shrink-0")
+                    <span>Log out</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Modal user profile -->
+<!-- ==================== USER PROFILE MODAL ==================== -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-5"
+     id="user-profile-modal">
+    <div class="w-full max-w-xl bg-[#09101c] rounded-2xl shadow-2xl shadow-black border border-slate-800/80 flex flex-col overflow-hidden">
+        <div class="p-4 bg-[#0e1726] border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                @*<span class="material-symbols-outlined text-xl">account_circle</span>*@
+                @Html.Icon("account_circle", "w-[20px] h-[20px] shrink-0")
+                <h3 class="font-sans font-bold text-base text-white">Account information</h3>
+            </div>
+            <button class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#152238] transition-colors"
+                    onclick="closeProfileModal()">
+                @*<span class="material-symbols-outlined text-xl">close</span>*@
+                @Html.Icon("close", "w-[20px] h-[20px] shrink-0")
+            </button>
+        </div>
+        <div class="p-5 space-y-4">
+            <div class="flex items-center gap-4 p-4 rounded-xl bg-[#0e1726] border border-slate-800">
+                <div class="relative shrink-0">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500/70 to-blue-600/70 flex items-center justify-center font-mono font-bold text-lg text-white shadow-lg">
+                        MQ
+                    </div>
+                    <span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-400 ring-2 ring-[#070d17]"></span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                        <h4 class="text-sm font-bold text-white truncate">Trần Minh Quân</h4>
+                        <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0">Super Admin</span>
+                    </div>
+                    <p class="text-xs text-slate-400 font-mono mt-0.5">quan.tm@enterprise.corp</p>
+                    <p class="text-xs text-emerald-400 font-mono mt-1 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>Lead DBA •
+                        Engineer
+                    </p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+                <div class="p-3 bg-[#0a1220] rounded-xl border border-slate-800">
+                    <span class="text-slate-400 block text-[11px]">ID Card</span><span class="text-white font-bold text-sm mt-0.5 block">NOC-10842</span>
+                </div>
+                <div class="p-3 bg-[#0a1220] rounded-xl border border-slate-800">
+                    <span class="text-slate-400 block text-[11px]">Shift</span><span class="text-cyan-300 font-bold text-sm mt-0.5 block">Ca Sáng (08:00 - 16:00)</span>
+                </div>
+                <div class="p-3 bg-[#0a1220] rounded-xl border border-slate-800">
+                    <span class="text-slate-400 block text-[11px]">Phone number</span><span class="text-white font-bold mt-0.5 block">24 SQL Nodes / 3 Clusters</span>
+                </div>
+                <div class="p-3 bg-[#0a1220] rounded-xl border border-slate-800">
+                    <span class="text-slate-400 block text-[11px]">Role</span><span class="text-rose-400 font-bold mt-0.5 block">ADMIN</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-3 bg-[#0a1220] border-t border-slate-800/80 flex items-center justify-end gap-2.5 font-mono text-xs">
+            <button class="px-4 py-2 rounded-lg bg-[#142033] hover:bg-[#1c2e47] text-slate-200 hover:text-white transition-colors font-sans text-xs font-medium"
+                    onclick="closeProfileModal()">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal logout -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-5"
+     id="logout-confirm-modal">
+    <div class="w-full max-w-md bg-[#09101c] rounded-2xl shadow-2xl shadow-black border border-slate-800/80 flex flex-col overflow-hidden">
+        <div class="p-4 bg-[#0e1726] border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                @*<span class="material-symbols-outlined text-xl">logout</span>*@
+                @Html.Icon("logout", "w-[20px] h-[20px] shrink-0")
+                <div>
+                    <h3 class="font-sans font-bold text-base text-white">Logout</h3>
+                </div>
+            </div>
+            <button class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#152238] transition-colors"
+                    onclick="closeLogoutModal()">
+                @*<span class="material-symbols-outlined text-xl">close</span>*@
+                @Html.Icon("close", "w-[20px] h-[20px] shrink-0")
+
+            </button>
+        </div>
+        <div class="p-5 space-y-3">
+            <p class="text-base text-slate-200 leading-relaxed font-sans">Are you sure you want to sign out?</p>
+        </div>
+        <div class="p-3 bg-[#0a1220] border-t border-slate-800/80 flex items-center justify-end gap-2.5 font-mono text-xs">
+            <button class="px-4 py-2 rounded-lg bg-[#142033] hover:bg-[#1c2e47] text-slate-300 hover:text-white transition-colors font-sans text-xs font-medium"
+                    onclick="closeLogoutModal()">
+                Cancel
+            </button>
+            <button class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-sans text-xs font-bold transition-all shadow-lg shadow-rose-600/30 flex items-center gap-1.5"
+                    onclick="executeLogout()">
+                @*<span class="material-symbols-outlined text-sm">logout</span>*@
+                @Html.Icon("logout", "w-[14px] h-[14px] shrink-0")
+                <span class="">Log out</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function openProfileModal() {
+        const m = document.getElementById('user-profile-modal');
+        const d = document.getElementById('user-dropdown');
+        if (d) d.classList.add('hidden');
+        if (m) {
+            m.classList.remove('hidden');
+            lockScroll();
+        }
+    }
+
+    function closeProfileModal() {
+        const m = document.getElementById('user-profile-modal');
+        if (m) {
+            m.classList.add('hidden');
+            unlockScroll();
+        }
+    }
+
+    function openLogoutModal() {
+        const m = document.getElementById('logout-confirm-modal');
+        // const d = document.getElementById('user-dropdown');
+        // if (d) d.classList.add('hidden');
+        if (m) {
+            m.classList.remove('hidden');
+            lockScroll();
+        }
+    }
+    function closeLogoutModal() {
+        const m = document.getElementById('logout-confirm-modal');
+        if (m) {
+            m.classList.add('hidden');
+            unlockScroll();
+        }
+    }
+    function executeLogout() {
+        closeLogoutModal();
+        showToast('Đã đăng xuất an toàn khỏi phiên trực NOC. Hẹn gặp lại!', 'danger');
+        setTimeout(() => {
+            showToast('Phiên làm việc đã kết thúc. Đang tải lại trạng thái phiên...', 'info');
+        }, 1500);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Sub-fleet buttons
+        document.querySelectorAll('.fleet-btn').forEach((btn) => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.fleet-btn').forEach((b) => {
+                    b.className =
+                        'fleet-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-white hover:bg-[#121c2d]';
+                });
+                this.className =
+                    'fleet-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all bg-[#15243a] text-cyan-300 shadow-sm';
+                showToast('Viewing Fleet: ' + this.dataset.fleet.toUpperCase(), 'info');
+            });
+        });
+
+        // User profile dropdown
+        const userBtn = document.getElementById('user-menu-btn');
+        const userDropdown = document.getElementById('user-dropdown');
+        if (userBtn && userDropdown) {
+            userBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
+            document.addEventListener('click', function (e) {
+                if (!userDropdown.contains(e.target) && !userBtn.contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>

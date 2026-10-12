@@ -1,0 +1,247 @@
+﻿<div class="hidden fixed inset-0 z-40 bg-surface-container-lowest/80 backdrop-blur-sm opacity-0 transition-opacity duration-300"
+     id="sidebarOverlay"></div>
+<aside class="fixed left-0 top-0 bottom-0 w-72 bg-surface-container-lowest z-50 flex flex-col justify-between py-space-md shadow-[4px_0_24px_rgba(0,0,0,0.6)] -translate-x-full transition-transform duration-300 border-r border-outline-variant/20"
+       id="mainSidebar">
+    <div class="flex flex-col gap-space-sm overflow-y-auto">
+        <div class="px-space-md py-space-sm flex items-center justify-between border-b border-surface-container">
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-[18px]">dns</span>
+                </div>
+                <span class="font-label-caps text-label-caps text-outline uppercase tracking-wider font-bold">NOC Operations Menu</span>
+            </div>
+            <button aria-label="Close Sidebar"
+                    class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                    id="sidebarCloseBtn"
+                    type="button">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+        <nav class="flex flex-col gap-1 px-space-sm" id="sidebarNavMenu">
+            <!-- Level 1 Item with Submenu (Cấp 1 -> Cấp 2) -->
+            <div class="level-1-parent group-level-1">
+                <button class="accordion-toggle level-1-header w-full flex items-center justify-between px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-medium"
+                        type="button">
+                    <div class="flex items-center gap-space-sm">
+                        <span class="material-symbols-outlined text-[18px] text-primary">grid_view</span><span class="font-body-md text-body-md">Dashboards</span>
+                    </div>
+                    <span class="material-symbols-outlined text-[18px] chevron-icon transition-transform duration-200">expand_more</span>
+                </button>
+                <div class="submenu-container hidden flex flex-col gap-0.5 pl-3 mt-1 border-l-2 border-surface-container ml-3.5">
+                    <a class="nav-leaf flex items-center gap-space-sm px-space-md py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-body-sm transition-colors"
+                       data-path="overview-dashboard"
+                       href="#">
+                        <span class="material-symbols-outlined text-[16px]">dashboard</span><span class="">Overview Fleet</span>
+                    </a><a class="nav-leaf flex items-center gap-space-sm px-space-md py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-body-sm transition-colors"
+                           data-path="wallboard"
+                           href="#">
+                        <span class="material-symbols-outlined text-[16px]">tv</span><span class="">NOC Wallboard</span>
+                    </a>
+                </div>
+            </div>
+            <!-- Level 1 with Multi-Level (Cấp 1 -> Cấp 2 -> Cấp 3) -->
+            <div class="level-1-parent group-level-1">
+                <button class="accordion-toggle level-1-header w-full flex items-center justify-between px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-medium"
+                        type="button">
+                    <div class="flex items-center gap-space-sm">
+                        <span class="material-symbols-outlined text-[18px] text-secondary">hub</span><span class="font-body-md text-body-md">Topology &amp; AG</span>
+                    </div>
+                    <span class="material-symbols-outlined text-[18px] chevron-icon transition-transform duration-200">expand_more</span>
+                </button>
+                <div class="submenu-container hidden flex flex-col gap-0.5 pl-3 mt-1 border-l-2 border-surface-container ml-3.5">
+                    <!-- Level 2 Accordion Item (Cấp 2 chứa Cấp 3) -->
+                    <div class="level-2-parent group-level-2">
+                        <button class="accordion-toggle level-2-header w-full flex items-center justify-between px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-body-sm font-medium transition-colors"
+                                type="button">
+                            <div class="flex items-center gap-space-sm">
+                                <span class="material-symbols-outlined text-[16px]">lan</span><span class="">Availability Groups</span>
+                            </div>
+                            <span class="material-symbols-outlined text-[16px] chevron-icon transition-transform duration-200">expand_more</span>
+                        </button>
+                        <div class="submenu-container hidden flex flex-col gap-0.5 pl-3 mt-1 border-l-2 border-surface-variant ml-2.5">
+                            <a class="nav-leaf flex items-center gap-space-sm px-2 py-1 rounded text-outline hover:text-on-surface hover:bg-surface-container-high text-[12px] transition-colors"
+                               data-path="ag-fatp"
+                               href="#">
+                                <span class="h-1.5 w-1.5 rounded-full bg-secondary"></span><span>Cluster AG-FATP-PROD</span>
+                            </a><a class="nav-leaf flex items-center gap-space-sm px-2 py-1 rounded text-outline hover:text-on-surface hover:bg-surface-container-high text-[12px] transition-colors"
+                                   data-path="ag-smt"
+                                   href="#">
+                                <span class="h-1.5 w-1.5 rounded-full bg-error"></span><span>Cluster AG-SMT-CORE</span>
+                            </a>
+                        </div>
+                    </div>
+                    <a class="nav-leaf flex items-center gap-space-sm px-space-md py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-body-sm transition-colors"
+                       data-path="clustering"
+                       href="#">
+                        <span class="material-symbols-outlined text-[16px]">cloud_sync</span><span class="">Failover Cluster</span>
+                    </a>
+                </div>
+            </div>
+            <!-- Single Level Leaf Items --><a class="nav-leaf flex items-center justify-between px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
+                                               data-path="blocking-and-deadlocks"
+                                               href="#">
+                <div class="flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-[18px] text-error">lock</span><span class="font-body-md text-body-md">Blocking &amp; Deadlocks</span>
+                </div>
+                <span class="px-1.5 py-0.2 rounded font-label-caps text-label-caps bg-error-container text-on-error-container">3 Root</span>
+            </a><a class="nav-leaf flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
+                   data-path="error-logs-and-events"
+                   href="#">
+                <span class="material-symbols-outlined text-[18px] text-tertiary">assignment_late</span><span class="font-body-md text-body-md">Error Logs &amp; Events</span>
+            </a><a class="nav-leaf flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
+                   data-path="jobs-and-backup"
+                   href="#">
+                <span class="material-symbols-outlined text-[18px] text-primary">schedule</span><span class="font-body-md text-body-md">Jobs &amp; Backup Fleet</span>
+            </a><a class="nav-leaf flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
+                   data-path="storage-and-tables"
+                   href="#">
+                <span class="material-symbols-outlined text-[18px] text-secondary">storage</span><span class="font-body-md text-body-md">Storage &amp; Tables</span>
+            </a><a class="nav-leaf flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
+                   data-path="performance-metrics"
+                   href="#">
+                <span class="material-symbols-outlined text-[18px] text-outline">speed</span><span class="font-body-md text-body-md">Performance Metrics</span>
+            </a>
+        </nav>
+    </div>
+    <!-- <div class="px-space-md">
+        <div
+            class="p-space-sm bg-surface-container-low rounded-lg flex flex-col gap-1 border border-outline-variant/20">
+            <div class="flex items-center justify-between"><span
+                    class="font-label-caps text-label-caps text-outline uppercase font-semibold">Cluster
+                    Health</span><span
+                    class="font-label-caps text-label-caps text-secondary font-bold">99.98%</span></div>
+            <div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+                <div class="bg-secondary h-full rounded-full w-[94%]"></div>
+            </div>
+            <div class="flex justify-between font-code-sm text-code-sm text-on-surface-variant pt-1"><span
+                    class="">Active
+                    SPIDs</span><span class="font-metric-md text-metric-md text-primary font-bold">1,482</span>
+            </div>
+        </div>
+    </div> -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elements
+            const sidebar = document.getElementById('mainSidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+
+            // 1. SIDEBAR TOGGLE & CLOSE
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+                setTimeout(() => {
+                    sidebarOverlay.classList.remove('opacity-0');
+                    sidebarOverlay.classList.add('opacity-100');
+                }, 10);
+            }
+
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.remove('opacity-100');
+                sidebarOverlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    sidebarOverlay.classList.add('hidden');
+                }, 300);
+            }
+
+            if (sidebarToggleBtn) {
+                sidebarToggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (sidebar.classList.contains('-translate-x-full')) {
+                        openSidebar();
+                    } else {
+                        closeSidebar();
+                    }
+                });
+            }
+
+            if (sidebarCloseBtn) {
+                sidebarCloseBtn.addEventListener('click', closeSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', closeSidebar);
+            }
+
+
+            // 2. MULTI-LEVEL ACCORDION & DEEP PARENT-CHILD RECURSIVE HIGHLIGHTING
+            const accordionToggles = document.querySelectorAll('.accordion-toggle');
+            accordionToggles.forEach((toggle) => {
+                toggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const parent = this.parentElement;
+                    const submenu = parent.querySelector(':scope > .submenu-container');
+                    const chevron = this.querySelector('.chevron-icon');
+
+                    if (submenu) {
+                        const isHidden = submenu.classList.contains('hidden');
+                        if (isHidden) {
+                            submenu.classList.remove('hidden');
+                            if (chevron) chevron.classList.add('rotate-180');
+                        } else {
+                            submenu.classList.add('hidden');
+                            if (chevron) chevron.classList.remove('rotate-180');
+                        }
+                    }
+                });
+            });
+
+            // Nav Leaf Items click: Highlight Leaf AND Highlight ALL Parent Accordion Tiers
+            const navLeaves = document.querySelectorAll('.nav-leaf');
+            navLeaves.forEach((leaf) => {
+                leaf.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    // Reset all leaves
+                    navLeaves.forEach((item) => {
+                        item.classList.remove(
+                            'bg-sky-500/20',
+                            'text-sky-300',
+                            'border-l-2',
+                            'border-sky-400',
+                            'font-semibold',
+                        );
+                        item.classList.add('text-on-surface-variant');
+                    });
+
+                    // Reset all parent headers
+                    document.querySelectorAll('.level-1-header, .level-2-header').forEach((header) => {
+                        header.classList.remove('bg-surface-container-high', 'text-primary', 'font-bold');
+                        header.classList.add('text-on-surface-variant');
+                    });
+
+                    // Highlight this leaf
+                    this.classList.remove('text-on-surface-variant');
+                    this.classList.add(
+                        'bg-sky-500/20',
+                        'text-sky-300',
+                        'border-l-2',
+                        'border-sky-400',
+                        'font-semibold',
+                    );
+
+                    // Traverse UP the DOM tree to expand and highlight parents
+                    let current = this.parentElement;
+                    while (current && current !== document.getElementById('sidebarNavMenu')) {
+                        // If inside a submenu, ensure it's expanded
+                        if (current.classList.contains('submenu-container')) {
+                            current.classList.remove('hidden');
+                            const parentBtn = current.previousElementSibling;
+                            if (parentBtn && parentBtn.classList.contains('accordion-toggle')) {
+                                const chevron = parentBtn.querySelector('.chevron-icon');
+                                if (chevron) chevron.classList.add('rotate-180');
+                                parentBtn.classList.remove('text-on-surface-variant');
+                                parentBtn.classList.add('bg-surface-container-high', 'text-primary', 'font-bold');
+                            }
+                        }
+                        current = current.parentElement;
+                    }
+                });
+            });
+        });
+    </script>
+</aside>

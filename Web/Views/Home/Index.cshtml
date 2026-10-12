@@ -1,0 +1,634 @@
+﻿@{
+    ViewBag.Title = "DBA Analysis";
+}
+
+<!-- ==================== MAIN DASHBOARD LAYOUT ==================== -->
+<main class="space-y-3 bg-[#252d3d] px-4 py-4 w-full">
+    <!--#040810-->
+    <!-- TOP KPI CARDS -->
+    <div class="gap-3 grid grid-cols-2 lg:grid-cols-4">
+        <!-- KPI 1: INSTANCES -->
+        <!-- <div class="flex justify-between items-center gap-3 bg-[#0e1726]  rounded-xl shadow-xl px-4 py-8">
+            <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center gap-1 mb-1">
+                    <span class="font-mono font-semibold text-slate-400 text-xs uppercase tracking-wider"
+                        >TOTAL ERRORS</span
+                    >
+
+                </div>
+                <div class="font-mono font-bold text-slate-100 text-xl md:text-2xl tracking-tight">
+                    56
+                </div>
+            </div>
+            <div
+                class="flex justify-center items-center bg-[#16233b] md:round-md rounded-xl w-9 md:w-12 h-9 md:h-12 text-slate-400 shrink-0"
+            >
+                <span class="text-2xl material-symbols-outlined">dns</span>
+            </div>
+        </div> -->
+        <!-- KPI 2: OPEN INCIDENTS -->
+        <div class="flex justify-between items-center gap-3 bg-[#0e1726] rounded-xl shadow-xl px-4 py-8">
+            <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center gap-1 mb-1">
+                    <span class="font-mono font-semibold text-slate-400 text-xs uppercase tracking-wider">CRITIAL/HIGH</span>
+                    <!-- <span
+                        class="bg-rose-500/20 px-1.5 py-0.5 rounded font-mono font-semibold text-rose-400 text-xs"
+                        >2 CRIT</span
+                    > -->
+                </div>
+                <div class="font-mono font-bold text-rose-600 text-xl md:text-3xl tracking-tight">
+                    12
+                    <!-- <span class="ml-1 font-mono font-medium text-amber-400 text-xs">5 High</span> -->
+                </div>
+            </div>
+            <div class="flex justify-center items-center bg-[#16233b] rounded-xl w-9 md:w-12 h-9 md:h-12 text-slate-400 shrink-0">
+                @*<span class="text-2xl material-symbols-outlined">warning</span>*@
+                @Html.Icon("warning", "w-[24px] h-[24px] shrink-0")
+            </div>
+        </div>
+
+        <!-- KPI 3: MTTR -->
+        <div class="flex justify-between items-center gap-3 bg-[#0e1726] rounded-xl shadow-xl px-4 py-8">
+            <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center gap-1 mb-1">
+                    <span class="font-mono font-semibold text-slate-400 text-xs uppercase tracking-wider">Medium</span>
+                    <!-- <span
+                        class="bg-cyan-500/20 px-1.5 py-0.5 rounded font-mono font-semibold text-cyan-300 text-xs"
+                        >-3.8m</span
+                    > -->
+                </div>
+                <div class="font-mono font-bold text-slate-100 text-xl md:text-3xl tracking-tight">
+                    10
+                    <!-- <span class="font-mono font-normal text-slate-400 text-xs">Min</span> -->
+                </div>
+            </div>
+            <div class="flex justify-center items-center bg-[#16233b] rounded-xl w-9 md:w-12 h-9 md:h-12 text-slate-400 shrink-0">
+                @*<span class="text-2xl material-symbols-outlined">report</span>*@
+                @Html.Icon("report", "w-[24px] h-[24px] shrink-0")
+            </div>
+        </div>
+
+        <!-- KPI 4: CAPACITY -->
+        <div class="flex justify-between items-center gap-3 bg-[#0e1726] rounded-xl shadow-xl px-4 py-8">
+            <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center gap-1 mb-1">
+                    <span class="font-mono font-semibold text-slate-400 text-xs uppercase tracking-wider">CAPACITY</span>
+                    <!-- <span
+                        class="bg-amber-500/20 px-1.5 py-0.5 rounded font-mono font-semibold text-amber-400 text-xs"
+                        >78% USED</span
+                    > -->
+                </div>
+                <div class="font-mono font-bold text-slate-100 text-xl md:text-3xl tracking-tight">0</div>
+            </div>
+            <div class="flex justify-center items-center bg-[#16233b] rounded-xl w-9 md:w-12 h-9 md:h-12 text-slate-400 shrink-0">
+                @*<span class="text-2xl material-symbols-outlined">hard_drive</span>*@
+                @Html.Icon("hard_drive", "w-[24px] h-[24px] shrink-0")
+            </div>
+        </div>
+
+        <!-- KPI 5: BACKUP -->
+        <div class="flex justify-between items-center gap-3 bg-[#0e1726] rounded-xl shadow-xl p-5 lg:px-4 lg:py-8">
+            <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center gap-1 mb-1">
+                    <span class="font-mono font-semibold text-slate-400 text-xs uppercase tracking-wider">BACKUP</span>
+                </div>
+                <div class="font-mono font-bold text-slate-100 text-xl md:text-3xl tracking-tight">
+                    100%
+                    <!-- <span class="ml-1 font-mono font-semibold text-rose-400 text-xs">1 SMT Lag</span> -->
+                </div>
+            </div>
+            <div class="flex justify-center items-center bg-[#16233b] rounded-xl w-9 md:w-12 h-9 md:h-12 text-slate-400 shrink-0">
+                @*<span class="text-2xl material-symbols-outlined">cloud_done</span>*@
+                @Html.Icon("cloud_done", "w-[24px] h-[24px] shrink-0")
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 1: INCIDENT DISTRIBUTION & DISK CAPACITY -->
+    <div class="gap-3 grid grid-cols-1 xl:grid-cols-12">
+        <!-- Col Left (5 cols): Errors Summary -->
+        <div class="flex flex-col justify-between xl:col-span-5 bg-[#0e1726] shadow-md rounded-xl p-4">
+            <div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-100 text-base md:text-lg material-symbols-outlined">monitoring</span>
+                                <h2 class="font-sans font-semibold text-slate-100 text-sm md:text-base">
+                                    Errors Summary
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 4 Subsystem Cards in a 2x2 Grid -->
+                <div class="grid grid-cols-1 grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+                    <!-- Item 1: Stored Procedure Failures -->
+                    <div class="cursor-pointer bg-[#142033] p-3.5 rounded-md transition-all duration-200 hover:-translate-y-0.5 flex flex-col justify-between group"
+                         onclick="openSubsystemModal('error-logs')">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-sans font-semibold text-sm text-white group-hover:text-rose-400 transition-colors">Error Logs</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2">
+                                <span class="font-mono text-2xl font-bold text-rose-600 tracking-tight">50</span>
+                                <span class="font-mono text-xs text-rose-600">
+                                    @*<span class="material-symbols-outlined font-bold animate-[pulse_2s_ease-in-out_infinite]">error</span>*@
+                                    @Html.Icon("error", "w-[26px] h-[26px] font-bold animate-[pulse_2s_ease-in-out_infinite] shrink-0")
+
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Item 2: SQL Agent Jobs -->
+                    <div class="cursor-pointer bg-[#142033] p-3.5 rounded-md transition-all duration-200 hover:-translate-y-0.5 flex flex-col justify-between group"
+                         onclick="openSubsystemModal('error-jobs')">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex item-center gap-2">
+                                    <span class="font-sans font-semibold text-sm text-white group-hover:text-rose-400 transition-colors">
+                                        Error Jobs
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2">
+                                <span class="font-mono text-2xl font-bold text-rose-600 tracking-tight">21</span>
+                                <span class="font-mono text-xs text-rose-600">
+                                    @Html.Icon("error", "w-[26px] h-[26px] font-bold animate-[pulse_2s_ease-in-out_infinite] shrink-0")
+
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Item 3: Lock & Deadlock -->
+                    <div class="cursor-pointer bg-[#142033] p-3.5 rounded-md transition-all duration-200 hover:-translate-y-0.5 flex flex-col justify-between group"
+                         onclick="openSubsystemModal('database-lock')">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-sans font-semibold text-sm text-white group-hover:text-rose-400 transition-colors">
+                                        Database Lock
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2">
+                                <span class="font-mono text-2xl font-bold text-rose-600 tracking-tight">40</span>
+                                <span class="font-mono text-xs text-rose-600">
+                                    @Html.Icon("error", "w-[26px] h-[26px] font-bold animate-[pulse_2s_ease-in-out_infinite] shrink-0")
+
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Item 4: Backup & Compliance -->
+                    <div class="cursor-pointer bg-[#142033] p-3.5 rounded-md transition-all duration-200 hover:-translate-y-0.5 flex flex-col justify-between group"
+                         onclick="openSubsystemModal('backup')">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-sans font-semibold text-sm text-white group-hover:text-emerald-400 transition-colors">
+                                        Backup
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2">
+                                <span class="font-mono text-2xl font-bold text-emerald-600 tracking-tight">0</span>
+                                <span class="font-mono text-xs text-emerald-300/80">Errors</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Col Right (7 cols): High-Row Tables -->
+        <div class="flex flex-col justify-between xl:col-span-7 bg-[#0e1726] shadow-md rounded-xl p-4">
+            <div>
+                <div class="flex justify-between items-center flex-wrap sm:flex-nowrap mb-3">
+                    <div class="flex items-center gap-2">
+                        @*<span class="text-slate-100 text-base md:text-lg material-symbols-outlined">table_rows</span>*@
+                        @Html.Icon("table_rows", "w-[18px] h-[18px] text-slate-100 text-base md:text-lg shrink-0")
+                        <h2 class="font-sans font-semibold text-slate-100 text-sm md:text-base">
+                            High-Row Tables (&ge; 2.5M Rows)
+                        </h2>
+                    </div>
+                    <span class="bg-slate-500/20 shadow-sm px-2.5 py-1.5 rounded font-mono font-medium text-slate-400 text-xs">5 HIGH CAPACITY TABLES</span>
+                </div>
+                <div class="rounded-lg overflow-hidden">
+                    <!--bg-[#142033]-->
+                    <div class="max-h-[240px] overflow-y-auto snap-mandatory snap-y">
+                        <table class="w-full font-mono text-xs text-left" id="table-large">
+                            <thead class="top-0 z-10 sticky">
+                                <tr class="bg-[#0a1220] text-slate-400 text-xs uppercase">
+                                    <th class="px-3 py-2.5">TABLE NAME</th>
+                                    <th class="px-3 py-2.5">DATABASE</th>
+                                    <th class="px-3 py-2.5 text-right">TOTAL ROWS</th>
+                                    <th class="px-3 py-2.5 text-right">LEVEL</th>
+                                    <th class="px-3 py-2.5 text-right">RESERVED</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-xs"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center bg-[#0a1220]/60 -mx-4 mt-3 -mb-4 px-4 py-3 pt-3 rounded-b-xl font-mono text-slate-400 text-xs">
+                <span class="px-2.5 py-0.5 rounded font-mono font-semibold text-cyan-300 text-xs">TOTAL CAPACITY (5 TABLES): 17.4 GB</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 2: ALWAYS ON AG & HIGH-CAPACITY TABLE TELEMETRY -->
+    <div class="gap-3 grid grid-cols-1 xl:grid-cols-12">
+        <!-- Col Left (5 cols): SAN &amp; Local Storage Analysis -->
+        <div class="flex flex-col justify-between xl:col-span-5 bg-[#0e1726] shadow-md rounded-xl p-4">
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <div class="flex items-center gap-2">
+                        @Html.Icon("hard_drive", "w-[18px] h-[18px] text-slate-100 text-base md:text-lg shrink-0")
+                        <h2 class="font-sans font-semibold text-slate-100 text-sm md:text-base">
+                            SAN &amp; Local Storage Analysis
+                        </h2>
+                    </div>
+                    <!-- <span
+                        class="bg-emerald-500/20 shadow-sm px-2.5 py-0.5 rounded font-mono font-semibold text-emerald-400 text-xs"
+                        >LUN IOPS NOMINAL</span
+                    > -->
+                </div>
+                <!-- <div class="gap-3 grid grid-cols-1 md:grid-cols-3 mb-3">
+                    <div class="bg-[#142033] shadow-sm p-3 rounded-lg">
+                        <span class="block font-mono text-slate-400 text-xs uppercase">TOTAL CAPACITY</span>
+                        <span class="block mt-1 font-mono font-bold text-white text-base md:text-xl"
+                            >20.0 TB</span
+                        >
+                    </div>
+                    <div class="bg-[#142033] shadow-sm p-3 rounded-lg">
+                        <span class="block font-mono text-slate-400 text-xs uppercase">ALLOCATED</span>
+                        <span class="block mt-1 font-mono font-bold text-base md:text-xl">15.6 TB (78%)</span>
+                    </div>
+                    <div class="bg-[#142033] shadow-sm p-3 rounded-lg">
+                        <span class="block font-mono text-slate-400 text-xs uppercase">FREE SPACE</span>
+                        <span class="block mt-1 font-mono font-bold text-emerald-400 text-base md:text-xl"
+                            >4.4 TB (22%)</span
+                        >
+                    </div>
+                </div> -->
+                <div class="mb-3 space-y-2.5">
+                    <!-- Bootstrap Nav Underline Tabs Bar -->
+                    <div class="border-b border-slate-800/80">
+                        <ul class="flex flex-row flex-nowrap overflow-x-auto text-xs font-mono gap-2 sm:gap-4 -mb-px"
+                            id="san-server-tabs"
+                            role="tablist">
+                            <li role="presentation" class="shrink-0">
+                                <button type="button"
+                                        role="tab"
+                                        aria-selected="true"
+                                        class="storage-server-tab flex items-center gap-1.5 py-2 px-3 text-cyan-300 border-b-2 border-cyan-400 font-semibold transition-all hover:text-white group"
+                                        onclick="switchStorageServerTab('fatp01')"
+                                        id="tab-btn-fatp01">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span class="font-mono font-medium tracking-tight">10.36.6.21</span>
+                                </button>
+                            </li>
+                            <li role="presentation" class="shrink-0">
+                                <button type="button"
+                                        role="tab"
+                                        aria-selected="false"
+                                        class="storage-server-tab flex items-center gap-1.5 py-2 px-3 text-slate-400 border-b-2 border-transparent transition-all hover:text-slate-200 hover:border-slate-700 font-medium group"
+                                        onclick="switchStorageServerTab('fatp02')"
+                                        id="tab-btn-fatp02">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                    <span class="font-mono font-medium tracking-tight">10.36.6.22</span>
+                                </button>
+                            </li>
+                            <li role="presentation" class="shrink-0">
+                                <button type="button"
+                                        role="tab"
+                                        aria-selected="false"
+                                        class="storage-server-tab flex items-center gap-1.5 py-2 px-3 text-slate-400 border-b-2 border-transparent transition-all hover:text-slate-200 hover:border-slate-700 font-medium group"
+                                        onclick="switchStorageServerTab('crapp')"
+                                        id="tab-btn-crapp">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                    <span class="font-mono font-medium tracking-tight">10.36.7.15</span>
+                                </button>
+                            </li>
+                            <li role="presentation" class="shrink-0">
+                                <button type="button"
+                                        role="tab"
+                                        aria-selected="false"
+                                        class="storage-server-tab flex items-center gap-1.5 py-2 px-3 text-slate-400 border-b-2 border-transparent transition-all hover:text-slate-200 hover:border-slate-700 font-medium group"
+                                        onclick="switchStorageServerTab('smt01')"
+                                        id="tab-btn-smt01">
+                                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                                    <span class="font-mono font-medium tracking-tight">10.36.8.40</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Server Info Metadata Ribbon Bar -->
+                    <!-- <div
+                        class="flex items-center justify-between px-3 py-1.5 bg-[#0a1220]/80 rounded-lg text-xs font-mono border border-slate-800/60 shadow-inner"
+                        id="storage-info-bar"
+                    >
+                        <div class="flex items-center gap-2 text-slate-300 truncate">
+                            <span class="material-symbols-outlined text-sm text-cyan-400">dns</span>
+                            <span class="text-slate-400">HOST:</span>
+                            <span class="font-bold text-white" id="storage-active-server-name"
+                                >FATP-NODE01</span
+                            >
+                            <span class="text-cyan-300" id="storage-active-server-ip">[10.36.6.21]</span>
+                            <span class="text-slate-500 hidden md:inline">•</span>
+                            <span
+                                class="text-slate-400 hidden md:inline text-[11px]"
+                                id="storage-active-server-role"
+                                >Primary Node • Synchronized</span
+                            >
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span
+                                class="text-[10px] text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded font-bold"
+                                id="storage-active-server-status"
+                                >ONLINE</span
+                            >
+                            <span
+                                class="text-slate-400 text-[11px] hidden sm:inline"
+                                id="storage-active-server-multipath"
+                                >SAN Multipath: 4 Links Active</span
+                            >
+                        </div>
+                    </div> -->
+                </div>
+
+                <!-- Disks Cards -->
+                <div class="relative min-h-[190px]" id="storage-tab-panes">
+                    <div class="gap-3 grid grid-cols-2 md:grid-cols-4 storage-pane transition-opacity duration-300 opacity-100"
+                         id="pane-fatp01">
+                        <!-- Drive C -->
+                        <!-- Ổ C: Windows System Drive -->
+                        <div class="flex flex-col justify-between bg-[#121c2d] hover:bg-[#18263e] shadow-md p-3.5 rounded-xl transition-all duration-200">
+                            <div class="flex flex-col items-center w-full text-center">
+                                <!-- Windows Drive Visual SVG -->
+                                <div class="relative mb-2.5 filter">
+                                    <img src="@Url.Content("~/Content/images/hdd_48.png")" alt="disk" />
+                                </div>
+                                <!-- Drive Label & Role -->
+                                <span class="font-mono font-bold text-white text-xs tracking-tight">Disk (C:)</span>
+                                <!-- <span class="mt-0.5 max-w-full font-sans text-[11px] text-slate-400 truncate"
+                                    >OS &amp; System Binaries</span
+                                > -->
+                            </div>
+
+                            <!-- Capacity Metric & Progress Bar -->
+                            <div class="space-y-1.5 mt-3 w-full">
+                                <div class="font-mono text-base text-center">
+                                    <span class="font-semibold text-slate-100">1.37</span>
+                                    <span class="text-slate-400">/ 2.0 TB</span>
+                                </div>
+                                <div class="pt-1 text-center">
+                                    <span class="inline-block font-mono font-medium text-[12px] text-slate-100 tracking-wide">31.6% Free (630 GB)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ổ D: Data LUN 01 (Warning) -->
+                        <div class="flex flex-col justify-between bg-[#121c2d] hover:bg-[#18263e] shadow-md p-3.5 rounded-xl transition-all duration-200">
+                            <div class="flex flex-col items-center w-full text-center">
+                                <!-- Data Drive Visual SVG -->
+                                <div class="relative mb-2.5 filter">
+                                    <img src="@Url.Content("~/Content/images/hdd_48.png")" alt="disk" />
+                                </div>
+                                <span class="font-mono font-bold text-white text-xs tracking-tight">Disk (D:)</span>
+                                <!-- <span class="mt-0.5 max-w-full font-sans text-[11px] text-slate-400 truncate"
+                                    >MDF User Tablespace</span
+                                > -->
+                            </div>
+
+                            <div class="space-y-1.5 mt-3 w-full">
+                                <div class="font-mono text-base text-center">
+                                    <span class="font-semibold text-slate-100">8.80</span>
+                                    <span class="text-slate-400">/ 10.0 TB</span>
+                                </div>
+                                <div class="pt-1 text-center">
+                                    <span class="inline-block font-mono font-medium text-[12px] text-slate-100 tracking-wide">12.0% Free (Warn)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ổ L: Active Log (Critical Alert) -->
+                        <div class="flex flex-col justify-between bg-[#121c2d] hover:bg-[#18263e] shadow-md p-3.5 rounded-xl transition-all duration-200">
+                            <div class="flex flex-col items-center w-full text-center">
+                                <!-- Log Drive Visual SVG -->
+                                <div class="relative mb-2.5 filter">
+                                    <img src="@Url.Content("~/Content/images/hdd_48.png")" alt="disk" />
+                                </div>
+                                <span class="font-mono font-bold text-white text-xs tracking-tight">Disk (L:)</span>
+                                <!-- <span
+                                    class="mt-0.5 max-w-full font-sans font-medium text-[11px] text-rose-400/90 truncate"
+                                    >LDF Write Buffer (Full)</span
+                                > -->
+                            </div>
+
+                            <div class="space-y-1.5 mt-3 w-full">
+                                <div class="font-mono text-base text-center">
+                                    <span class="font-bold text-slate-100">2.88</span>
+                                    <span class="text-slate-400">/ 3.0 TB</span>
+                                </div>
+                                <div class="pt-1 text-center">
+                                    <span class="inline-block font-mono font-bold text-[12px] text-rose-600 tracking-wide">3.8% Free (Crit)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ổ B: Backup Local (Healthy) -->
+                        <div class="flex flex-col justify-between bg-[#121c2d] hover:bg-[#18263e] shadow-md p-3.5 rounded-xl transition-all duration-200">
+                            <div class="flex flex-col items-center w-full text-center">
+                                <!-- Backup Drive Visual SVG -->
+                                <div class="relative mb-2.5 filter">
+                                    <img src="@Url.Content("~/Content/images/hdd_48.png")   " alt="disk" />
+                                </div>
+                                <span class="font-mono font-bold text-white text-xs tracking-tight">Disk (B:)</span>
+                                <!-- <span class="mt-0.5 max-w-full font-sans text-[11px] text-slate-400 truncate"
+                                    >Local Dump &amp; Snapshots</span
+                                > -->
+                            </div>
+
+                            <div class="space-y-1.5 mt-3 w-full">
+                                <div class="font-mono text-base text-center">
+                                    <span class="font-semibold text-slate-100">2.74</span>
+                                    <span class="text-slate-400">/ 5.0 TB</span>
+                                </div>
+                                <div class="pt-1 text-center">
+                                    <span class="inline-block font-mono font-medium text-[12px] text-slate-100 tracking-wide">45.2% Free (2.26 TB)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hidden grid grid-cols-2 md:grid-cols-4 gap-3 storage-pane transition-opacity duration-300 opacity-0"
+                         id="pane-fatp02">
+                        Disk 2
+                    </div>
+                    <div class="hidden grid grid-cols-2 md:grid-cols-4 gap-3 storage-pane transition-opacity duration-300 opacity-0"
+                         id="pane-crapp">
+                        Disk 3
+                    </div>
+                    <div class="hidden grid grid-cols-2 md:grid-cols-4 gap-3 storage-pane transition-opacity duration-300 opacity-0"
+                         id="pane-smt01">
+                        Disk 4
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Col Right (7 cols): Always On AG Health Status -->
+        <div class="flex flex-col justify-between xl:col-span-7 bg-[#0e1726] shadow-md rounded-xl p-4">
+            <div>
+                <div class="flex justify-between flex-wrap sm:flex-nowrap items-center mb-3">
+                    <div class="flex items-center gap-2">
+                        @Html.Icon("sync_alt", "w-[18px] h-[18px] text-slate-100 text-base md:text-lg shrink-0")
+                        <h2 class="font-sans font-semibold text-slate-100 text-sm md:text-base">
+                            Always On AG Health Status
+                        </h2>
+                    </div>
+                    <span class="bg-slate-500/20 shadow-sm px-2.5 py-1.5 rounded font-mono font-medium text-slate-400 text-xs">CLUSTER QUORUM: 4/4</span>
+                </div>
+                <div class="bg-[#0a1220]/70 rounded-lg overflow-hidden">
+                    <div class="max-h-[240px] overflow-y-auto snap-mandatory snap-y">
+                        <table class="w-full font-mono text-xs text-left" id="table-alwayson">
+                            <thead class="top-0 z-10 sticky bg-[#09101c] text-[11px] text-slate-400 uppercase tracking-wider">
+                                <tr>
+                                    <th class="px-3 py-2.5 whitespace-nowrap">DATABASE</th>
+                                    <th class="px-3 py-2.5 whitespace-nowrap">REPLICA SERVER</th>
+                                    <th class="px-3 py-2.5 whitespace-nowrap">ROLE</th>
+                                    <th class="px-3 py-2.5 whitespace-nowrap">CONN</th>
+                                    <th class="px-3 py-2.5 whitespace-nowrap">SYNC STATE</th>
+                                    <th class="px-3 py-2.5 whitespace-nowrap text-center">HEALTH</th>
+                                    <th class="px-3 py-2.5 whitespace-nowrap text-right">LOG QUEUE</th>
+                                    <th class="px-3 py-2.5 whitespace-nowrap text-right">REDO QUEUE</th>
+                                    <th class="px-3 py-2.5 whitespace-nowrap text-right">LOG RATE</th>
+                                    <th class="px-3 py-2.5 whitespace-nowrap text-right">REDO RATE</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#142033]/40 text-xs"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center bg-[#0a1220]/60 -mx-4 mt-3 -mb-4 px-4 py-3 pt-3 rounded-b-xl font-mono text-slate-400 text-xs">
+                <span class="shadow-sm px-2.5 py-0.5 rounded font-mono font-semibold text-emerald-400 text-xs">AUTO FAILOVER: ENABLED</span>
+                <!-- <span
+                    class="bg-emerald-500/20 shadow-sm px-2.5 py-0.5 rounded font-mono font-semibold text-emerald-400 text-xs"
+                    >HEALTH CHECK TIMEOUT: 30000ms</span
+                > -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Modal -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-5"
+     id="subsystem-modal">
+    <div class="w-full max-w-[1500px] bg-[#09101c] rounded-2xl shadow-2xl shadow-black border border-slate-800/80 flex flex-col max-h-[92vh] overflow-hidden">
+        <!-- Modal Header with Subsystem Switcher Tabs -->
+        <div class="p-4 bg-[#0e1726] border-b border-slate-800 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center border border-cyan-500/30"
+                         id="modal-subsystem-icon-wrap">
+                        @Html.Icon("terminal", "w-[1.25rem] h-[1.25rem] text-xl shrink-0")
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-sans font-bold text-base text-white" id="modal-subsystem-title">
+                                Stored Procedure Failures Cockpit
+                            </h3>
+                            <!-- <span
+                                class="px-2.5 py-0.5 rounded font-mono text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                                id="modal-subsystem-badge"
+                                >50 INCIDENTS • CRIT</span
+                            > -->
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5" id="modal-subsystem-desc">
+                            Select an incident to view technical root cause, remediation steps, and execute
+                            handler dispatch
+                        </p>
+                    </div>
+                </div>
+                <button class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#152238] transition-colors"
+                        onclick="closeSubsystemModal()">
+                    @*<span class="material-symbols-outlined text-xl">close</span>*@
+                    @Html.Icon("close", "w-[1.25rem] h-[1.25rem] shrink-0")
+
+                </button>
+            </div>
+            <!-- Navigation tabs between 4 subsystems within modal -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-mono" id="category-filter-bar">
+            </div>
+        </div>
+
+        <!-- Filter Toolbar -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-3">
+            <!-- Severity Filters -->
+            <div class="xl:col-span-6 flex flex-wrap items-center gap-1.5 p-1.5" id="severity-filter-bar">
+                <!-- Dynamic category tabs rendered by JS -->
+            </div>
+            <!-- Controls: Search & Expand/Collapse -->
+            <div class="xl:col-span-6 flex items-center justify-start xl:justify-end gap-1.5 p-1.5">
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="relative flex items-center">
+                        @*<span class="material-symbols-outlined absolute left-2 text-[16px] text-slate-500">search</span>*@
+                        @Html.Icon("search", "w-[16px] h-[16px] absolute left-2 text-slate-500 shrink-0")
+
+                        <input class="bg-slate-900 pl-8 pr-3 py-1.5 h-8 rounded text-[12px] text-slate-100 placeholder:text-slate-500 focus:outline-none focus:bg-slate-800 border border-slate-700 transition-colors w-64 md:w-72"
+                               id="incident-search"
+                               placeholder="Filter incidents, SPIDs, errors... (Ctrl+K)"
+                               type="text" />
+                    </div>
+                    <button class="h-8 px-2.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-200 font-medium text-[12px] flex items-center gap-1.5 border border-slate-700 transition-colors"
+                            id="btn-expand-all"
+                            onclick="expandAll()"
+                            type="button">
+                        @*<span class="material-symbols-outlined text-[16px] text-blue-400">unfold_more</span>*@
+                        @Html.Icon("unfold_more", "w-[16px] h-[16px] text-blue-400 shrink-0")
+                        <span>Expand All</span>
+                    </button>
+                    <button class="h-8 px-2.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-200 font-medium text-[12px] flex items-center gap-1.5 border border-slate-700 transition-colors"
+                            id="btn-collapse-all"
+                            onclick="collapseAll()"
+                            type="button">
+                        @*<span class="material-symbols-outlined text-[16px] text-slate-500">unfold_less</span>*@
+                        @Html.Icon("unfold_less", "w-[16px] h-[16px] text-blue-400 shrink-0")
+                        <span>Collapse All</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3-LEVEL HIERARCHICAL ACCORDION CONTAINER -->
+        <div class="p-4 sm:p-5 overflow-y-auto space-y-3" id="accordion-root"></div>
+
+        <!-- Modal Dynamic Body Content Container (Scrollable) -->
+        <div class="p-4 sm:p-5 overflow-y-auto space-y-4" id="modal-content-area"></div>
+
+        <!-- Modal Footer -->
+        <div class="p-3 bg-[#0a1220] border-t border-slate-800/80 flex items-center justify-end font-mono text-xs text-slate-400">
+            <!-- <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>TELEMETRY NOC ENGINE v4.2 • LEVEL 2 DRILL-DOWN READY</span>
+            </div> -->
+            <button class="px-5 py-3 rounded-lg bg-[#142033] hover:bg-[#1c2e47] text-slate-200 hover:text-white text-xs font-sans font-medium transition-colors uppercase"
+                    onclick="closeSubsystemModal()">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+<div class="right-5 bottom-5 z-50 fixed flex flex-col gap-2 pointer-events-none" id="toast-container"></div>
+
+@section Scripts{
+    <script type="module" src="@Url.Content("~/Scripts/custom/features/index.js")"></script>
+}

@@ -1,0 +1,26 @@
+﻿using Infrastructure.Database;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Infrastructure.Repository
+{
+    public abstract class BaseRepository
+    {
+        protected readonly IDbConnectionFactory _factory;
+
+        protected BaseRepository(
+            IDbConnectionFactory factory)
+        {
+            _factory = factory;
+        }
+
+        protected IDbConnection CreateConnection()
+        {
+            return _factory.CreateConnection();
+        }
+    }
+}
