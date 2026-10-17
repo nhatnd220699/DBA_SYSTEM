@@ -5,7 +5,7 @@ using System.Web.Security;
 using Newtonsoft.Json;
 using Web.Models;
 
-namespace Web.Controllers
+namespace Web.Controllers.Web
 {
     public class AuthController : Controller
     {
@@ -29,16 +29,16 @@ namespace Web.Controllers
             string password,
             string returnUrl)
         {
-            if (username == "V5120002" && password == "123")
+            if (username == "admin" && password == "admin")
             {
                 //FormsAuthentication.SetAuthCookie( username, false);
 
                 UserInfo userInfo = new UserInfo
                 {
-                    EmployeeCode = "V5120002",
-                    EmployeeName = "Max Nguyen",
+                    EmployeeCode = "V0000000",
+                    EmployeeName = "Admin",
                     Department = "QMS",
-                    Email = "Max.Nguyen1@quantaqmh.com"
+                    Email = "qmhqms@quantacn.com"
                 };
 
                 // Ghép dữ liệu cần lưu

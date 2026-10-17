@@ -1,244 +1,178 @@
-﻿<div class="hidden fixed inset-0 z-40 bg-surface-container-lowest/80 backdrop-blur-sm opacity-0 transition-opacity duration-300"
-     id="sidebarOverlay"></div>
-<aside class="fixed left-0 top-0 bottom-0 w-72 bg-surface-container-lowest z-50 flex flex-col justify-between py-space-md shadow-[4px_0_24px_rgba(0,0,0,0.6)] -translate-x-full transition-transform duration-300 border-r border-outline-variant/20"
-       id="mainSidebar">
-    <div class="flex flex-col gap-space-sm overflow-y-auto">
-        <div class="px-space-md py-space-sm flex items-center justify-between border-b border-surface-container">
+﻿<!-- ==================== SLIDING DRAWER SIDEBAR ==================== -->
+<div class="hidden z-40 fixed inset-0 bg-black/55 backdrop-blur-sm transition-opacity"
+     id="sidebar-backdrop"></div>
+<aside class="top-0 left-0 z-50 fixed flex flex-col justify-between dark:bg-[#080e1a] shadow-2xl shadow-black w-80 h-full transition-transform -translate-x-full duration-300 ease-in-out transform"
+       id="sidebar-drawer">
+    <div class="flex flex-col h-full overflow-hidden">
+        <div class="flex justify-between items-center dark:bg-[#0a1220] shadow-sm px-4 h-14">
             <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
-                    <span class="material-symbols-outlined text-[18px]">dns</span>
-                </div>
-                <span class="font-label-caps text-label-caps text-outline uppercase tracking-wider font-bold">NOC Operations Menu</span>
+                @Html.Icon("borg", "w-[28px] h-[28px] shrink-0")
+                <span class="font-mono font-bold dark:text-white text-xs uppercase tracking-wider">Database Monitoring Center</span>
             </div>
-            <button aria-label="Close Sidebar"
-                    class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container-high transition-colors"
-                    id="sidebarCloseBtn"
-                    type="button">
-                <span class="material-symbols-outlined text-[20px]">close</span>
+            <button class="hover:bg-[#121c2d] p-1 rounded-lg text-slate-400 hover:text-white"
+                    id="sidebar-close-btn">
+                @Html.Icon("close", "w-[20px] h-[20px] shrink-0")
             </button>
         </div>
-        <nav class="flex flex-col gap-1 px-space-sm" id="sidebarNavMenu">
-            <!-- Level 1 Item with Submenu (Cấp 1 -> Cấp 2) -->
-            <div class="level-1-parent group-level-1">
-                <button class="accordion-toggle level-1-header w-full flex items-center justify-between px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-medium"
-                        type="button">
-                    <div class="flex items-center gap-space-sm">
-                        <span class="material-symbols-outlined text-[18px] text-primary">grid_view</span><span class="font-body-md text-body-md">Dashboards</span>
+        <!-- Navigation Tree -->
+        <nav class="flex-1 space-y-2 p-3 overflow-y-auto font-mono text-xs">
+            @*<div class="bg-[#0e1726] shadow-sm rounded-lg overflow-hidden nav-tree-l1">
+                <button class="flex justify-between items-center bg-[#131f33] px-3 py-2.5 w-full font-semibold text-white transition-colors nav-toggle-l1">
+                    <div class="flex items-center gap-2 text-cyan-400">
+                        <span class="text-base material-symbols-outlined">monitoring</span>
+                        <span class="font-sans text-xs">Operations Monitoring</span>
                     </div>
-                    <span class="material-symbols-outlined text-[18px] chevron-icon transition-transform duration-200">expand_more</span>
+                    <span class="text-sm transition-transform duration-200 material-symbols-outlined transform">expand_more</span>
                 </button>
-                <div class="submenu-container hidden flex flex-col gap-0.5 pl-3 mt-1 border-l-2 border-surface-container ml-3.5">
-                    <a class="nav-leaf flex items-center gap-space-sm px-space-md py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-body-sm transition-colors"
-                       data-path="overview-dashboard"
-                       href="#">
-                        <span class="material-symbols-outlined text-[16px]">dashboard</span><span class="">Overview Fleet</span>
-                    </a><a class="nav-leaf flex items-center gap-space-sm px-space-md py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-body-sm transition-colors"
-                           data-path="wallboard"
-                           href="#">
-                        <span class="material-symbols-outlined text-[16px]">tv</span><span class="">NOC Wallboard</span>
-                    </a>
-                </div>
-            </div>
-            <!-- Level 1 with Multi-Level (Cấp 1 -> Cấp 2 -> Cấp 3) -->
-            <div class="level-1-parent group-level-1">
-                <button class="accordion-toggle level-1-header w-full flex items-center justify-between px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-medium"
-                        type="button">
-                    <div class="flex items-center gap-space-sm">
-                        <span class="material-symbols-outlined text-[18px] text-secondary">hub</span><span class="font-body-md text-body-md">Topology &amp; AG</span>
-                    </div>
-                    <span class="material-symbols-outlined text-[18px] chevron-icon transition-transform duration-200">expand_more</span>
-                </button>
-                <div class="submenu-container hidden flex flex-col gap-0.5 pl-3 mt-1 border-l-2 border-surface-container ml-3.5">
-                    <!-- Level 2 Accordion Item (Cấp 2 chứa Cấp 3) -->
-                    <div class="level-2-parent group-level-2">
-                        <button class="accordion-toggle level-2-header w-full flex items-center justify-between px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-body-sm font-medium transition-colors"
-                                type="button">
-                            <div class="flex items-center gap-space-sm">
-                                <span class="material-symbols-outlined text-[16px]">lan</span><span class="">Availability Groups</span>
-                            </div>
-                            <span class="material-symbols-outlined text-[16px] chevron-icon transition-transform duration-200">expand_more</span>
+                <div class="space-y-1.5 bg-[#09101c]/80 p-2 nav-content-l1">
+                    <div class="bg-[#0d1626] rounded overflow-hidden nav-tree-l2">
+                        <button class="flex justify-between items-center px-2.5 py-1.5 w-full font-medium text-cyan-400 nav-toggle-l2">
+                            <span class="font-sans text-xs">Incidents & Deadlocks</span>
+                            <span class="text-xs material-symbols-outlined">expand_more</span>
                         </button>
-                        <div class="submenu-container hidden flex flex-col gap-0.5 pl-3 mt-1 border-l-2 border-surface-variant ml-2.5">
-                            <a class="nav-leaf flex items-center gap-space-sm px-2 py-1 rounded text-outline hover:text-on-surface hover:bg-surface-container-high text-[12px] transition-colors"
-                               data-path="ag-fatp"
-                               href="#">
-                                <span class="h-1.5 w-1.5 rounded-full bg-secondary"></span><span>Cluster AG-FATP-PROD</span>
-                            </a><a class="nav-leaf flex items-center gap-space-sm px-2 py-1 rounded text-outline hover:text-on-surface hover:bg-surface-container-high text-[12px] transition-colors"
-                                   data-path="ag-smt"
-                                   href="#">
-                                <span class="h-1.5 w-1.5 rounded-full bg-error"></span><span>Cluster AG-SMT-CORE</span>
-                            </a>
+                        <div class="space-y-1 bg-[#060b14]/70 p-1.5 nav-content-l2">
+                            <a class="block bg-cyan-500/15 px-2.5 py-1.5 rounded font-sans font-semibold text-cyan-300 text-xs"
+                               href="#">Root Blocker Live</a>
+                            <a class="block hover:bg-[#101b2e] px-2.5 py-1.5 rounded font-sans text-slate-400 hover:text-white text-xs"
+                               href="#">Deadlock XML Graph History</a>
+                            <a class="block hover:bg-[#101b2e] px-2.5 py-1.5 rounded font-sans text-slate-400 hover:text-white text-xs"
+                               href="#">Lock Escalation Metrics</a>
                         </div>
                     </div>
-                    <a class="nav-leaf flex items-center gap-space-sm px-space-md py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-body-sm transition-colors"
-                       data-path="clustering"
-                       href="#">
-                        <span class="material-symbols-outlined text-[16px]">cloud_sync</span><span class="">Failover Cluster</span>
-                    </a>
+                    <div class="rounded overflow-hidden nav-tree-l2">
+                        <button class="flex justify-between items-center hover:bg-[#121d2f] px-2.5 py-1.5 w-full text-slate-300 hover:text-white nav-toggle-l2">
+                            <span class="font-sans text-xs">Stored Procedures</span>
+                            <span class="text-xs material-symbols-outlined">chevron_right</span>
+                        </button>
+                        <div class="hidden space-y-1 bg-[#060b14]/70 p-1.5 nav-content-l2">
+                            <a class="block hover:bg-[#101b2e] px-2 py-1.5 rounded font-sans text-slate-400 hover:text-white text-xs"
+                               href="#">Execution Failure Rate</a>
+                            <a class="block hover:bg-[#101b2e] px-2 py-1.5 rounded font-sans text-slate-400 hover:text-white text-xs"
+                               href="#">Slow Running Procedures</a>
+                        </div>
+                    </div>
+                    <div class="rounded overflow-hidden nav-tree-l2">
+                        <button class="flex justify-between items-center hover:bg-[#121d2f] px-2.5 py-1.5 w-full text-slate-300 hover:text-white nav-toggle-l2">
+                            <span class="font-sans text-xs">SAN & Disk Capacity</span>
+                            <span class="text-xs material-symbols-outlined">chevron_right</span>
+                        </button>
+                        <div class="hidden space-y-1 bg-[#060b14]/70 p-1.5 nav-content-l2">
+                            <a class="block hover:bg-[#101b2e] px-2 py-1.5 rounded font-sans text-slate-400 hover:text-white text-xs"
+                               href="#">LUN Allocation</a>
+                            <a class="block hover:bg-[#101b2e] px-2 py-1.5 rounded font-sans text-slate-400 hover:text-white text-xs"
+                               href="#">Log File Autogrowth</a>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <!-- Single Level Leaf Items --><a class="nav-leaf flex items-center justify-between px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
-                                               data-path="blocking-and-deadlocks"
-                                               href="#">
-                <div class="flex items-center gap-space-sm">
-                    <span class="material-symbols-outlined text-[18px] text-error">lock</span><span class="font-body-md text-body-md">Blocking &amp; Deadlocks</span>
+            <div class="bg-[#0e1726] shadow-sm rounded-lg overflow-hidden nav-tree-l1">
+                <button class="flex justify-between items-center hover:bg-[#131f33] px-3 py-2.5 w-full text-slate-300 hover:text-white transition-colors nav-toggle-l1">
+                    <div class="flex items-center gap-2">
+                        <span class="text-emerald-400 text-base material-symbols-outlined">sync_alt</span>
+                        <span class="font-sans text-xs">Always On & Replicas</span>
+                    </div>
+                    <span class="text-sm material-symbols-outlined">chevron_right</span>
+                </button>
+                <div class="hidden space-y-1 bg-[#09101c]/80 p-2 nav-content-l1">
+                    <a class="block hover:bg-[#101b2e] px-2.5 py-1.5 rounded font-sans text-slate-400 hover:text-white text-xs"
+                       href="#">Quorum & Health Sync</a>
+                    <a class="block hover:bg-[#101b2e] px-2.5 py-1.5 rounded font-sans text-slate-400 hover:text-white text-xs"
+                       href="#">DR Site Lag Monitoring</a>
                 </div>
-                <span class="px-1.5 py-0.2 rounded font-label-caps text-label-caps bg-error-container text-on-error-container">3 Root</span>
-            </a><a class="nav-leaf flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
-                   data-path="error-logs-and-events"
-                   href="#">
-                <span class="material-symbols-outlined text-[18px] text-tertiary">assignment_late</span><span class="font-body-md text-body-md">Error Logs &amp; Events</span>
-            </a><a class="nav-leaf flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
-                   data-path="jobs-and-backup"
-                   href="#">
-                <span class="material-symbols-outlined text-[18px] text-primary">schedule</span><span class="font-body-md text-body-md">Jobs &amp; Backup Fleet</span>
-            </a><a class="nav-leaf flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
-                   data-path="storage-and-tables"
-                   href="#">
-                <span class="material-symbols-outlined text-[18px] text-secondary">storage</span><span class="font-body-md text-body-md">Storage &amp; Tables</span>
-            </a><a class="nav-leaf flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
-                   data-path="performance-metrics"
-                   href="#">
-                <span class="material-symbols-outlined text-[18px] text-outline">speed</span><span class="font-body-md text-body-md">Performance Metrics</span>
-            </a>
+            </div>*@
+            <div class="bg-[#0e1726] shadow-sm rounded-lg overflow-hidden nav-tree-l1">
+                <a class="flex justify-between items-center hover:bg-[#131f33] px-3 py-2.5 w-full text-slate-300 hover:text-white transition-colors nav-toggle-l1">
+                    <div class="flex items-center gap-2">
+                        @Html.Icon("dashboard", "w-[16px] h-[16px] text-blue-400 text-base shrink-0")
+                        <span class="font-sans text-xs">Dashboard</span>
+                    </div>
+                    @*<span class="text-sm material-symbols-outlined">chevron_right</span>*@
+                </a>
+                @*<div class="hidden space-y-1 bg-[#09101c]/80 p-2 nav-content-l1">
+                    <a class="block hover:bg-[#101b2e] px-2.5 py-1.5 rounded font-sans text-slate-400 hover:text-white text-xs"
+                       href="#">Check RPO &lt; 15m</a>
+                    <a class="block hover:bg-[#101b2e] px-2.5 py-1.5 rounded font-sans text-slate-400 hover:text-white text-xs"
+                       href="#">Full / Diff Schedule Matrix</a>
+                </div>*@
+            </div>
         </nav>
+        @*<div class="bg-[#0a1220] shadow-black/60 shadow-inner m-2 p-3 rounded-lg">
+            <div class="flex justify-between items-center mb-1 text-xs">
+                <span class="flex items-center gap-1.5 font-mono font-semibold text-slate-300 text-xs uppercase">
+                    <span class="bg-emerald-400 rounded-full w-2 h-2 animate-ping"></span>
+                    Ingest Telemetry
+                </span>
+                <span class="font-mono font-bold text-emerald-400 text-xs">14.2k eps</span>
+            </div>
+            <div class="flex justify-between items-center font-mono text-slate-400 text-xs">
+                <span>Queue Latency:</span>
+                <span class="font-medium text-white">0.02ms</span>
+            </div>
+        </div>*@
     </div>
-    <!-- <div class="px-space-md">
-        <div
-            class="p-space-sm bg-surface-container-low rounded-lg flex flex-col gap-1 border border-outline-variant/20">
-            <div class="flex items-center justify-between"><span
-                    class="font-label-caps text-label-caps text-outline uppercase font-semibold">Cluster
-                    Health</span><span
-                    class="font-label-caps text-label-caps text-secondary font-bold">99.98%</span></div>
-            <div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
-                <div class="bg-secondary h-full rounded-full w-[94%]"></div>
-            </div>
-            <div class="flex justify-between font-code-sm text-code-sm text-on-surface-variant pt-1"><span
-                    class="">Active
-                    SPIDs</span><span class="font-metric-md text-metric-md text-primary font-bold">1,482</span>
-            </div>
-        </div>
-    </div> -->
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Elements
-            const sidebar = document.getElementById('mainSidebar');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+        // Lock/Unlock Scroll when modal is toggled
+        function lockScroll() {
+            document.body.classList.add('overflow-hidden');
+        }
 
-            // 1. SIDEBAR TOGGLE & CLOSE
+        function unlockScroll() {
+            const sm = document.getElementById('subsystem-modal');
+            const sb = document.getElementById('sidebar-backdrop');
+            const anyOpen = (sm && !sm.classList.contains('hidden')) || (sb && !sb.classList.contains('hidden'));
+            if (!anyOpen) {
+                document.body.classList.remove('overflow-hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sidebar drawer toggle
+            const toggleBtn = document.getElementById('sidebar-toggle-btn');
+            const closeBtn = document.getElementById('sidebar-close-btn');
+            const drawer = document.getElementById('sidebar-drawer');
+            const backdrop = document.getElementById('sidebar-backdrop');
+
             function openSidebar() {
-                sidebar.classList.remove('-translate-x-full');
-                sidebarOverlay.classList.remove('hidden');
-                setTimeout(() => {
-                    sidebarOverlay.classList.remove('opacity-0');
-                    sidebarOverlay.classList.add('opacity-100');
-                }, 10);
+                if (drawer && backdrop) {
+                    drawer.classList.remove('-translate-x-full');
+                    backdrop.classList.remove('hidden');
+                    lockScroll();
+                }
             }
-
             function closeSidebar() {
-                sidebar.classList.add('-translate-x-full');
-                sidebarOverlay.classList.remove('opacity-100');
-                sidebarOverlay.classList.add('opacity-0');
-                setTimeout(() => {
-                    sidebarOverlay.classList.add('hidden');
-                }, 300);
+                if (drawer && backdrop) {
+                    drawer.classList.add('-translate-x-full');
+                    backdrop.classList.add('hidden');
+                    unlockScroll();
+                }
             }
+            if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+            if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+            if (backdrop) backdrop.addEventListener('click', closeSidebar);
 
-            if (sidebarToggleBtn) {
-                sidebarToggleBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (sidebar.classList.contains('-translate-x-full')) {
-                        openSidebar();
-                    } else {
-                        closeSidebar();
-                    }
-                });
-            }
-
-            if (sidebarCloseBtn) {
-                sidebarCloseBtn.addEventListener('click', closeSidebar);
-            }
-
-            if (sidebarOverlay) {
-                sidebarOverlay.addEventListener('click', closeSidebar);
-            }
-
-
-            // 2. MULTI-LEVEL ACCORDION & DEEP PARENT-CHILD RECURSIVE HIGHLIGHTING
-            const accordionToggles = document.querySelectorAll('.accordion-toggle');
-            accordionToggles.forEach((toggle) => {
-                toggle.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const parent = this.parentElement;
-                    const submenu = parent.querySelector(':scope > .submenu-container');
-                    const chevron = this.querySelector('.chevron-icon');
-
-                    if (submenu) {
-                        const isHidden = submenu.classList.contains('hidden');
-                        if (isHidden) {
-                            submenu.classList.remove('hidden');
-                            if (chevron) chevron.classList.add('rotate-180');
-                        } else {
-                            submenu.classList.add('hidden');
-                            if (chevron) chevron.classList.remove('rotate-180');
+            // Nav accordion toggles in sidebar
+            document.querySelectorAll('.nav-toggle-l1').forEach((btn) => {
+                btn.addEventListener('click', function () {
+                    const content = this.nextElementSibling;
+                    const icon = this.querySelector('.material-symbols-outlined:last-child');
+                    if (content) {
+                        content.classList.toggle('hidden');
+                        if (icon) {
+                            icon.innerText = content.classList.contains('hidden') ? 'chevron_right' : 'expand_more';
                         }
                     }
                 });
             });
 
-            // Nav Leaf Items click: Highlight Leaf AND Highlight ALL Parent Accordion Tiers
-            const navLeaves = document.querySelectorAll('.nav-leaf');
-            navLeaves.forEach((leaf) => {
-                leaf.addEventListener('click', function (e) {
-                    e.preventDefault();
-
-                    // Reset all leaves
-                    navLeaves.forEach((item) => {
-                        item.classList.remove(
-                            'bg-sky-500/20',
-                            'text-sky-300',
-                            'border-l-2',
-                            'border-sky-400',
-                            'font-semibold',
-                        );
-                        item.classList.add('text-on-surface-variant');
-                    });
-
-                    // Reset all parent headers
-                    document.querySelectorAll('.level-1-header, .level-2-header').forEach((header) => {
-                        header.classList.remove('bg-surface-container-high', 'text-primary', 'font-bold');
-                        header.classList.add('text-on-surface-variant');
-                    });
-
-                    // Highlight this leaf
-                    this.classList.remove('text-on-surface-variant');
-                    this.classList.add(
-                        'bg-sky-500/20',
-                        'text-sky-300',
-                        'border-l-2',
-                        'border-sky-400',
-                        'font-semibold',
-                    );
-
-                    // Traverse UP the DOM tree to expand and highlight parents
-                    let current = this.parentElement;
-                    while (current && current !== document.getElementById('sidebarNavMenu')) {
-                        // If inside a submenu, ensure it's expanded
-                        if (current.classList.contains('submenu-container')) {
-                            current.classList.remove('hidden');
-                            const parentBtn = current.previousElementSibling;
-                            if (parentBtn && parentBtn.classList.contains('accordion-toggle')) {
-                                const chevron = parentBtn.querySelector('.chevron-icon');
-                                if (chevron) chevron.classList.add('rotate-180');
-                                parentBtn.classList.remove('text-on-surface-variant');
-                                parentBtn.classList.add('bg-surface-container-high', 'text-primary', 'font-bold');
-                            }
+            document.querySelectorAll('.nav-toggle-l2').forEach((btn) => {
+                btn.addEventListener('click', function () {
+                    const content = this.nextElementSibling;
+                    const icon = this.querySelector('.material-symbols-outlined:last-child');
+                    if (content) {
+                        content.classList.toggle('hidden');
+                        if (icon) {
+                            icon.innerText = content.classList.contains('hidden') ? 'chevron_right' : 'expand_more';
                         }
-                        current = current.parentElement;
                     }
                 });
             });

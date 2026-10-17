@@ -22,8 +22,8 @@
               rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
               rel="stylesheet" />*@
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-          rel="stylesheet" />
+    @*<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet" />*@
 
     @*<link href="@Url.Content("~/Content/tailwind/tailwind-core.css")" rel="stylesheet" />*@
     <script src="@Url.Content("~/Scripts/libs/tailwind/tailwind.js")"></script>
@@ -53,6 +53,20 @@
         };
     </script>
     <style>
+        
+
+        :root {
+            --scrollbar-track: #e2e8f0; /* slate-200 */
+            --scrollbar-thumb: #94a3b8; /* slate-400 */
+            --scrollbar-hover: #0284c7; /* sky-600 */
+        }
+
+        html.dark {
+            --scrollbar-track: #09101c;
+            --scrollbar-thumb: #1e293b;
+            --scrollbar-hover: #38bdf8;
+        }
+
         body {
             background-color: #040810;
             color: #f1f5f9;
@@ -65,27 +79,28 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #09101c;
+            background: var(--scrollbar-track);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #1e293b;
+            background: var(--scrollbar-thumb);
             border-radius: 4px;
         }
 
             ::-webkit-scrollbar-thumb:hover {
-                background: #38bdf8;
+                background: var(--scrollbar-hover);
             }
     </style>
 </head>
-<body class="bg-[#252d3d] selection:bg-cyan-500/20 min-h-screen font-sans text-slate-100 selection:text-cyan-300 text-sm">
-    @Html.Partial("_Navbar2")
-    @Html.Partial("_Sidebar2")
-
+<body class="min-h-screen bg-slate-100 dark:bg-[#252d3d]
+             font-sans text-sm text-slate-900 dark:text-slate-100
+             selection:bg-cyan-100 selection:text-cyan-900
+             dark:selection:bg-cyan-500/20 dark:selection:text-cyan-300">
+    @Html.Partial("_Navbar")
+    @Html.Partial("_Sidebar")
     <div class="w-full">
         @RenderBody()
     </div>
-
     @RenderSection("scripts", required: false)
 </body>
 </html>

@@ -1,5 +1,5 @@
 ﻿using System.Web.Mvc;
-using Web.Filters;
+//using Web.Filters;
 
 namespace Web
 {
@@ -9,7 +9,7 @@ namespace Web
         {
             filters.Add(new HandleErrorAttribute());
             filters.Add(new AuthorizeAttribute());
-            filters.Add(new GlobalExceptionFilter());
+            //filters.Add(new GlobalExceptionFilter());
         }
     }
 }

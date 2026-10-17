@@ -6,6 +6,6 @@ namespace Application.Feature.Dashboard
 {
     public interface IDashboardRepository
     {
-        Task<List<ProcessFlow>> GetProcessFlowAsync(string funcType);
+        Task<List<AlwaysOn>> GetAlwaysOnAsyc(string site = null, string department = null);
     }
 }

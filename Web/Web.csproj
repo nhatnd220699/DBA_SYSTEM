@@ -134,10 +134,10 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Api\DbaController.cs" />
-    <Compile Include="Controllers\AuthController.cs" />
-    <Compile Include="Controllers\BaseController.cs" />
-    <Compile Include="Controllers\ErrorController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\Web\AuthController.cs" />
+    <Compile Include="Controllers\Web\BaseController.cs" />
+    <Compile Include="Controllers\Web\ErrorController.cs" />
+    <Compile Include="Controllers\Web\HomeController.cs" />
     <Compile Include="Filters\GlobalExceptionFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -150,7 +150,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Content\icons\sprite.svg" />
     <Content Include="Content\images\hdd_48.png" />
-    <Content Include="Scripts\custom\features\index.js" />
+    <Content Include="Scripts\custom\objects\index.js" />
     <Content Include="Scripts\custom\modules\app.js" />
     <Content Include="Scripts\custom\utils\number-utils.js" />
     <Content Include="Scripts\custom\utils\file-utils.js" />
@@ -183,6 +183,8 @@
     <Content Include="Scripts\bootstrap.esm.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Content\tempdata\errors.json" />
+    <None Include="Content\tempdata\summary.json" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\custom\api\api-client.js" />
     <Content Include="Scripts\custom\common\action-lock.js" />
@@ -190,7 +192,6 @@
     <Content Include="Scripts\custom\common\icon.js" />
     <Content Include="Scripts\custom\common\pagination.js" />
     <Content Include="Scripts\custom\common\popup.js" />
-    <Content Include="Scripts\custom\features\index2.js" />
     <Content Include="Scripts\custom\utils\input-utils.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -214,21 +215,19 @@
     <Content Include="Views\Shared\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\Index2.cshtml" />
     <Content Include="Views\Shared\_Layout - Copy.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_Sidebar.cshtml" />
     <Content Include="Views\Shared\_Navbar.cshtml" />
     <Content Include="Views\Error\NotFound.cshtml" />
     <Content Include="Views\Auth\Login.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Shared\_Navbar2.cshtml" />
-    <Content Include="Views\Shared\_Sidebar2.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Shared\_Layout_Auth.cshtml" />
+    <Content Include="Views\Error\Fobidden.cshtml" />
+    <Content Include="Views\Error\InternalServer.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Base\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
@@ -261,6 +260,10 @@
     <ProjectReference Include="..\Application\Application.csproj">
       <Project>{db4aa904-77b8-4b15-9b25-3ff8d03ce069}</Project>
       <Name>Application</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Domain\Domain.csproj">
+      <Project>{D9649585-4335-49DA-B04C-EAF6CA1D28D0}</Project>
+      <Name>Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj">
       <Project>{2C5335D7-A1AF-4B86-BD9D-7F7AC9639F80}</Project>

@@ -15,7 +15,7 @@ namespace Infrastructure.Repository
         protected BaseRepository(
             IDbConnectionFactory factory)
         {
-            _factory = factory;
+            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
         }
 
         protected IDbConnection CreateConnection()

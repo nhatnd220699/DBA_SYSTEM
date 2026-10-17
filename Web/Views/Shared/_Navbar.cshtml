@@ -1,158 +1,430 @@
-﻿<header class="fixed top-0 left-0 right-0 z-40 h-16 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.4)] flex flex-col justify-center px-space-lg">
-    <div class="flex items-center justify-between gap-space-md">
-        <div class="flex items-center gap-space-lg shrink-0">
-            <div class="flex items-center gap-space-sm">
-                <button aria-label="Toggle Sidebar Navigation"
-                        class="p-2 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-variant hover:text-primary transition-all flex items-center justify-center cursor-pointer shadow-sm"
-                        id="sidebarToggleBtn"
-                        type="button">
-                    @*<span class="material-symbols-outlined text-[24px]">menu</span>*@
-                    @Html.Icon("menu", "w-[24px] h-[24px] shrink-0")
-                </button>
-                <div class="relative flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-high">
-                    @*<span class="material-symbols-outlined text-primary text-[20px]">database</span>*@
-                    @Html.Icon("database", "w-[20px] h-[20px] shrink-0")
-                    <span class="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"></span>
+﻿@using Web.Helpers
+
+@{
+    var user = CurrentUser.Info;
+}
+
+<!-- ==================== TOP NAVIGATION BAR ==================== -->
+<header class="top-0 z-30 sticky flex justify-between items-center bg-white/95 dark:bg-[#070d17]/95 shadow-black/10 dark:shadow-black/40 shadow-md backdrop-blur-md px-4 w-full h-14 border-b border-slate-200 dark:border-transparent">
+    <div class="flex items-center gap-4">
+        <button class="flex items-center gap-2 bg-slate-100 dark:bg-[#0e1726] hover:bg-slate-200 dark:hover:bg-[#152238] shadow-sm px-3 py-1.5 rounded-lg font-medium text-slate-700 dark:text-slate-200 text-xs transition-all"
+                id="sidebar-toggle-btn">
+            @Html.Icon("menu", "w-[24px] h-[24px] shrink-0")
+            <span>Menu</span>
+        </button>
+
+        <div class="flex items-center gap-2.5">
+            <div class="flex justify-center items-center bg-gradient-to-tr from-blue-600/70 to-cyan-500/60 shadow-cyan-500/10 shadow-lg p-0.5 rounded-lg w-8 h-8">
+                <div class="flex justify-center items-center bg-white dark:bg-[#09101c] rounded-[6px] w-full h-full">
+                    @Html.Icon("borg", "w-[24px] h-[24px] shrink-0")
+                </div>
+            </div>
+
+            <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                    <span class="font-mono font-bold text-slate-900 dark:text-white text-sm tracking-tight">
+                        AI DBA Agent
                     </span>
                 </div>
-                <div class="flex flex-col">
-                    <span class="font-headline-sm text-headline-sm tracking-tight text-on-surface uppercase font-bold">DBA Telemetry &amp; NOC</span><span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Mission Critical Fleet Core</span>
-                </div>
-            </div>
-            <div class="hidden xl:flex items-center bg-surface-container-low p-0.5 rounded-lg">
-                <button class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high text-on-surface font-label-md text-label-md"
-                        type="button">
-                    <span class="font-code-sm text-code-sm">All Zones</span><span class="px-1.5 py-0.2 rounded font-label-caps text-label-caps bg-surface-container-highest text-on-surface-variant">3 Sites</span>
-                </button><button class="flex items-center gap-1.5 px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface font-label-md text-label-md"
-                                 type="button">
-                    <span class="font-code-sm text-code-sm">FATP</span><span class="px-1.5 py-0.2 rounded font-label-caps text-label-caps bg-error-container text-on-error-container">2 Crit</span>
-                </button><button class="flex items-center gap-1.5 px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface font-label-md text-label-md"
-                                 type="button">
-                    <span class="font-code-sm text-code-sm">CR</span><span class="px-1.5 py-0.2 rounded font-label-caps text-label-caps bg-surface-container-highest text-secondary">0 Err</span>
-                </button><button class="flex items-center gap-1.5 px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface font-label-md text-label-md"
-                                 type="button">
-                    <span class="font-code-sm text-code-sm">SMT</span><span class="px-1.5 py-0.2 rounded font-label-caps text-label-caps bg-tertiary-container text-on-tertiary-container">1 Warn</span>
-                </button>
+                <span class="font-mono font-bold text-slate-500 dark:text-slate-400 text-xs tracking-wider">
+                    Powered by QMS
+                </span>
             </div>
         </div>
-        <div class="flex items-center gap-space-md">
-            <div class="hidden lg:flex items-center gap-space-sm bg-surface-container-low px-space-sm py-1 rounded-lg">
-                <div class="flex items-center gap-1 text-on-surface-variant">
-                    @Html.Icon("sync", "w-[16px] h-[16px] shrink-0")
-                    <span class="font-code-sm text-code-sm">LIVE: 10s</span>
-                </div>
-                <div class="h-3 w-[1px] bg-surface-variant"></div>
-                <span class="font-label-caps text-label-caps text-on-surface-variant">SYNCED: 14:02:18 UTC</span>
-                @*<button class="text-on-surface-variant hover:text-on-surface flex items-center"
-                        title="Mute Audio Alerts"
-                        type="button">
-                    <span class="material-symbols-outlined text-[16px]">volume_up</span>
-                </button>*@
-            </div>
-            <div class="flex items-center gap-1">
-                <button class="p-1.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
-                        onclick="toggleWallboardMode()"
-                        title="Toggle Wallboard Fullscreen"
-                        type="button">
-                    @*<span class="material-symbols-outlined text-[18px]">fullscreen</span>*@
-                    @Html.Icon("fullscreen", "w-[18px] h-[18px] shrink-0")
-                </button>
-                @*<button class="p-1.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
-                        title="Toggle Theme Mode"
-                        type="button">
-                    <span class="material-symbols-outlined text-[18px]">dark_mode</span>
-                </button>*@
-            </div>
-            <div class="h-5 w-[1px] bg-surface-variant hidden sm:block"></div>
-            <div class="relative flex items-center gap-space-sm pl-1" id="userMenuWrapper">
-                <button class="flex items-center gap-space-sm p-1 rounded-lg hover:bg-surface-container-high transition-colors text-left cursor-pointer"
-                        id="userMenuBtn"
-                        type="button">
-                    <div class="hidden md:flex flex-col text-right">
-                        <span class="font-label-md text-label-md text-on-surface leading-tight font-semibold">@CurrentUser.Info.EmployeeCode</span><span class="font-label-caps text-label-caps text-outline uppercase">@CurrentUser.Info.EmployeeName</span>
-                    </div>
-                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
-                        @*<span class="material-symbols-outlined text-on-primary text-[18px]">person</span>*@
-                        @Html.Icon("person", "w-[18px] h-[18px] shrink-0 text-on-primary")
-                    </div>
-                    @*<span class="material-symbols-outlined text-[16px] text-outline transition-transform duration-200"
-                          id="userMenuArrow">expand_more</span>*@
-                    @Html.Icon("keyboard_arrow_down", "w-[16px] h-[16px] shrink-0 text-outline transition-transform duration-200")
-                </button>
-                <div class="hidden absolute right-0 top-14 w-60 bg-surface-container-high rounded-xl shadow-2xl p-2 z-50 flex flex-col gap-1 border border-outline-variant/30"
-                     id="userDropdownMenu">
-                    @*<div class="px-3 py-2 bg-surface-container rounded-lg">
-                            <span class="text-on-surface font-semibold text-body-sm block">@CurrentUser.Info.EmployeeName</span><span class="text-outline text-label-caps font-code-sm block">@CurrentUser.Info.Email</span>
-                        </div>*@
-                    <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant text-body-sm transition-colors"
-                       href="#"
-                       id="openProfileBtn">
-                        <span class="material-symbols-outlined text-[18px] text-primary">@Html.Icon("account_circle", "w-[18px] h-[18px] shrink-0")</span><span class="">Thông tin cá nhân</span>
-                    </a>
-                    @*<a class="flex items-center gap-2 px-3 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant text-body-sm transition-colors"
-                               href="#"
-                               id="openConfigBtn">
-                            <span class="material-symbols-outlined text-[18px] text-secondary">tune</span><span class="">Cấu hình tài khoản</span>
-                        </a>*@
-                    <div class="h-[1px] bg-surface-variant my-1"></div>
+    </div>
 
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-error hover:bg-error-container/20 text-body-sm transition-colors"
-                           href="#"
-                           id="openLogoutBtn">
-                            <span class="material-symbols-outlined text-[18px]">@Html.Icon("logout", "w-[18px] h-[18px] shrink-0")</span><span class="">Đăng xuất</span>
-                        </a>
-                    }
+    <!-- Center: Sub-fleet Switcher -->
+    <div class="hidden md:flex items-center gap-1.5 bg-slate-100 dark:bg-[#09101c] shadow-black/10 dark:shadow-black/50 shadow-inner p-1 rounded-xl">
+        <button class="flex items-center gap-2 bg-blue-100 dark:bg-[#15243a] shadow-sm px-3 py-1.5 rounded-lg font-semibold text-blue-700 dark:text-cyan-300 text-xs transition-all fleet-btn"
+                data-fleet="FATP">
+            <span>FATP</span>
+            <span class="px-1.5 py-0.5 rounded font-mono font-bold text-xs" id="fatp-incident">0</span>
+        </button>
+
+        <button class="flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-[#121c2d] px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs transition-all fleet-btn"
+                data-fleet="CR">
+            <span>CR</span>
+            <span class="px-1.5 py-0.5 rounded font-mono font-bold text-xs" id="cr-incident">0</span>
+        </button>
+
+        <button class="flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-[#121c2d] px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs transition-all fleet-btn"
+                data-fleet="SMT">
+            <span>SMT</span>
+            <span class="px-1.5 py-0.5 rounded font-mono font-bold text-xs" id="smt-incident">0</span>
+        </button>
+
+        <button class="flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-[#121c2d] px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs transition-all fleet-btn"
+                data-fleet="BOBCAT">
+            <span>Bobcat</span>
+            <span class="px-1.5 py-0.5 rounded font-mono font-bold text-xs" id="bobcat-incident">0</span>
+        </button>
+    </div>
+
+    <!-- Right: User Profile & Dropdown -->
+    <div class="flex items-center gap-2">
+        <button id="themeToggle"
+                class="px-3 py-2 rounded bg-gray-200 dark:bg-gray-700 text-slate-800 dark:text-white flex items-center">
+            @*@Html.Icon("person", "w-[20px] h-[20px] shrink-0")*@
+            <!-- Đang tối: hiện mặt trời để chuyển sang sáng -->
+            <span class="hidden dark:inline-flex">
+                @Html.Icon("light_mode", "w-[20px] h-[20px] shrink-0")
+            </span>
+
+            <!-- Đang sáng: hiện mặt trăng để chuyển sang tối -->
+            <span class="inline-flex dark:hidden">
+                @Html.Icon("dark_mode", "w-[20px] h-[20px] shrink-0")
+            </span>
+        </button>
+
+        <div class="relative">
+            <button class="flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-[#0e1726] px-2 py-1.5 rounded-lg transition-colors"
+                    id="user-menu-btn">
+                <div class="hidden lg:flex flex-col text-left">
+                    <span class="font-semibold text-slate-900 dark:text-white text-xs">@user.EmployeeName</span>
+                    <span class="font-mono text-slate-500 dark:text-slate-400 text-xs">@user.EmployeeCode</span>
                 </div>
+
+                <div class="relative">
+                    <div class="flex justify-center items-center bg-gradient-to-br from-cyan-500/70 to-blue-600/70 shadow rounded-xl w-8 h-8 font-mono font-bold text-white text-xs">
+                        @Html.Icon("person", "w-[18px] h-[18px] shrink-0")
+                    </div>
+                    <span class="right-0 bottom-0 absolute bg-emerald-400 rounded-full ring-white dark:ring-[#070d17] ring-2 w-2.5 h-2.5"></span>
+                </div>
+
+                @Html.Icon("keyboard_arrow_down", "w-[14px] h-[14px] text-slate-500 dark:text-slate-400 shrink-0")
+            </button>
+
+            <!-- User Dropdown Menu -->
+            <div class="hidden right-0 z-50 absolute bg-white dark:bg-[#0a1220] shadow-2xl shadow-black/10 dark:shadow-black/30 mt-2 p-2 rounded-xl w-72 border border-slate-200 dark:border-slate-800"
+                 id="user-dropdown">
+                <div class="bg-slate-50 dark:bg-[#0d1728]/70 mb-1 p-3 rounded-lg">
+                    <div class="flex justify-between items-center"></div>
+
+                    <p class="mt-1.5 font-semibold text-slate-900 dark:text-white text-xs">
+                        @user.EmployeeName
+                        <span class="bg-cyan-100 dark:bg-cyan-500/20 px-2 py-0.5 rounded font-mono font-bold text-cyan-700 dark:text-cyan-300 text-xs">
+                            Super Admin
+                        </span>
+                    </p>
+
+                    <p class="font-mono text-slate-500 dark:text-slate-400 text-xs">@user.Email</p>
+                </div>
+
+                <div class="space-y-0.5 py-1">
+                    <a class="flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-[#121c2d] px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs transition-colors"
+                       href="#"
+                       onclick="openProfileModal(); return false;">
+                        @Html.Icon("badge", "w-[16px] h-[16px] shrink-0")
+                        <span>Account information</span>
+                    </a>
+                </div>
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="mt-1 pt-1 border-t border-slate-200 dark:border-slate-800">
+                        <button class="flex items-center gap-2.5 hover:bg-rose-50 dark:hover:bg-rose-500/10 px-3 py-2 rounded-lg w-full font-medium text-rose-600 dark:text-rose-400 text-xs transition-colors"
+                                onclick="openLogoutModal()">
+                            @Html.Icon("logout", "w-[16px] h-[16px] shrink-0")
+                            <span>Log out</span>
+                        </button>
+                    </div>
+                }
             </div>
         </div>
     </div>
 </header>
-<div class="fixed inset-0 z-50 hidden bg-surface-container-lowest/80 backdrop-blur-sm flex items-center justify-center p-space-md"
-     id="userProfileModal">
-    <div class="bg-surface-container rounded-xl w-full max-w-lg p-space-lg shadow-2xl flex flex-col gap-space-md border border-outline-variant/30">
-        <div class="flex items-center justify-between pb-2">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary text-[22px]">badge</span>
-                <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">
-                    Account information
-                </h3>
+
+<!-- ==================== USER PROFILE MODAL ==================== -->
+<div class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-5"
+     id="user-profile-modal">
+    <div class="w-full max-w-xl bg-white dark:bg-[#09101c] rounded-2xl shadow-2xl shadow-black border border-slate-200 dark:border-slate-800/80 flex flex-col overflow-hidden">
+        <div class="p-4 bg-slate-50 dark:bg-[#0e1726] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <h3 class="font-sans font-bold text-base text-slate-900 dark:text-white">Account information</h3>
             </div>
-            <button class="p-1 rounded text-outline hover:text-on-surface"
-                    id="closeProfileModalBtn"
-                    type="button">
-                <span class="material-symbols-outlined">close</span>
+
+            <button class="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#152238] transition-colors"
+                    onclick="closeProfileModal()">
+                @Html.Icon("close", "w-[20px] h-[20px] shrink-0")
             </button>
         </div>
-        <div class="bg-surface-container-low p-space-md rounded-lg flex items-center gap-4">
-            <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-on-primary text-[28px]">
-                <span class="material-symbols-outlined text-[32px]">person</span>
+
+        <div class="p-5 space-y-4">
+            <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-50 dark:bg-[#0e1726] border border-slate-200 dark:border-slate-800">
+                <div class="relative shrink-0">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500/70 to-blue-600/70 flex items-center justify-center font-mono font-bold text-lg text-white shadow-lg">
+                        @Html.Icon("person", "w-[28px] h-[28px] shrink-0")
+                    </div>
+                    <span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-400 ring-2 ring-white dark:ring-[#070d17]"></span>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white truncate">@user.EmployeeName</h4>
+                        <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30 shrink-0">
+                            Super Admin
+                        </span>
+                    </div>
+
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">@user.Email</p>
+
+                    <p class="text-xs text-emerald-600 dark:text-emerald-400 font-mono mt-1 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        @user.Department • Staff
+                    </p>
+                </div>
             </div>
-            <div class="flex flex-col">
-                <span class="font-headline-sm text-on-surface font-semibold">@CurrentUser.Info.EmployeeName</span>
-                <span class="font-code-sm text-secondary">@CurrentUser.Info.Department</span>
-                @*<span class="font-code-sm text-outline text-[11px] mt-1">Duty Role: Level 3 Incident Commander</span>*@
+
+            <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+                <div class="p-3 bg-slate-50 dark:bg-[#0a1220] rounded-xl border border-slate-200 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400 block text-[11px]">ID Card</span>
+                    <span class="text-slate-900 dark:text-white font-bold text-sm mt-0.5 block">@user.EmployeeCode</span>
+                </div>
+
+                <div class="p-3 bg-slate-50 dark:bg-[#0a1220] rounded-xl border border-slate-200 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Shift</span>
+                    <span class="text-cyan-700 dark:text-cyan-300 font-bold text-sm mt-0.5 block">Shift: Day (08:00 - 16:00)</span>
+                </div>
+
+                <div class="p-3 bg-slate-50 dark:bg-[#0a1220] rounded-xl border border-slate-200 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Phone number</span>
+                    <span class="text-slate-900 dark:text-white font-bold mt-0.5 block">--</span>
+                </div>
+
+                <div class="p-3 bg-slate-50 dark:bg-[#0a1220] rounded-xl border border-slate-200 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Role</span>
+                    <span class="text-rose-600 dark:text-rose-400 font-bold mt-0.5 block">SUPER ADMIN</span>
+                </div>
             </div>
         </div>
-        <div class="bg-surface-container-low p-3 rounded-lg flex flex-col gap-2 font-code-sm text-[12px]">
-            <div class="flex justify-between">
-                <span class="text-outline">Email</span><span class="text-on-surface">@CurrentUser.Info.Email</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-outline">Shift</span><span class="text-secondary">Day (08:00 - 17:00)</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-outline">Role</span><span class="text-primary font-bold">USER</span>
-            </div>
-        </div>
-        <div class="flex justify-end gap-2 pt-2">
-            <button class="px-4 py-1.5 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md"
-                    id="closeProfileModalSecondaryBtn"
-                    type="button">
-                Đóng
+
+        <div class="p-3 bg-slate-50 dark:bg-[#0a1220] border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-end gap-2.5 font-mono text-xs">
+            <button class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-[#142033] hover:bg-slate-300 dark:hover:bg-[#1c2e47] text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition-colors font-sans text-xs font-medium"
+                    onclick="closeProfileModal()">
+                Close
             </button>
         </div>
     </div>
 </div>
+
+<!-- ==================== LOGOUT CONFIRMATION MODAL ==================== -->
+<div class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-5"
+     id="logout-confirm-modal">
+    <div class="w-full max-w-md bg-white dark:bg-[#09101c] rounded-2xl shadow-2xl shadow-black border border-slate-200 dark:border-slate-800/80 flex flex-col overflow-hidden">
+        <div class="p-4 bg-slate-50 dark:bg-[#0e1726] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div>
+                    <h3 class="font-sans font-bold text-base text-slate-900 dark:text-white">Logout</h3>
+                </div>
+            </div>
+
+            <button class="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#152238] transition-colors"
+                    onclick="closeLogoutModal()">
+                @Html.Icon("close", "w-[20px] h-[20px] shrink-0")
+            </button>
+        </div>
+
+        <div class="p-5 space-y-3">
+            <p class="text-base text-slate-700 dark:text-slate-200 leading-relaxed font-sans">
+                Are you sure you want to sign out?
+            </p>
+        </div>
+
+        <div class="p-3 bg-slate-50 dark:bg-[#0a1220] border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-end gap-2.5 font-mono text-xs">
+            <button class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-[#142033] hover:bg-slate-300 dark:hover:bg-[#1c2e47] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors font-sans text-xs font-medium"
+                    onclick="closeLogoutModal()">
+                Cancel
+            </button>
+
+            @using (Html.BeginForm("Logout", "Auth", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <button class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-sans text-xs font-bold transition-all shadow-lg shadow-rose-600/30 flex items-center gap-1.5">
+                    @Html.Icon("logout", "w-[14px] h-[14px] shrink-0")
+                    <span>Log out</span>
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    let dept = window.localStorage.getItem('dpa-dept') || 'FATP';
+
+    function lockScroll() {
+        document.body.classList.add('overflow-hidden');
+    }
+
+    function unlockScroll() {
+        const profileOpen = !document.getElementById('user-profile-modal')?.classList.contains('hidden');
+        const logoutOpen = !document.getElementById('logout-confirm-modal')?.classList.contains('hidden');
+
+        if (!profileOpen && !logoutOpen) {
+            document.body.classList.remove('overflow-hidden');
+        }
+    }
+
+    function openProfileModal() {
+        const m = document.getElementById('user-profile-modal');
+        const d = document.getElementById('user-dropdown');
+
+        if (d) d.classList.add('hidden');
+
+        if (m) {
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+            lockScroll();
+        }
+    }
+
+    function closeProfileModal() {
+        const m = document.getElementById('user-profile-modal');
+
+        if (m) {
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+            unlockScroll();
+        }
+    }
+
+    function openLogoutModal() {
+        const m = document.getElementById('logout-confirm-modal');
+
+        if (m) {
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+            lockScroll();
+        }
+    }
+
+    function closeLogoutModal() {
+        const m = document.getElementById('logout-confirm-modal');
+
+        if (m) {
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+            unlockScroll();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const html = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+
+        // Initialize theme. Default is Light Mode.
+        const savedTheme = window.localStorage.getItem('theme');
+
+        if (savedTheme === 'dark') {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function () {
+                html.classList.toggle('dark');
+
+                window.localStorage.setItem(
+                    'theme',
+                    html.classList.contains('dark') ? 'dark' : 'light'
+                );
+            });
+        }
+
+        // Highlight active fleet.
+        function updateFleetButtonStyles() {
+            document.querySelectorAll('.fleet-btn').forEach(function (btn) {
+                const isActive = btn.dataset.fleet === dept;
+
+                btn.classList.remove(
+                    'bg-blue-100',
+                    'dark:bg-[#15243a]',
+                    'bg-slate-100',
+                    'dark:bg-[#15243a]',
+                    'text-blue-700',
+                    'dark:text-cyan-300',
+                    'text-slate-600',
+                    'dark:text-slate-400',
+                    'shadow-sm'
+                );
+
+                if (isActive) {
+                    btn.classList.add(
+                        'bg-blue-100',
+                        'dark:bg-[#15243a]',
+                        'text-blue-700',
+                        'dark:text-cyan-300',
+                        'shadow-sm'
+                    );
+                } else {
+                    btn.classList.add(
+                        'text-slate-600',
+                        'dark:text-slate-400'
+                    );
+                }
+            });
+        }
+
+        updateFleetButtonStyles();
+
+        // Sub-fleet buttons.
+        document.querySelectorAll('.fleet-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                dept = this.dataset.fleet;
+
+                window.localStorage.setItem('dpa-dept', dept);
+
+                updateFleetButtonStyles();
+
+                if (typeof showToast === 'function') {
+                    showToast('Viewing Fleet: ' + dept.toUpperCase(), 'info');
+                }
+
+                window.location.reload();
+            });
+        });
+
+        // User profile dropdown.
+        const userBtn = document.getElementById('user-menu-btn');
+        const userDropdown = document.getElementById('user-dropdown');
+
+        if (userBtn && userDropdown) {
+            userBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!userDropdown.contains(e.target) && !userBtn.contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        // Close modals when clicking their backdrops.
+        ['user-profile-modal', 'logout-confirm-modal'].forEach(function (id) {
+            const modal = document.getElementById(id);
+
+            if (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) {
+                        if (id === 'user-profile-modal') {
+                            closeProfileModal();
+                        } else {
+                            closeLogoutModal();
+                        }
+                    }
+                });
+            }
+        });
+
+        // Close modals with Escape.
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeProfileModal();
+                closeLogoutModal();
+            }
+        });
+    });
+</script>

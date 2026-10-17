@@ -1,8 +1,8 @@
-﻿using Domain;
+﻿using Application.Exceptions;
+using Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.Feature.Dashboard
@@ -16,11 +16,13 @@ namespace Application.Feature.Dashboard
             _repo = repo;
         }
 
-        public async Task<List<ProcessFlow>> GetProcessFlowAsync(string funcType)
+        public async Task<List<AlwaysOn>> GetAlwaysOnAsync(string site = null, string department = null)
         {
             try
             {
-                return await _repo.GetProcessFlowAsync(funcType);
+                List<AlwaysOn> data = await _repo.GetAlwaysOnAsyc(site, department);
+
+                return data;
             }
             catch
             {

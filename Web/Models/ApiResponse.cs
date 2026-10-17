@@ -1,39 +1,29 @@
 ﻿namespace Web.Models
 {
+
     public class ApiResponse<T>
     {
-        public bool Success { get; set; }
+        public bool success { get; set; }
+        public string message { get; set; }
+        public T data { get; set; }
 
-        public string Message { get; set; }
-
-        public string ErrorCode { get; set; }
-
-        public T Data { get; set; }
-    }
-
-    public static class ApiResponse
-    {
-        public static ApiResponse<T> Ok<T>(
-            T data,
-            string message = "Success")
+        public static ApiResponse<T> Ok(T data, string message = "")
         {
             return new ApiResponse<T>
             {
-                Success = true,
-                Message = message,
-                Data = data
+                success = true,
+                message = message,
+                data = data
             };
         }
 
-        public static ApiResponse<T> Fail<T>(
-            string message,
-            string errorCode = null)
+        public static ApiResponse<T> Fail(string message)
         {
             return new ApiResponse<T>
             {
-                Success = false,
-                Message = message,
-                ErrorCode = errorCode
+                success = false,
+                message = message,
+                data = default(T)
             };
         }
     }

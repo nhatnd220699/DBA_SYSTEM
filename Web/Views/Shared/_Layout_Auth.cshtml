@@ -1,0 +1,72 @@
+﻿@{
+    string cookieToken, formToken;
+    System.Web.Helpers.AntiForgery.GetTokens(null, out cookieToken, out formToken);
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-form-token" content="@formToken" />
+    <title>@ViewBag.Title - DBA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+          rel="stylesheet" />
+    <script src="@Url.Content("~/Scripts/libs/tailwind/tailwind.js")"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        noc: {
+                            canvas: '#040810',
+                            panel: '#09101c',
+                            card: '#0e1726',
+                            inner: '#142033',
+                            accent: '#38bdf8',
+                            success: '#34d399',
+                            warning: '#fbbf24',
+                            danger: '#f43f5e',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            background-color: #040810;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #09101c;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #38bdf8;
+            }
+    </style>
+</head>
+<body class="min-h-screen relative w-full flex flex-column items-center bg-[#f1f1f1] backdrop-blur-sm transition-opacity antialiased selection:bg-cyan-100 selection:text-cyan-900d">
+    <main class="relative flex items-center justify-center px-4 py-8 w-[100%]">
+        @RenderBody()
+    </main>
+</body>
+</html>

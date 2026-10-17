@@ -1,7 +1,52 @@
-﻿import { Popup, ActionLock, ApiClient, renderIcon } from '../modules/app.js';
+﻿import { Popup, ActionLock, ApiClient, renderIcon, NumberUtils } from '../modules/app.js';
 
 //Bengin script 1
+const appState = {
+    selectedCategory: 'error-logs',
+    selectedSeverity: 'all', // "all", "critical", "high", "medium"
+    searchQuery: '',
+    expandedGroups: new Set([]), // Group 1 expanded by default
+    expandedIncidents: new Set([]), // Error 1 expanded by default
+};
+let serverIpArr = [];
 let toastTimeout = null;
+
+// Global UI & Filter State
+const filterSummary = {
+    categories: [
+        //{ id: 'all', label: 'All Categories', count: 0, icon: 'terminal' },
+        { id: 'error-logs', label: 'Error Logs', count: 0, icon: 'terminal' },
+        { id: 'error-jobs', label: 'Agent Jobs', count: 0, icon: 'schedule' },
+        { id: 'database-lock', label: 'Database Lock', count: 0, icon: 'lock_clock' },
+        { id: 'backup', label: 'Backup SLA', count: 0, icon: 'cloud_done' },
+    ],
+    severities: [
+        {
+            id: 'critical',
+            label: 'Critical',
+            count: 28,
+            dotColor: 'bg-red-400',
+            textColor: 'text-red-400',
+            activeBg: 'bg-red-500/20 border-red-500/40',
+        },
+        {
+            id: 'high',
+            label: 'High',
+            count: 22,
+            dotColor: 'bg-blue-400',
+            textColor: 'text-blue-400',
+            activeBg: 'bg-blue-500/20 border-blue-500/40',
+        },
+        {
+            id: 'medium',
+            label: 'Medium',
+            count: 12,
+            dotColor: 'bg-emerald-400',
+            textColor: 'text-emerald-400',
+            activeBg: 'bg-emerald-500/20 border-emerald-500/40',
+        },
+    ],
+};
 
 //// Lock/Unlock Scroll when modal is toggled
 //function lockScroll() {
@@ -30,10 +75,16 @@ function showToast(message, type, duration = 3800) {
             : type === 'danger'
                 ? 'bg-[#260a12] text-rose-300 border border-rose-500/40 shadow-rose-950/50'
                 : 'bg-[#0a172a] text-cyan-300 border border-cyan-500/40 shadow-cyan-950/50');
+    //toast.innerHTML =
+    //    '<span class="material-symbols-outlined text-base">' +
+    //    (type === 'success' ? 'check_circle' : type === 'danger' ? 'error' : 'info') +
+    //    '</span><span>' +
+    //    message +
+    //    '</span>';
+
     toast.innerHTML =
-        '<span class="material-symbols-outlined text-base">' +
-        (type === 'success' ? 'check_circle' : type === 'danger' ? 'error' : 'info') +
-        '</span><span>' +
+        (type === 'success' ? renderIcon('check_circle', 'w-[16px] h-[16px]') : type === 'danger' ? renderIcon('error', 'w-[16px] h-[16px]') : renderIcon('info', 'w-[16px] h-[16px]')) +
+        '<span>' +
         message +
         '</span>';
     container.appendChild(toast);
@@ -47,19 +98,9 @@ function showToast(message, type, duration = 3800) {
         }, 300);
     }, duration);
 }
+window.showToast = showToast;
 
 let currentSubsystem = 'error-logs';
-
-function openSubsystemModal(key) {
-    currentSubsystem = key || 'error-logs';
-    const modal = document.getElementById('subsystem-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        lockScroll();
-        filterByCategory(key);
-    }
-}
-window.openSubsystemModal = openSubsystemModal;
 
 function closeSubsystemModal() {
     const modal = document.getElementById('subsystem-modal');
@@ -70,34 +111,107 @@ function closeSubsystemModal() {
 }
 window.closeSubsystemModal = closeSubsystemModal;
 
-// Core Clipboard Copy with Fallback
-async function copyTextToClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-        try {
-            await navigator.clipboard.writeText(text);
-            return true;
-        } catch (err) {
-            // Fall back
-        }
-    }
-    // Fallback method
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    try {
-        const successful = document.execCommand('copy');
-        textArea.remove();
-        return successful;
-    } catch (err) {
-        textArea.remove();
-        return false;
+function updateErrorSummary(element, count) {
+    if (!element) return;
+
+    const title = element.querySelector('.error-title');
+    const countEl = element.querySelector('.error-count');
+    const badge = element.querySelector('.error-badge');
+
+    if (countEl) countEl.textContent = count;
+
+    const isError = count > 0;
+
+    title?.classList.add(
+        isError
+            ? 'group-hover:text-rose-400'
+            : 'group-hover:text-emerald-400'
+    );
+
+    countEl?.classList.add(
+        isError
+            ? 'text-rose-600'
+            : 'text-emerald-600'
+    );
+
+    if (badge && isError) {
+        badge.innerHTML = renderIcon(
+            'error',
+            'w-[26px] h-[26px] font-bold animate-[pulse_2s_ease-in-out_infinite] text-rose-600 shrink-0'
+        );
     }
 }
+
+async function getErrorSummary() {
+    let html = '';
+
+    try {
+        const params = {
+            "BU": "MSSQL",
+            "Station": "AIQuery",
+            "Step": "Get_Dashboard_Summary",
+            "InputStr": `\{"Dept": "${dept}"\}`
+        };
+
+        const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
+
+        const data = JSON.parse(result.data);
+        if (!result.success) return;
+
+        if (data && data.length > 0) {
+            const errorLogEl = document.getElementById('error-summary-logs');
+            const errorJobEl = document.getElementById('error-summary-jobs');
+            const errorLockEl = document.getElementById('error-summary-lock');
+            const errorBackupEl = document.getElementById('error-summary-backup');
+
+            const typeMap = {
+                SP_Error: {
+                    categoryId: 'error-logs',
+                    elementId: 'error-summary-logs'
+                },
+                Job_Error: {
+                    categoryId: 'error-jobs',
+                    elementId: 'error-summary-jobs'
+                },
+                DBLock_Error: {
+                    categoryId: 'database-lock',
+                    elementId: 'error-summary-lock'
+                },
+                DBBackup_Error: {
+                    categoryId: 'backup',
+                    elementId: 'error-summary-backup'
+                }
+            };
+            const countMap = {};
+
+            data.forEach(item => {
+                const config = typeMap[item.type];
+                if (!config) return;
+
+                countMap[config.categoryId] = item.error_count || 0;
+
+                if (item?.type === "SP_Error") {
+                    updateErrorSummary(errorLogEl, item.error_count || 0);
+                } else if (item?.type === "Job_Error") {
+                    updateErrorSummary(errorJobEl, item.error_count || 0);
+                } else if (item?.type === "DBLock_Error") {
+                    updateErrorSummary(errorLockEl, item.error_count || 0);
+                } else if (item?.type === "DBBackup_Error") {
+                    updateErrorSummary(errorBackupEl, item.error_count || 0);
+                }
+            });
+
+            //Update arr
+            filterSummary.categories.forEach(category => {
+                category.count = countMap[category.id] || 0;
+            });
+        }
+
+    } catch (err) {
+        console.log(err.message);
+    }
+}
+
 
 function formatConnectedState(state) {
     const value = (state || '').toUpperCase();
@@ -153,8 +267,9 @@ async function getAlwaysOnStatus() {
             "BU": "MSSQL",
             "Station": "AIQuery",
             "Step": "Get_AlwaysOn_Status",
-            "InputStr": "{}"
-        }
+            "InputStr": `\{"Dept": "${dept}"\}`
+        };
+
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
 
         var data = JSON.parse(result.data);
@@ -164,10 +279,10 @@ async function getAlwaysOnStatus() {
                 html = data.map(item => {
                     return `
                 <tr>
-                    <td>${item.database_name || ''}</td>
+                    <td class="px-3 py-2.5 whitespace-nowrap font-bold text-white">${item.database_name || ''}</td>
                     <td class="px-3 py-2.5 whitespace-nowrap font-bold text-white">${item.replica_server_name || ''}</td>
                     <td class="px-3 py-2.5 whitespace-nowrap text-slate-200">${item.replica_role || ''}</td>
-                    <td class="px-3 py-2.5 whitespace-nowrap font-medium">${formatSyncState(item.connected_state)}</td>
+                    <td class="px-3 py-2.5 whitespace-nowrap font-medium">${formatConnectedState(item.connected_state)}</td>
                     <td class="px-3 py-2.5 whitespace-nowrap">${formatSyncState(item.synchronization_state)}</td>
                     <td class="px-3 py-2.5 whitespace-nowrap text-center">${formatHealthLevel(item.health_level)}</td>
                     <td class="px-3 py-2.5 whitespace-nowrap text-slate-200 text-right">${item.log_send_queue_kb || ''}</td>
@@ -219,21 +334,21 @@ function formatWarningLevel(level) {
     switch (value) {
         case 'CRITICAL':
             return `
-                <span class="inline-block text-rose-400 font-bold text-[11px]">
+                <span class="inline-block px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-bold text-[11px]">
                     ${level}
                 </span>
             `;
 
         case 'WARNING':
             return `
-                <span class="inline-block text-amber-400 font-bold text-[11px]">
+                <span class="inline-block px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold text-[11px]">
                     ${level}
                 </span>
             `;
 
         default:
             return `
-                <span class="inline-block text-emerald-400 font-bold text-[11px]">
+                <span class="inline-block px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[11px]">
                     ${level || 'NORMAL'}
                 </span>
             `;
@@ -244,13 +359,14 @@ function formatWarningLevel(level) {
 async function getLargeTable() {
     let html = '';
     const tableLargeBadge = document.getElementById('table-large-badge');
+    const totalTablesCapacity = document.getElementById('total-tables-capacity');
 
     try {
         const params = {
             "BU": "MSSQL",
             "Station": "AIQuery",
             "Step": "Get_LargeTable_Status",
-            "InputStr": "{}"
+            "InputStr": `\{"Dept": "${dept}"\}`
         }
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
 
@@ -261,7 +377,7 @@ async function getLargeTable() {
                 html = data.map(item => {
                     return `
                     <tr>
-                        <td>${item.database_name || ''}</td>
+                        <td class="px-3 py-2.5 whitespace-nowrap font-bold text-white">${item.database_name || ''}</td>
                         <td class="px-3 py-2.5 whitespace-nowrap font-bold text-white">${item.table_name || ''}</td>
                         <td class="px-3 py-2.5 whitespace-nowrap text-slate-200">${item.database_name || ''}</td>
                         <td class="px-3 py-2.5 whitespace-nowrap font-medium">${formatTableRows(item.table_rows)}</td>
@@ -282,60 +398,239 @@ async function getLargeTable() {
     }
 
     tableLargeBadge.textContent = data && data.length >= 0 ? data.length + ' LARGE TABLES' : 'LARGE TABLES';
+
+    const totalCapacity = data?.reduce((acc, item) => { return acc += item.reserved_gb }, 0);
+    totalTablesCapacity.textContent = data && data.length >= 0 ? 'TOTAL CAPACITY (' + data.length + ` TABLES): ${NumberUtils.formatNumber(totalCapacity)} GB` : 'TOTAL CAPACITY'
     document.getElementById('table-large').querySelector('tbody').innerHTML = html;
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    getAlwaysOnStatus();
-    getLargeTable();
-});
-//End script 1
+async function getDiskSpace() {
+    try {
+        const params = {
+            "BU": "MSSQL",
+            "Station": "AIQuery",
+            "Step": "Get_DiskSpace_Status",
+            "InputStr": `\{"Dept": "${dept}"\}`
+        }
+
+        const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
+
+        var data = JSON.parse(result.data);
+        if (result.success) {
+            if (data && data.length > 0) {
+                //const serverIpArr = [...new Map(data.map(item => [`${item?.server_ip}_${item?.server_name}`, { server_ip: item.server_ip, server_name: item.server_name }])).values()];
+                serverIpArr = Object.values(
+                    data.reduce((acc, item) => {
+                        const key = `${item.server_ip}_${item.server_name}`;
+
+                        if (!acc[key]) {
+                            acc[key] = {
+                                server_ip: item.server_ip,
+                                server_name: item.server_name,
+                                count: 0
+                            };
+                        }
+
+                        acc[key].count++;
+
+                        if (Number(item.free_space_percent) < 30) {
+                            acc[key].alarm = true;
+                        }
+
+                        return acc;
+                    }, {})
+                );
+
+                const nameEl = document.getElementById('storage-active-server-name');
+                const ipEl = document.getElementById('storage-active-server-ip');
+                const multipathEl = document.getElementById('storage-active-server-multipath');
+
+                if (nameEl) nameEl.textContent = serverIpArr[0].server_name;
+                if (ipEl) ipEl.textContent = '[' + serverIpArr[0].server_ip + ']';
+                if (multipathEl) multipathEl.textContent = 'SAN DISK: ' + serverIpArr[0].count + ' DISKS';
 
 
+                const serverTabs = document.getElementById('san-server-tabs');
+                const htmlSeverTabs = serverIpArr.map((server, idx) => {
+                    const isActive = idx === 0;
+                    const hasAlarm = server.alarm;
+                    const serverIp = server.server_ip.replace(/\./g, '_');
+                    return `
+                        <li role="presentation" class="shrink-0">
+                            <button type="button"
+                                    role="tab"
+                                    aria-selected="${isActive}"
+                                    class="storage-server-tab flex items-center gap-1.5 py-2 px-3 border-b-2 ${isActive ? 'text-cyan-300 border-cyan-400 hover:text-white font-semibold' : 'text-slate-400 border-transparent hover:text-slate-200 hover:border-slate-700 font-medium'} transition-all group"
+                                    data-action="switch-storage-server"
+                                    data-server-ip="${serverIp}"
+                                    id="tab-btn-${serverIp}">
+                                <span class="w-2 h-2 rounded-full ${hasAlarm ? 'bg-rose-600' : 'bg-emerald-600'} circle-badge ${isActive ? 'animate-pulse' : ''}"></span>
+                                <span class="font-mono font-medium tracking-tight">${server.server_ip}</span>
+                            </button>
+                        </li>
+                    `;
+                }).join('');
+                serverTabs.innerHTML = htmlSeverTabs;
 
-//Begin script 2
-const SERVER_CONFIGS = {
-    fatp01: {
-        name: 'FATP-NODE01',
-        ip: '10.20.14.11',
-        role: 'Primary Node • Synchronized',
-        status: 'ONLINE',
-        statusClass:
-            'text-[10px] text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded font-bold',
-        multipath: 'SAN Multipath: 4 Links Active',
-    },
-    fatp02: {
-        name: 'FATP-NODE02',
-        ip: '10.20.14.12',
-        role: 'Secondary Node • Synchronized',
-        status: 'ONLINE',
-        statusClass:
-            'text-[10px] text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded font-bold',
-        multipath: 'SAN Multipath: 4 Links Active',
-    },
-    crapp: {
-        name: 'CR-APP-DB01',
-        ip: '10.20.25.101',
-        role: 'Standalone Primary • Cleanroom',
-        status: 'ONLINE',
-        statusClass:
-            'text-[10px] text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded font-bold',
-        multipath: 'Direct NVMe: 2 Channels Normal',
-    },
-    smt01: {
-        name: 'SMT-MASTER-01',
-        ip: '10.20.30.50',
-        role: 'Primary HA • SMT Core',
-        status: 'WARNING',
-        statusClass:
-            'text-[10px] text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded font-bold',
-        multipath: 'SAN Multipath: High IOPS (82.4k)',
-    },
-};
 
-function switchStorageServerTab(serverKey) {
-    const conf = SERVER_CONFIGS[serverKey];
-    if (!conf) return;
+                const dataServer = data.reduce((acc, item) => {
+                    if (!acc[item.server_ip]) {
+                        acc[item.server_ip] = [];
+                    }
+
+                    acc[item.server_ip].push(item);
+                    return acc;
+                }, {});
+
+                const storageTabs = document.getElementById('storage-tab-panes');
+                let htmlStorageTabs = '';
+                serverIpArr.forEach((server, idx) => {
+                    const isActive = idx === 0;
+                    const serverIp = server.server_ip.replace(/\./g, '_');
+
+                    const storageData = dataServer[server.server_ip] || [];
+                    const storages = storageData.map(storage => {
+                        const hasFreeAlarm = Number(storage?.free_space_percent) <= 30;
+                        return `
+                            <div class="flex flex-col justify-between bg-[#121c2d] hover:bg-[#18263e] shadow-md p-3.5 rounded-xl transition-all duration-200">
+                                <div class="flex flex-col items-center w-full text-center">
+                                    <div class="relative mb-2.5 filter">
+                                        <img src="./Content/images/hdd_48.png" alt="disk" />
+                                    </div>
+                                    <!-- Drive Label & Role -->
+                                    <span class="font-mono font-bold text-white text-xs tracking-tight">Disk (${storage?.volume_point})</span>
+                                    <!-- <span class="mt-0.5 max-w-full font-sans text-[11px] text-slate-400 truncate"
+                                        >OS &amp; System Binaries</span
+                                    > -->
+                                </div>
+
+                                <!-- Capacity Metric & Progress Bar -->
+                                <div class="space-y-1.5 mt-3 w-full">
+                                    <div class="font-mono text-base text-center">
+                                        <span class="font-semibold text-slate-100">${storage?.used_space_gb}</span>
+                                        <span class="text-slate-400">/ ${storage?.total_space_gb} GB</span>
+                                    </div>
+                                    <div class="pt-1 text-center">
+                                        <span class="inline-block font-mono ${hasFreeAlarm ? 'font-bold text-rose-600' : 'font-medium text-slate-100'} text-[12px] tracking-wide">${storage?.free_space_percent}% Free</span> (${storage?.free_space_gb} GB)
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    }).join('');
+
+
+                    const gridColumns = storageData.length > 3 ? 4 : 3;
+
+                    htmlStorageTabs += `
+                        <div class="gap-3 grid grid-cols-2 md:grid-cols-${gridColumns} storage-pane transition-opacity duration-300 opacity-100 ${isActive ? 'opacity-100' : 'hidden opacity-0'}"
+                             id="pane-${serverIp}">
+                             ${storages}
+                        </div>
+                    `
+                });
+                storageTabs.innerHTML = htmlStorageTabs;
+            }
+        }
+    } catch (err) {
+        console.log(err.message);
+    }
+}
+
+// Core Clipboard Copy with Fallback
+async function copyTextToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch (err) {
+            // Fall back
+        }
+    }
+    // Fallback method
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        const successful = document.execCommand('copy');
+        textArea.remove();
+        return successful;
+    } catch (err) {
+        textArea.remove();
+        return false;
+    }
+}
+
+async function handleCopy(btn) {
+    const text = btn.closest('.copy-wrapper').querySelector('.copy-message')?.textContent;
+
+    if (!text) return;
+
+    const success = await copyTextToClipboard(text);
+
+    if (!success) return;
+
+    showToast(`Đã sao chép: ${text.substring(0, 42)}...`, 'success');
+    const icon = btn.querySelector('.icon');
+    if (icon) {
+        icon.textContent = 'check';
+        icon.classList.add('text-emerald-400');
+        setTimeout(() => {
+            icon.textContent = 'content_copy';
+            icon.classList.remove('text-emerald-400');
+        }, 1800);
+    }
+}
+
+function handleToggleGroup(btn) {
+    const groupId = btn?.dataset?.groupId;
+    if (!groupId) return;
+
+    if (appState.expandedGroups.has(groupId)) {
+        appState.expandedGroups.delete(groupId);
+    } else {
+        appState.expandedGroups.add(groupId);
+    }
+    renderIncidentDirectory(incidentGroupsData, appState);
+}
+
+function handleToggleIncident(btn) {
+    const incidentId = btn?.dataset?.incidentId;
+
+    if (!incidentId) return;
+
+    if (appState.expandedIncidents.has(incidentId)) {
+        appState.expandedIncidents.delete(incidentId);
+    } else {
+        appState.expandedIncidents.add(incidentId);
+    }
+    renderIncidentDirectory(incidentGroupsData, appState);
+}
+
+function handleOpenErrorModal(selector) {
+    const errorType = selector?.dataset.errorType;
+    if (!errorType) return;
+
+    currentSubsystem = errorType || 'error-logs';
+
+    const modal = document.getElementById('subsystem-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        lockScroll();
+        filterByCategory(errorType);
+    }
+}
+
+function handleSwitchStorageSever(tab) {
+    const serverKey = tab?.dataset.serverIp;
+
+    if (!serverKey) return;
+
+    const server = serverIpArr.find(item => item.server_ip === serverKey.replace(/_/g, '.'));
 
     // 1. Update Bootstrap Tabs styling
     const tabButtons = document.querySelectorAll('.storage-server-tab');
@@ -343,6 +638,9 @@ function switchStorageServerTab(serverKey) {
         btn.setAttribute('aria-selected', 'false');
         btn.className =
             'storage-server-tab flex items-center gap-2 py-2 px-3 text-slate-400 border-b-2 border-transparent transition-all hover:text-slate-200 hover:border-slate-700 font-medium group';
+
+        const circleBadge = btn.querySelector('.circle-badge');
+        circleBadge.classList.remove('animate-pulse');
     });
 
     const activeBtn = document.getElementById('tab-btn-' + serverKey);
@@ -350,23 +648,25 @@ function switchStorageServerTab(serverKey) {
         activeBtn.setAttribute('aria-selected', 'true');
         activeBtn.className =
             'storage-server-tab flex items-center gap-2 py-2 px-3 text-cyan-300 border-b-2 border-cyan-400 font-semibold transition-all hover:text-white group';
+        const circleBadge = activeBtn.querySelector('.circle-badge');
+        circleBadge.classList.add('animate-pulse');
     }
 
-    // // 2. Update Server Info Metadata ribbon
-    // const nameEl = document.getElementById('storage-active-server-name');
-    // const ipEl = document.getElementById('storage-active-server-ip');
+    // 2. Update Server Info Metadata ribbon
+    const nameEl = document.getElementById('storage-active-server-name');
+    const ipEl = document.getElementById('storage-active-server-ip');
     // const roleEl = document.getElementById('storage-active-server-role');
     // const statusEl = document.getElementById('storage-active-server-status');
-    // const multipathEl = document.getElementById('storage-active-server-multipath');
+    const multipathEl = document.getElementById('storage-active-server-multipath');
 
-    // if (nameEl) nameEl.innerText = conf.name;
-    // if (ipEl) ipEl.innerText = '[' + conf.ip + ']';
-    // if (roleEl) roleEl.innerText = conf.role;
-    // if (statusEl) {
-    //     statusEl.innerText = conf.status;
-    //     statusEl.className = conf.statusClass;
-    // }
-    // if (multipathEl) multipathEl.innerText = conf.multipath;
+    if (nameEl) nameEl.innerText = server.server_name;
+    if (ipEl) ipEl.innerText = '[' + server.server_ip + ']';
+    //// if (roleEl) roleEl.innerText = conf.role;
+    //// if (statusEl) {
+    ////     statusEl.innerText = conf.status;
+    ////     statusEl.className = conf.statusClass;
+    //// }
+    if (multipathEl) multipathEl.innerText = 'SAN DISK: ' + server.count + ' DISKS';
 
     // 3. Switch Disk Storage Panes with smooth fade transition
     const panes = document.querySelectorAll('.storage-pane');
@@ -384,10 +684,48 @@ function switchStorageServerTab(serverKey) {
         }, 20);
     }
 
-    showToast('Switched to storage telemetry of ' + conf.name + ' (' + conf.ip + ')', 'info', 1000);
+    showToast('Switched to storage telemetry of ' + server.server_name + ' (' + server.server_ip + ')', 'info', 1000);
 }
-window.switchStorageServerTab = switchStorageServerTab
-//End script 2
+
+async function handleClick(e) {
+    const actionEl = e.target.closest('[data-action]');
+
+    if (!actionEl) return;
+
+    const action = actionEl?.dataset?.action;
+
+    switch (action) {
+        case 'copy':
+            await handleCopy(actionEl);
+            break;
+        case 'toggle-group':
+            handleToggleGroup(actionEl);
+            break;
+        case 'toggle-incident':
+            handleToggleIncident(actionEl);
+            break;
+        case 'open-error-modal':
+            handleOpenErrorModal(actionEl);
+            break;
+        case 'switch-storage-server':
+            handleSwitchStorageSever(actionEl);
+            break;
+        default:
+            break;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    getErrorSummary();
+    getAlwaysOnStatus();
+    getLargeTable();
+    getDiskSpace();
+
+    document.getElementById('accordion-root').addEventListener('click', handleClick);
+    document.getElementById('error-summary').addEventListener('click', handleClick);
+    document.getElementById('san-server-tabs').addEventListener('click', handleClick);
+});
+//End script 1
 
 
 
@@ -763,51 +1101,6 @@ const incidentGroupsData = [
     },
 ];
 
-// Global UI & Filter State
-const filterSummary = {
-    categories: [
-        { id: 'all', label: 'All Categories', count: 62, icon: 'terminal' },
-        { id: 'error-logs', label: 'Error Logs', count: 28, icon: 'terminal' },
-        { id: 'error-jobs', label: 'Agent Jobs', count: 16, icon: 'schedule' },
-        { id: 'database-lock', label: 'Deadlocks & Locks', count: 12, icon: 'lock_clock' },
-        { id: 'backup', label: 'Backup SLA', count: 6, icon: 'cloud_done' },
-    ],
-    severities: [
-        {
-            id: 'critical',
-            label: 'Critical',
-            count: 28,
-            dotColor: 'bg-red-400',
-            textColor: 'text-red-400',
-            activeBg: 'bg-red-500/20 border-red-500/40',
-        },
-        {
-            id: 'high',
-            label: 'High',
-            count: 22,
-            dotColor: 'bg-blue-400',
-            textColor: 'text-blue-400',
-            activeBg: 'bg-blue-500/20 border-blue-500/40',
-        },
-        {
-            id: 'medium',
-            label: 'Medium',
-            count: 12,
-            dotColor: 'bg-emerald-400',
-            textColor: 'text-emerald-400',
-            activeBg: 'bg-emerald-500/20 border-emerald-500/40',
-        },
-    ],
-};
-
-const appState = {
-    selectedCategory: 'error-logs',
-    selectedSeverity: 'all', // "all", "critical", "high", "medium"
-    searchQuery: '',
-    expandedGroups: new Set([]), // Group 1 expanded by default
-    expandedIncidents: new Set([]), // Error 1 expanded by default
-};
-
 // 2. Filter Bar Renders
 function renderFilterBars() {
     // Render Category Tabs
@@ -854,7 +1147,7 @@ function renderFilterBars() {
                 return `
         <button onclick="filterBySeverity('${sev.id}')" class="px-2.5 py-1 rounded font-mono text-[11px] flex items-center gap-1.5 border transition-colors ${btnClass}" type="button">
             <span class="w-1.5 h-1.5 rounded-full ${sev.dotColor}"></span>
-            <span>${sev.label} (${sev.count})</span>
+            <span>${sev.label}</span>
         </button>
         `;
             })
@@ -925,7 +1218,7 @@ function renderIncidentDirectory(data, state) {
     if (filteredGroups.length === 0) {
         root.innerHTML = `
                 <div class="rounded-xl bg-slate-900/60 border border-slate-800 p-12 text-center flex flex-col items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-[36px] text-slate-500">search_off</span>
+                ${renderIcon('search_off', 'w-[36px] h-[36px] text-slate-500')}
                 <div class="text-[15px] font-semibold text-slate-300">No incident diagnostic matches found</div>
                 <div class="text-[12px] font-mono text-slate-500">Try adjusting your category tabs, severity filter, or search query.</div>
                 <button onclick="resetFilters()" class="mt-3 px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-mono text-[11px] transition-colors">
@@ -944,16 +1237,16 @@ function renderIncidentDirectory(data, state) {
 
             // Group trigger classes
             const arrowIconClass = isGroupExpanded
-                ? 'lvl1-icon material-symbols-outlined text-blue-400 text-[22px] transition-transform duration-200 rotate-90'
-                : 'lvl1-icon material-symbols-outlined text-slate-500 text-[22px] transition-transform duration-200';
+                ? 'lvl1-icon text-blue-400 w-[22px] h-[22px] text-[22px] transition-transform duration-200 rotate-90'
+                : 'lvl1-icon text-slate-500 w-[22px] h-[22px] text-[22px] transition-transform duration-200';
 
             return `
         <!-- ================= LEVEL 1: GROUP ================= -->
         <div class="lvl1-card rounded-xl bg-slate-900 border border-slate-800 shadow-sm overflow-hidden" data-group-id="${group.id}" data-category="${group.category}">
             <!-- Level 1 Trigger Header -->
-            <button aria-expanded="${isGroupExpanded}" onclick="toggleGroup('${group.id}')" class="lvl1-trigger w-full px-4 py-3.5 bg-slate-900/90 flex flex-wrap md:flex-nowrap items-center   justify-between gap-3 text-left hover:bg-slate-800/80 transition-colors focus:outline-none" type="button">
+            <button aria-expanded="${isGroupExpanded}" data-group-id="${group.id}" data-action="toggle-group" class="lvl1-trigger w-full px-4 py-3.5 bg-slate-900/90 flex flex-wrap md:flex-nowrap items-center   justify-between gap-3 text-left hover:bg-slate-800/80 transition-colors focus:outline-none" type="button">
                 <div class="flex items-center gap-3 min-w-0">
-                    <span class="${arrowIconClass}">expand_circle_right</span>
+                    ${renderIcon('expand_circle_right', arrowIconClass)}
                     <div class="flex flex-col min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="text-[15px] font-semibold text-slate-100 truncate">${group.title}</span>
@@ -990,15 +1283,15 @@ function renderIncidentDirectory(data, state) {
                         .map((incident) => {
                             const isIncidentExpanded = state.expandedIncidents.has(incident.id);
                             const lvl2IconClass = isIncidentExpanded
-                                ? 'lvl2-icon material-symbols-outlined text-emerald-400 text-[20px] transition-transform duration-200 rotate-90'
-                                : 'lvl2-icon material-symbols-outlined text-slate-500 text-[20px] transition-transform duration-200';
+                                ? 'lvl2-icon text-emerald-400 w-[20px] h-[20px] text-[20px] transition-transform duration-200 rotate-90'
+                                : 'lvl2-icon text-slate-500 w-[20px] h-[20px] text-[20px] transition-transform duration-200';
 
                             return `
                                 <!-- ---------- LEVEL 2: INCIDENT ROW ---------- -->
                                 <div class="lvl2-card rounded-lg bg-slate-900 border border-slate-800 shadow-sm overflow-hidden" data-incident-id="${incident.id}">
-                                    <button aria-expanded="${isIncidentExpanded}" onclick="toggleIncident('${incident.id}')" class="lvl2-trigger w-full px-4 py-3 bg-slate-900 hover:bg-slate-800/80 transition-colors flex flex-wrap md:flex-nowrap items-center justify-between gap-3 text-left focus:outline-none" type="button">
+                                    <button aria-expanded="${isIncidentExpanded}" data-incident-id="${incident.id}" data-action="toggle-incident" class="lvl2-trigger w-full px-4 py-3 bg-slate-900 hover:bg-slate-800/80 transition-colors flex flex-wrap md:flex-nowrap items-center justify-between gap-3 text-left focus:outline-none" type="button">
                                         <div class="flex items-center gap-2.5 min-w-0">
-                                            <span class="${lvl2IconClass}">arrow_right</span>
+                                            ${renderIcon('arrow_right', lvl2IconClass)}
                                             <div class="flex flex-col min-w-0">
                                                 <div class="flex items-center gap-2 flex-wrap">
                                                     <span class="text-[14px] font-medium text-slate-100">${incident.title}</span>
@@ -1028,11 +1321,11 @@ function renderIncidentDirectory(data, state) {
                                                 <div class="copy-wrapper group/line">
                                                     <div class="flex items-center justify-between gap-2 text-rose-400 mb-1.5">
                                                         <div class="flex items-center gap-2">
-                                                            <span class="material-symbols-outlined text-base">error</span>
+                                                            ${renderIcon('error', 'w-[22px] h-[22px]')}
                                                             <span class="font-mono text-sm font-bold uppercase tracking-wider">Error Message</span>
                                                         </div>
-                                                        <button class="copy-btn opacity-0 group-hover/line:opacity-100 text-slate-400 hover:cursor-pointer transition-opacity px-3">
-                                                            <span class="material-symbols-outlined text-base icon">content_copy</span>
+                                                        <button class="copy-btn opacity-0 group-hover/line:opacity-100 text-slate-400 hover:cursor-pointer transition-opacity px-3" data-action="copy">
+                                                            ${renderIcon('content_copy', 'w-[16px] h-[16px] icon')}
                                                         </button>
                                                     </div>
                                                     <p class="text-sm text-slate-400 leading-relaxed font-sans mb-4 copy-message">
@@ -1042,11 +1335,11 @@ function renderIncidentDirectory(data, state) {
                                                 <div class="copy-wrapper group/line">
                                                     <div class="flex items-center justify-between gap-2 text-rose-400 mb-1.5">
                                                         <div class="flex items-center gap-2">
-                                                            <span class="material-symbols-outlined text-base">report_problem</span>
+                                                            ${renderIcon('report_problem', 'w-[22px] h-[22px]')}
                                                             <span class="font-mono text-sm font-bold uppercase tracking-wider">Root Cause</span>
                                                         </div>
-                                                        <button class="copy-btn opacity-0 group-hover/line:opacity-100 text-slate-400 hover:cursor-pointer transition-opacity px-3 py-1">
-                                                            <span class="material-symbols-outlined text-base icon">content_copy</span>
+                                                        <button class="copy-btn opacity-0 group-hover/line:opacity-100 text-slate-400 hover:cursor-pointer transition-opacity px-3 py-1" data-action="copy">
+                                                            ${renderIcon('content_copy', 'w-[16px] h-[16px] icon')}
                                                         </button>
                                                     </div>
                                                     <p class="text-sm text-slate-200 leading-relaxed font-sans copy-message">${(incident.rootCause.summary)}</p>
@@ -1059,7 +1352,7 @@ function renderIncidentDirectory(data, state) {
                                             <!-- Proposed Action Plan (Giải pháp đề xuất) -->
                                             <div class="p-3.5 bg-[#0d1626] rounded-xl border border-emerald-500/20 shadow-sm">
                                                 <div class="flex items-center gap-2 text-emerald-400 mb-1.5">
-                                                    <span class="material-symbols-outlined text-base">lightbulb</span>
+                                                    ${renderIcon('lightbulb', 'w-[22px] h-[22px]')}
                                                     <span class="font-mono text-sm font-bold uppercase tracking-wider">Action Plan</span>
                                                 </div>
                                                 <p class="text-sm text-slate-200 leading-relaxed font-sans">
@@ -1085,7 +1378,7 @@ function renderIncidentDirectory(data, state) {
                                                 <!-- Assignee / Handler (Người xử lý) -->
                                                 <div>
                                                     <label class="block text-sm font-mono text-slate-300 font-medium mb-1.5 flex items-center gap-1.5">
-                                                        <span class="material-symbols-outlined text-base">person</span>
+                                                        ${renderIcon('person', 'w-[22px] h-[22px]')}
                                                         <span>Handler</span>
                                                     </label>
                                                     <select class="w-full bg-[#060b14] border border-slate-700 font-sans text-sm px-3 py-2 rounded-lg outline-none focus:border-cyan-400" id="assignee-${incident.id}">
@@ -1100,7 +1393,7 @@ function renderIncidentDirectory(data, state) {
                                                 <!-- Processing Status (Trạng thái xử lý) -->
                                                 <div>
                                                     <label class="block text-sm font-mono text-slate-300 font-medium mb-1.5 flex items-center gap-1.5">
-                                                        <span class="material-symbols-outlined text-base">sync_saved_locally</span>
+                                                        ${renderIcon('sync_saved_locally', 'w-[22px] h-[22px]')}
                                                         <span>Status</span>
                                                     </label>
                                                     <select class="w-full bg-[#060b14] border border-slate-700 text-white font-sans text-sm px-3 py-2 rounded-lg outline-none focus:border-cyan-400" id="status-${incident.id}">
@@ -1114,7 +1407,7 @@ function renderIncidentDirectory(data, state) {
 
                                             <!-- Confirmation Button (Nút xác nhận) -->
                                             <button class="px-5 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-[#040810] font-sans font-bold text-sm transition-all shrink-0 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5 hover:scale-[1.02]" onclick="submitIncidentUpdate('${incident.id}', ${incident.id})">
-                                                <span class="material-symbols-outlined text-lg">check_circle</span>
+                                                ${renderIcon('check_circle', 'w-[18px] h-[18px]')}
                                                 <span>Confirm</span>
                                             </button>
                                         </div>
@@ -1132,34 +1425,6 @@ function renderIncidentDirectory(data, state) {
         .join('');
 
     root.innerHTML = html;
-
-    // Individual line stack trace copy handler
-    const lineCopyButtons = document.querySelectorAll('.copy-btn');
-    lineCopyButtons.forEach((btn) => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const lineText = btn.closest('.copy-wrapper').querySelector('.copy-message')?.textContent;
-            console.log(
-                btn.closest('.copy-wrapper'),
-                btn.closest('.copy-wrapper').querySelector('.copy-message').textContent,
-            );
-            if (lineText) {
-                const success = await copyTextToClipboard(lineText);
-                if (success) {
-                    showToast(`Đã chép: ${lineText.substring(0, 42)}...`, 'success');
-                    const icon = btn.querySelector('.icon');
-                    if (icon) {
-                        icon.textContent = 'check';
-                        icon.classList.add('text-emerald-400');
-                        setTimeout(() => {
-                            icon.textContent = 'content_copy';
-                            icon.classList.remove('text-emerald-400');
-                        }, 1800);
-                    }
-                }
-            }
-        });
-    });
 }
 
 //// 4. Utility Text Formatters
@@ -1190,25 +1455,7 @@ function renderIncidentDirectory(data, state) {
 //}
 
 // 5. Accordion State Controllers
-function toggleGroup(groupId) {
-    if (appState.expandedGroups.has(groupId)) {
-        appState.expandedGroups.delete(groupId);
-    } else {
-        appState.expandedGroups.add(groupId);
-    }
-    renderIncidentDirectory(incidentGroupsData, appState);
-}
-window.toggleGroup = toggleGroup;
 
-function toggleIncident(incidentId) {
-    if (appState.expandedIncidents.has(incidentId)) {
-        appState.expandedIncidents.delete(incidentId);
-    } else {
-        appState.expandedIncidents.add(incidentId);
-    }
-    renderIncidentDirectory(incidentGroupsData, appState);
-}
-window.toggleIncident = toggleIncident;
 
 function expandAll() {
     incidentGroupsData.forEach((g) => {
