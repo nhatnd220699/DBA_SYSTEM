@@ -1,8 +1,6 @@
 ﻿using Application.Exceptions;
 using Domain;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Application.Feature.Dashboard
@@ -21,7 +19,32 @@ namespace Application.Feature.Dashboard
             try
             {
                 List<AlwaysOn> data = await _repo.GetAlwaysOnAsyc(site, department);
+                return data;
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
+        public async Task<List<LargeTable>> GetLargeTablesAsync(string site = null, string department = null)
+        {
+            try
+            {
+                List<LargeTable> data = await _repo.GetLargeTablesAsync(site, department);
+                return data;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<DiskSpace>> GetDiskSpaceAsync(string site = null, string department = null)
+        {
+            try
+            {
+                List<DiskSpace> data = await _repo.GetDiskSpaceAsync(site, department);
                 return data;
             }
             catch

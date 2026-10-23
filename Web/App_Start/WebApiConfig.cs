@@ -12,6 +12,7 @@ namespace Web
         {
             // Web API configuration and services
             config.Filters.Add(new ApiExceptionFilter());
+
             // Web API routes
             config.MapHttpAttributeRoutes();
 

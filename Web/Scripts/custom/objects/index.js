@@ -1,4 +1,4 @@
-﻿import { Popup, ActionLock, ApiClient, renderIcon, NumberUtils } from '../modules/app.js';
+﻿import { Popup, Toast, ActionLock, ApiClient, renderIcon, NumberUtils } from '../modules/app.js';
 
 const
     DBA_ERRORLOG = 'dba_errorlog',
@@ -20,7 +20,7 @@ let toastTimeout = null
 const filterSummary = {
     categories: [
         //{ id: 'all', label: 'All Categories', count: 0, icon: 'terminal' },
-        { id: DBA_JOB_ERRORLOG, label: 'Error Logs', count: 0, icon: 'terminal' },
+        { id: DBA_ERRORLOG, label: 'Error Logs', count: 0, icon: 'terminal' },
         { id: DBA_JOB_ERRORLOG, label: 'Agent Jobs', count: 0, icon: 'schedule' },
         { id: DBA_DBLOCK_LOG, label: 'Database Lock', count: 0, icon: 'lock_clock' },
         { id: DBA_DBBACKUP_LOG, label: 'Backup SLA', count: 0, icon: 'cloud_done' },
@@ -161,7 +161,7 @@ async function getKpis() {
             });
         }
     } catch (err) {
-        console.log(err.message);
+        console.error(err.message);
     }
 }
 
@@ -234,7 +234,7 @@ async function getErrorSummary() {
         }
 
     } catch (err) {
-        console.log(err.message);
+        console.error(err.message);
     }
 }
 
@@ -528,7 +528,7 @@ async function getDiskSpace() {
                             <div class="flex flex-col justify-between bg-white dark:bg-[#121c2d] hover:bg-slate-100 dark:hover:bg-[#18263e] shadow-md p-3.5 rounded-xl transition-all duration-200">
                                 <div class="flex flex-col items-center w-full text-center">
                                     <div class="relative mb-2.5 filter">
-                                        <img src="./Content/images/hdd_48.png" alt="disk" />
+                                        <img src="/Content/images/hdd_48.png" alt="disk" />
                                     </div>
                                     <!-- Drive Label & Role -->
                                     <span class="font-mono font-bold text-slate-900 dark:text-white text-xs tracking-tight">Disk (${storage?.volume_point})</span>
@@ -582,7 +582,7 @@ async function getDiskSpace() {
             }
         }
     } catch (err) {
-        console.log(err.message);
+        console.error(err.message);
     }
 }
 
@@ -667,10 +667,13 @@ async function getIncidentDetailByCategory() {
             }));
 
             //console.log(incidentGroupsData_Beta);
+
+            renderFilterBars();
+            renderIncidentDirectory(incidentGroupsData_Beta, appState);
         }
 
     } catch (err) {
-        console.log(err.message);
+        console.error(err.message);
     }
 }
 
@@ -690,11 +693,11 @@ function renderFilterBars() {
                     : 'px-1.5 py-0.5 rounded-full font-mono text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
 
                 return `
-                              <button class="${btnClasses}" data-category-id="${cat.id}" data-action="filter-category" type="button">
-                                <span>${cat.label}</span>
-                                <span class="${badgeClasses}">${cat.count}</span>
-                              </button>
-                            `;
+                    <button class="${btnClasses}" data-category-id="${cat.id}" data-action="filter-category-offline" type="button">
+                    <span>${cat.label}</span>
+                    <span class="${badgeClasses}">${cat.count}</span>
+                    </button>
+                `;
             })
             .join('');
     }
@@ -759,18 +762,141 @@ function renderSeverityClass(sev) {
     return '';
 }
 
-function renderStatusClass(status) {
+function renderIncidentStatusClass(status) {
     status = status?.toLowerCase();
 
-    if (status.includes('analyze')) {
+    if (status.includes('open')) {
         return `bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-[10px] border border-slate-300 dark:border-slate-700`;
-    } else if (status.includes('ppocessing')) {
-        return `bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 font-mono text-[10px] font-semibold border border-amber-300 dark:border-amber-800`;
+    } else if (status.includes('analyze')) {
+        return `bg-amber-100 dark:bg-amber-800 text-amber-600 dark:text-amber-400 font-mono text-[10px] border border-amber-300 dark:border-amber-700`;
+    } else if (status.includes('doing')) {
+        return `bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-400 font-mono text-[10px] font-mono border border-cyan-300 dark:border-cyan-800`;
     } else if (status.includes('done')) {
         return `bg-emeral-100 dark:bg-emeral-500/20 text-emeral-700 dark:text-emeral-400 font-bold border border-emeral-300 dark:border-emeral-500/30`;
     }
 
     return '';
+}
+
+function renderStatusRadio(incidentId, value, currentStatus) {
+    const statusConfig = {
+        Open: {
+            icon: 'radio_button_unchecked',
+            selectedClass: `
+                peer-checked:border-slate-500
+                peer-checked:bg-slate-100
+                peer-checked:text-slate-900
+                peer-checked:ring-2
+                peer-checked:ring-slate-200
+                dark:peer-checked:border-slate-400
+                dark:peer-checked:bg-slate-700
+                dark:peer-checked:text-white
+                dark:peer-checked:ring-slate-700
+            `
+        },
+
+        Analyze: {
+            icon: 'search',
+            selectedClass: `
+                peer-checked:border-amber-500
+                peer-checked:bg-amber-50
+                peer-checked:text-amber-800
+                peer-checked:ring-2
+                peer-checked:ring-amber-100
+                dark:peer-checked:border-amber-400
+                dark:peer-checked:bg-amber-500/15
+                dark:peer-checked:text-amber-300
+                dark:peer-checked:ring-amber-500/20
+            `
+        },
+
+        Doing: {
+            icon: 'sync',
+            selectedClass: `
+                peer-checked:border-blue-500
+                peer-checked:bg-blue-50
+                peer-checked:text-blue-800
+                peer-checked:ring-2
+                peer-checked:ring-blue-100
+                dark:peer-checked:border-blue-400
+                dark:peer-checked:bg-blue-500/15
+                dark:peer-checked:text-blue-300
+                dark:peer-checked:ring-blue-500/20
+            `
+        },
+
+        Done: {
+            icon: 'check_circle',
+            selectedClass: `
+                peer-checked:border-emerald-500
+                peer-checked:bg-emerald-50
+                peer-checked:text-emerald-800
+                peer-checked:ring-2
+                peer-checked:ring-emerald-100
+                dark:peer-checked:border-emerald-400
+                dark:peer-checked:bg-emerald-500/15
+                dark:peer-checked:text-emerald-300
+                dark:peer-checked:ring-emerald-500/20
+            `
+        }
+    };
+
+    const config = statusConfig[value];
+
+    const normalizedCurrentStatus = currentStatus
+        ?.toString()
+        .trim()
+        .toLowerCase();
+
+    const normalizedValue = value.toLowerCase();
+
+    const isChecked =
+        normalizedValue === 'open'
+            ? normalizedCurrentStatus?.includes('open', '')
+            : normalizedCurrentStatus === normalizedValue;
+
+    return `
+        <label class="relative block cursor-pointer select-none">
+            <input
+                type="radio"
+                name="status-${incidentId}"
+                value="${value}"
+                data-field="status"
+                class="peer sr-only"
+                ${isChecked ? 'checked' : ''}
+            />
+
+            <span
+                class="
+                    px-3 py-2
+                    flex items-center justify-center gap-1.5
+                    rounded-lg
+                    border border-slate-300
+                    dark:border-slate-700
+                    bg-white
+                    dark:bg-[#060b14]
+                    text-slate-600
+                    dark:text-slate-400
+                    font-sans text-sm font-medium
+                    transition-all duration-200
+                    hover:border-slate-400
+                    hover:bg-slate-50
+                    dark:hover:bg-slate-800
+                    peer-focus-visible:ring-2
+                    peer-focus-visible:ring-cyan-500
+                    peer-focus-visible:ring-offset-2
+                    ${config.selectedClass}
+                "
+            >
+                ${renderIcon(
+        config.icon,
+        'w-[17px] h-[17px]'
+    )}
+
+                <span>${value}</span>
+            </span>
+        </label>
+    `;
 }
 
 function renderIncidentDirectory(data, state) {
@@ -802,9 +928,8 @@ function renderIncidentDirectory(data, state) {
                 // Search Query check
                 if (query) {
                     const combinedString = `
-                        ${inc.incident_title} ${inc.incidentid} ${inc.server_ip} ${inc.status} ${inc.system_name}
-                        ${inc.error_message} ${inc.recommendation}
-                        ${inc.rootcause}
+                         ${inc.incidentid} ${inc.incident_title} ${inc.status} ${inc.system_name} ${inc.server_ip}
+                         ${inc.error_message} ${inc.rootcause} ${inc.recommendation}
                         `.toLowerCase();
                     return combinedString.includes(query);
                 }
@@ -913,7 +1038,7 @@ function renderIncidentDirectory(data, state) {
                                                 </div>
                                             </div>
                                             <div class="flex items-center gap-2.5 shrink-0">
-                                                <span class="px-2 py-0.5 rounded ${renderStatusClass(incident?.status)}">Status: ${incident?.status}</span>
+                                                <span class="px-2 py-0.5 rounded ${renderIncidentStatusClass(incident?.status)}">Status: ${incident?.status}</span>
                                             </div>
                                         </button>
 
@@ -976,7 +1101,7 @@ function renderIncidentDirectory(data, state) {
                                                             ${renderIcon('person', 'w-[22px] h-[22px]')}
                                                             <span>Handler</span>
                                                         </label>
-                                                        <input class="w-full bg-white dark:bg-[#060b14] border border-slate-300 dark:border-slate-700 font-sans text-sm px-3 py-2 rounded-lg outline-none focus:border-cyan-300 dark:focus:border-cyan-400 disabled:bg-gray-100" type="text" id="assignee-${incident.id}" value="${currentUser.employeeName} (${currentUser.employeeCode})" disabled />
+                                                        <input class="w-full bg-white dark:bg-[#060b14] border border-slate-300 dark:border-slate-700 font-sans text-sm px-3 py-2 rounded-lg outline-none focus:border-cyan-300 dark:focus:border-cyan-400 disabled:bg-gray-100" type="text" id="handler-${incident.incidentid}" value="${!incident.uid ? currentUser.employeeCode : incident.uid}" />
                                                     </div>
 
                                                     <!-- Processing Status (Trạng thái xử lý) -->
@@ -985,17 +1110,17 @@ function renderIncidentDirectory(data, state) {
                                                             ${renderIcon('sync_saved_locally', 'w-[22px] h-[22px]')}
                                                             <span>Status</span>
                                                         </label>
-                                                        <select class="w-full bg-white dark:bg-[#060b14] border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-sans text-sm px-3 py-2 rounded-lg outline-none focus:border-cyan-300 dark:focus:border-cyan-400" id="status-${incident.id}">
-                                                            <option value=""></option>
-                                                            <option value="Investigating">Investigating</option>
-                                                            <option value="In Progress">In Progress</option>
-                                                            <option value="Resolved">Resolved</option>
+                                                        <select class="w-full bg-white dark:bg-[#060b14] border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-sans text-sm px-3 py-2 rounded-lg outline-none focus:border-cyan-300 dark:focus:border-cyan-400" id="status-${incident.incidentid}">
+                                                            <option value="Open" ${incident?.status?.includes('Open', '') ? 'selected' : ''}>Open</option>
+                                                            <option value="Analyze" ${incident?.status === 'Analyze' ? 'selected' : ''}>Analyze</option>
+                                                            <option value="Doing" ${incident?.status === 'Doing' ? 'selected' : ''}>Doing</option>
+                                                            <option value="Done" ${incident?.status === 'Done' ? 'selected' : ''}>Done</option>
                                                         </select>
                                                     </div>
                                                 </div>
 
                                                 <!-- Confirmation Button (Nút xác nhận) -->
-                                                <button class="px-5 py-2 rounded-md bg-emerald-500 dark:bg-emerald-500 hover:bg-emerald-400 dark:hover:bg-emerald-400 text-slate-700 dark:text-[#040810] font-sans font-semibold text-sm transition-all shrink-0 shadow-lg shadow-emerald-200/30 dark:shadow-emerald-500/20 flex items-center justify-center gap-1.5 hover:scale-[1.02]" onclick="submitIncidentUpdate('${incident.id}', ${incident.id})">
+                                                <button class="px-5 py-2 rounded-md bg-emerald-500 dark:bg-emerald-500 hover:bg-emerald-400 dark:hover:bg-emerald-400 text-slate-700 dark:text-[#040810] font-sans font-semibold text-sm transition-all shrink-0 shadow-lg shadow-emerald-200/30 dark:shadow-emerald-500/20 flex items-center justify-center gap-1.5 hover:scale-[1.02]" data-action="confirm-incident" data-incident-id="${incident.incidentid}">
                                                     ${renderIcon('check_circle', 'w-[18px] h-[18px]')}
                                                     <span>Confirm</span>
                                                 </button>
@@ -1015,31 +1140,11 @@ function renderIncidentDirectory(data, state) {
     root.innerHTML = html;
 }
 
-// Core Clipboard Copy with Fallback
 async function copyTextToClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-        try {
-            await navigator.clipboard.writeText(text);
-            return true;
-        } catch (err) {
-            // Fall back
-        }
-    }
-    // Fallback method
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
     try {
-        const successful = document.execCommand('copy');
-        textArea.remove();
-        return successful;
-    } catch (err) {
-        textArea.remove();
+        await navigator.clipboard.writeText(text);
+        return true;
+    } catch {
         return false;
     }
 }
@@ -1055,7 +1160,7 @@ async function handleCopy(btn) {
 
     if (!success) return;
 
-    showToast(`Copied: ${text.substring(0, 42)}...`, 'success');
+    Toast.success(`Copied: ${text.substring(0, 42)}...`, { position: 'bottom-right', duration: 1500 });
     const icon = btn.querySelector('.icon');
 
     btn.innerHTML = renderIcon('check', 'w-[16px] h-[16px] text-emerald-700 dark:text-emerald-400');
@@ -1164,9 +1269,9 @@ function handleSwitchStorageSever(tab) {
         }, 20);
     }
 
-    showToast('Switched to storage telemetry of ' + server.server_name + ' (' + server.server_ip + ')', 'info', 1000);
+    //showToast('Switched to storage telemetry of ' + server.server_name + ' (' + server.server_ip + ')', 'info', 1000);
+    Toast.info('Switched to storage telemetry of ' + server.server_name + ' (' + server.server_ip + ')', { position: 'bottom-right'})
 }
-
 
 function handleExpandAll() {
     const groups = incidentGroupsData_Beta.find(item => item.incident_type === appState.selectedCategory)?.groups;
@@ -1185,13 +1290,17 @@ function handleCollapseAll() {
     renderIncidentDirectory(incidentGroupsData_Beta, appState);
 }
 
-// 6. Filtering Handlers
-function handleFilterByCategory(catId) {
+// Filtering Handlers
+function handleFilterByCategory(catId, isOnline = true) {
     if (catId === null || catId === undefined || catId === '') return;
 
     appState.selectedCategory = catId;
-    renderFilterBars();
-    renderIncidentDirectory(incidentGroupsData_Beta, appState);
+    if (isOnline) {
+        getIncidentDetailByCategory();
+    } else {
+        renderFilterBars();
+        renderIncidentDirectory(incidentGroupsData_Beta, appState);
+    }
 }
 
 function handleFilterBySeverity(sevId) {
@@ -1204,11 +1313,14 @@ function handleFilterBySeverity(sevId) {
     renderIncidentDirectory(incidentGroupsData_Beta, appState);
 }
 
+// Filter by query string
 function handlefilterBySearch(query) {
     appState.searchQuery = query;
     renderIncidentDirectory(incidentGroupsData_Beta, appState);
 }
 
+
+// Reset filter
 function handleResetFilters() {
     appState.selectedCategory = DBA_ERRORLOG
     appState.selectedSeverity = 'all';
@@ -1217,6 +1329,39 @@ function handleResetFilters() {
     if (searchInput) searchInput.value = '';
     renderFilterBars();
     renderIncidentDirectory(incidentGroupsData_Beta, appState);
+}
+
+async function handleConfirmIncident(btn) {
+    try {
+        const incidentId = btn?.dataset?.incidentId;
+        if (!incidentId) return;
+
+        const handler = document.getElementById('handler-' + incidentId)?.value?.trim();
+        const status = document.getElementById('status-' + incidentId)?.value.trim();
+
+        if (!handler) showToast('Handler cannot be empty', 'error');
+        else if (!status) showToast('Incident status acnnot be empty', 'error');
+
+        const params = {
+            "BU": "MSSQL",
+            "Station": "AIQuery",
+            "Step": "Update_Incident_Status",
+            "InputStr": `\{"IncidentID": "${incidentId}", "Status": "${status}", "UID": "${handler}"\}`
+        }
+
+        const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
+
+        if (result.success) {
+            Toast.success('Incident status updated successfully.', { position: 'top-center' });
+            getKpis();
+            getErrorSummary();
+            getIncidentDetailByCategory();
+        } else {
+            Toast.error('Failed to update incident status', { position: 'top-center' });
+        }
+    } catch (err) {
+        console.error(err.message)
+    }
 }
 
 async function handleClick(e) {
@@ -1251,8 +1396,13 @@ async function handleClick(e) {
             handleCollapseAll(actionEl);
             break;
         case 'filter-category':
-            const catId = actionEl?.dataset?.categoryId;
+            var catId = actionEl?.dataset?.categoryId;
             handleFilterByCategory(catId);
+            break;
+        case 'filter-category-offline':
+            var catId = actionEl?.dataset?.categoryId;
+            const isOnline = false;
+            handleFilterByCategory(catId, isOnline);
             break;
         case 'filter-severity':
             const sevId = actionEl?.dataset?.severityId;
@@ -1261,18 +1411,48 @@ async function handleClick(e) {
         case 'reset-filters':
             handleResetFilters();
             break;
+        case 'confirm-incident':
+            handleConfirmIncident(actionEl);
+            break;
         default:
             break;
     }
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
-    getKpis();
-    getErrorSummary();
-    getAlwaysOnStatus();
-    getLargeTable();
-    getDiskSpace();
-    getIncidentDetailByCategory();
+    const REFRESH_INTERVAL = 120 * 60 * 1000;
+    let isRefreshing = false;
+
+    async function refreshDashboard() {
+        if (isRefreshing) {
+            return;
+        }
+
+        isRefreshing = true;
+
+        try {
+            await Promise.allSettled([
+                getKpis(),
+                getErrorSummary(),
+                getAlwaysOnStatus(),
+                getLargeTable(),
+                getDiskSpace(),
+            ]);
+        } catch (err) {
+            console.error(err.message);
+        } finally {
+            isRefreshing = false;
+        }
+    }
+
+    // Gọi ngay lập tức, không cần chờ 5 phút
+    refreshDashboard();
+
+    // Lần tiếp theo sẽ được gọi sau 5 phút
+    const refreshTimer = setInterval(
+        refreshDashboard,
+        REFRESH_INTERVAL
+    );
 
     document.getElementById('error-summary').addEventListener('click', handleClick);
     document.getElementById('san-server-tabs').addEventListener('click', handleClick);
@@ -1286,6 +1466,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
+    // Không bắt buộc khi F5, nhưng hữu ích nếu script được hủy thủ công
+    window.addEventListener('beforeunload', () => {
+        clearInterval(refreshTimer);
+    });
+
     // Keyboard Shortcut Ctrl+K
     window.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -1296,8 +1481,4 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         }
     });
-
-
-    const result = await ApiClient.get('/api/dba/alwayson2');
-    console.log('AlwaysOn2 API Result:', result);
 });

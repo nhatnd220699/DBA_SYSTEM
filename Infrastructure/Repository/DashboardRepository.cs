@@ -13,7 +13,7 @@ namespace Infrastructure.Repository
     {
         public DashboardRepository(IDbConnectionFactory factory) : base(factory) { }
 
-        public DynamicParameters BuilParameters(
+        public DynamicParameters BuildParameters(
             params (string Name, object Value)[] items)
         {
             var parameters = new DynamicParameters();
@@ -33,7 +33,7 @@ namespace Infrastructure.Repository
             return new
             {
                 Site = string.IsNullOrWhiteSpace(site)? string.Empty: site.Trim(),
-                Department = string.IsNullOrWhiteSpace(department) ? String.Empty : department.Trim()
+                Department = string.IsNullOrWhiteSpace(department) ? string.Empty : department.Trim()
             };
         }
 
@@ -70,29 +70,73 @@ namespace Infrastructure.Repository
                     .ConfigureAwait(false);
                 return rows.ToList();
             }
+        }
 
-            //var parameters = BuilParameters(("FuncType", funcType));
+        public async Task<List<LargeTable>> GetLargeTablesAsync(string site = null, string department = null)
+        {
+            const string sql = @"
+                WITH latest AS (
+                    SELECT t.*,
+                           ROW_NUMBER() OVER (
+                               PARTITION BY t.site, t.department, t.server_ip,
+                                            t.database_name, t.table_name
+                               ORDER BY NULLIF(BTRIM(t.inputdatetime), '') DESC NULLS LAST,
+                                        t.id DESC
+                           ) AS row_num
+                    FROM qmhpu6.dba_largetable_status t
+                    WHERE (@Site = '' OR t.site = @Site)
+                      AND (@Department = '' OR t.department = @Department)
+                )
+                SELECT site, department, server_ip,
+                       database_name, table_name, table_rows, warning_level,
+                       reserved_mb, reserved_gb, status, inputdatetime
+                FROM latest
+                WHERE row_num = 1
+                  AND table_rows >= 2500000
+                ORDER BY table_rows DESC NULLS LAST, database_name, table_name
+                LIMIT 2000";
 
-            //using (var conn = CreateConnection())
-            //{
-            //    using (var multi = await conn.QueryMultipleAsync(
-            //        "_DBA_Max_ForTest_20260928",
-            //        parameters,
-            //        commandType: CommandType.StoredProcedure,
-            //        commandTimeout: 120)
-            //    )
-            //    {
-            //        var status = multi.ReadFirstOrDefault<Result>();
-            //        if (!status.IResult.IsPass())
-            //        {
-            //            throw new DomainException(status.IMessage);
-            //        }
+            using (var connection = CreateConnection())
+            {
+                var rows = await connection.QueryAsync<LargeTable>(
+                    sql, BuildFilters(site, department), commandTimeout: 30)
+                    .ConfigureAwait(false);
+                return rows.ToList();
+            }
+        }
 
-            //        var data = multi.Read<ProcessFlow>().ToList();
-            //        return data;
-            //    }
+        public async Task<List<DiskSpace>> GetDiskSpaceAsync(
+           string site = null, string department = null)
+        {
+            const string sql = @"
+                WITH latest AS (
+                    SELECT d.*,
+                           ROW_NUMBER() OVER (
+                               PARTITION BY d.site, d.department, d.server_ip,
+                                            d.server_name, d.volume_point
+                               ORDER BY NULLIF(BTRIM(d.inputdatetime), '') DESC NULLS LAST,
+                                        d.id DESC
+                           ) AS row_num
+                    FROM qmhpu6.dba_diskspace_status d
+                    WHERE (@Site = '' OR d.site = @Site)
+                      AND (@Department = '' OR d.department = @Department)
+                )
+                SELECT site, department, server_ip, server_name,
+                       volume_point, volume_name, file_system_type,
+                       total_space_gb, used_space_gb, free_space_gb, free_space_percent,
+                       health_level, health_message, status, inputdatetime
+                FROM latest
+                WHERE row_num = 1
+                ORDER BY site, department, server_ip, server_name, volume_point
+                LIMIT 2000";
 
-            //}
+            using (var connection = CreateConnection())
+            {
+                var rows = await connection.QueryAsync<DiskSpace>(
+                    sql, BuildFilters(site, department), commandTimeout: 30)
+                    .ConfigureAwait(false);
+                return rows.ToList();
+            }
         }
     }
 }

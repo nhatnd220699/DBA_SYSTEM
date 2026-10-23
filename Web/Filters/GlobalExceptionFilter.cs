@@ -1,11 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Data.SqlClient;
+﻿using Application.Exceptions;
+using System;
+//using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http.Filters;
-using System.Web.Mvc;
-using Web.Models;
 
 namespace Web.Filters
 {
@@ -14,6 +12,29 @@ namespace Web.Filters
     {
         public override void OnException(HttpActionExecutedContext context)
         {
+            HttpStatusCode statusCode = HttpStatusCode.BadRequest;
+
+            if (context.Exception is ConflictException)
+            {
+                statusCode = HttpStatusCode.Conflict;
+            }
+            else if (context.Exception is NotFoundException)
+            {
+                statusCode = HttpStatusCode.NotFound;
+            }
+            else if (context.Exception is ValidationException)
+            {
+                statusCode = HttpStatusCode.BadRequest;
+            }
+            else if (context.Exception is ForbiddenException)
+            {
+                statusCode = HttpStatusCode.Forbidden;
+            }
+            else if (context.Exception is UnauthorizedException)
+            {
+                statusCode = HttpStatusCode.Unauthorized;
+            }
+
             var response = new
             {
                 success = false,
@@ -22,7 +43,7 @@ namespace Web.Filters
             };
 
             context.Response = context.Request.CreateResponse(
-                HttpStatusCode.BadRequest,
+                statusCode,
                 response);
         }
     }

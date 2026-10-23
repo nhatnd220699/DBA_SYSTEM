@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "DBA Analysis";
+    ViewBag.Title = "DBA Dashboard";
 }
 
 <!-- ==================== MAIN DASHBOARD LAYOUT ==================== -->
@@ -348,26 +348,23 @@
         <!-- Filter Toolbar -->
         <div class="grid grid-cols-1 xl:grid-cols-12 gap-3">
             <!-- Severity Filters -->
-            <div class="xl:col-span-6 flex flex-wrap items-center gap-1.5 p-1.5" id="severity-filter-bar">
+            <div class="xl:col-span-6 flex flex-wrap items-center gap-1.5 py-1.5 px-3" id="severity-filter-bar">
                 <!-- Dynamic category tabs rendered by JS -->
             </div>
             <!-- Controls: Search & Expand/Collapse -->
-            <div class="xl:col-span-6 flex items-center justify-start xl:justify-end gap-1.5 p-1.5">
+            <div class="xl:col-span-6 flex items-center justify-start xl:justify-end gap-1.5 py-1.5 px-3">
                 <div class="flex flex-wrap items-center gap-2">
                     <div class="relative flex items-center">
-                        @*<span class="material-symbols-outlined absolute left-2 text-[16px] text-slate-500">search</span>*@
                         @Html.Icon("search", "w-[16px] h-[16px] absolute left-2 text-slate-500 shrink-0")
-
                         <input class="bg-white dark:bg-slate-900 pl-8 pr-3 py-1.5 h-8 rounded text-[12px] text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:bg-slate-50 dark:focus:bg-slate-800 border border-slate-300 dark:border-slate-700 transition-colors w-64 md:w-72"
                                id="incident-search"
-                               placeholder="Filter incidents, SPIDs, errors... (Ctrl+K)"
+                               placeholder="Filter incidents, Incident ID, errors... (Ctrl+K)"
                                type="text" />
                     </div>
                     <button class="h-8 px-2.5 rounded bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium text-[12px] flex items-center gap-1.5 border border-slate-300 dark:border-slate-700 transition-colors"
                             id="btn-expand-all"
                             data-action="expand-all"
                             type="button">
-                        @*<span class="material-symbols-outlined text-[16px] text-blue-400">unfold_more</span>*@
                         @Html.Icon("unfold_more", "w-[16px] h-[16px] text-blue-600 dark:text-blue-400 shrink-0")
                         <span>Expand All</span>
                     </button>
@@ -375,7 +372,6 @@
                             id="btn-collapse-all"
                             data-action="collapse-all"
                             type="button">
-                        @*<span class="material-symbols-outlined text-[16px] text-slate-500">unfold_less</span>*@
                         @Html.Icon("unfold_less", "w-[16px] h-[16px] text-blue-600 dark:text-blue-400 shrink-0")
                         <span>Collapse All</span>
                     </button>

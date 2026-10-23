@@ -42,14 +42,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlwaysOn.cs" />
-    <Compile Include="Extensions\DomainException.cs" />
+    <Compile Include="Exceptions\DomainException.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="DiskSpace.cs" />
+    <Compile Include="LargeTable.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="ProcessFlow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Exceptions\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

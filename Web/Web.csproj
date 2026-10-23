@@ -138,6 +138,7 @@
     <Compile Include="Controllers\Web\BaseController.cs" />
     <Compile Include="Controllers\Web\ErrorController.cs" />
     <Compile Include="Controllers\Web\HomeController.cs" />
+    <Compile Include="Factories\ServiceFactory.cs" />
     <Compile Include="Filters\GlobalExceptionFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -150,6 +151,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Content\icons\sprite.svg" />
     <Content Include="Content\images\hdd_48.png" />
+    <Content Include="Scripts\custom\common\toast.js" />
     <Content Include="Scripts\custom\objects\index.js" />
     <Content Include="Scripts\custom\modules\app.js" />
     <Content Include="Scripts\custom\utils\number-utils.js" />
@@ -228,6 +230,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\BaseApi\" />
+    <Folder Include="Views\Dashboard\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
