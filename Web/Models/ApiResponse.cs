@@ -3,17 +3,17 @@
 
     public class ApiResponse<T>
     {
-        public bool success { get; set; }
-        public string message { get; set; }
-        public T data { get; set; }
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public T Data { get; set; }
 
         public static ApiResponse<T> Ok(T data, string message = "")
         {
             return new ApiResponse<T>
             {
-                success = true,
-                message = message,
-                data = data
+                Success = true,
+                Message = message,
+                Data = data
             };
         }
 
@@ -21,9 +21,9 @@
         {
             return new ApiResponse<T>
             {
-                success = false,
-                message = message,
-                data = default(T)
+                Success = false,
+                Message = message,
+                Data = default
             };
         }
     }

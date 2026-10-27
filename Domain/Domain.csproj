@@ -42,6 +42,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlwaysOn.cs" />
+    <Compile Include="DPA\DpaAlertGroups.cs" />
+    <Compile Include="DPA\DpaAlerts.cs" />
+    <Compile Include="DPA\DpaAlertsStatuses.cs" />
+    <Compile Include="DPA\DpaAlertsTemplates.cs" />
+    <Compile Include="DPA\DpaAnnotations.cs" />
+    <Compile Include="DPA\DpaContacts.cs" />
+    <Compile Include="DPA\DpaContactsGroups.cs" />
+    <Compile Include="DPA\DpaEncryption.cs" />
+    <Compile Include="DPA\DpaErrorResponse.cs" />
+    <Compile Include="DPA\DpaLicenses.cs" />
+    <Compile Include="DPA\DpaLicensesInstalled.cs" />
+    <Compile Include="DPA\DpaMessage.cs" />
+    <Compile Include="DPA\DpaDatabaseMonitorInfo.cs" />
+    <Compile Include="DPA\DpaOptionsDatabase.cs" />
+    <Compile Include="DPA\DpaOptionsSystem.cs" />
+    <Compile Include="DPA\DpaResponse.cs" />
+    <Compile Include="DPA\DpaVSphereMonitorInfo.cs" />
+    <Compile Include="DPA\DpaServerInfo.cs" />
+    <Compile Include="DPA\DpaToken.cs" />
     <Compile Include="Exceptions\DomainException.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="DiskSpace.cs" />

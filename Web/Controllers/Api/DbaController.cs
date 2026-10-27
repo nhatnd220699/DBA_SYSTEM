@@ -1,11 +1,7 @@
 using Application.Feature.Dashboard;
 using Domain;
-using Infrastructure.Database;
-using Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Web.Factories;
@@ -15,15 +11,15 @@ namespace Web.Controllers.Api
 {
     [Authorize]
     [RoutePrefix("api/dba")]
-    public class DbaController : ApiController
+    public class DBAController : ApiController
     {
         private readonly DashboardService _service;
 
-        public DbaController() : this(ServiceFactory.CreateDashboardService())
+        public DBAController() : this(ServiceFactory.CreateDashboardService())
         {
         }
 
-        public DbaController(DashboardService service)
+        public DBAController(DashboardService service)
         {
             if (service == null)
             {
