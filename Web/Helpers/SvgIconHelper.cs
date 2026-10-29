@@ -1,5 +1,4 @@
 ﻿using System.Web;
-using System.Web.Http.Routing;
 using System.Web.Mvc;
 using UrlHelper = System.Web.Mvc.UrlHelper;
 
@@ -28,18 +27,6 @@ namespace Web.Helpers
                 "href",
                 urlHelper.Content($"~/Content/icons/sprite.svg#{name}")
             );
-
-            //string pathBase = request.ApplicationPath;
-
-            //if (pathBase == "/")
-            //{
-            //    pathBase = string.Empty;
-            //}
-
-            //use.MergeAttribute(
-            //    "href",
-            //    $"{pathBase}/icons/sprite.svg#{name}"
-            //);
 
             svg.InnerHtml = use.ToString(TagRenderMode.Normal);
 

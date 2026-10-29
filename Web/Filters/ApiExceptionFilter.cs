@@ -1,6 +1,4 @@
 ﻿using Application.Exceptions;
-using System;
-//using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http.Filters;

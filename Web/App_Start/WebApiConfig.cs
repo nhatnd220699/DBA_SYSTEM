@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Serialization;
 using System.Web.Http;
 using Web.Filters;
-//using Newtonsoft.Json.Serialization;
 
 namespace Web
 {
