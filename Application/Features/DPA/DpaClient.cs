@@ -11,27 +11,17 @@ using System.Threading.Tasks;
 
 namespace Application.Features.DPA.DpaAuth
 {
-    public class DPApiClient
+    public class DpaClient
     {
         private static readonly HttpClient _httpClient = new HttpClient();
         private readonly DpaAuthService _authService;
         private readonly string _baseUrl;
 
-        public DPApiClient()
+        public DpaClient()
         {
             _authService = new DpaAuthService();
             _baseUrl = ConfigurationManager.AppSettings["DPA_BaseUrl"];
         }
-
-        //private string BuildUrl(string endpoint)
-        //{
-        //    var url = string.Format(
-        //        "{0}/{1}",
-        //        _baseUrl.TrimEnd('/'),
-        //        endpoint.TrimStart('/'));
-
-        //    return url;
-        //}
 
         //private async Task AddAuthorizationHeader()
         //{
@@ -39,7 +29,6 @@ namespace Application.Features.DPA.DpaAuth
 
         //    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         //}
-
 
         /// <summary>
         /// Sends an authenticated HTTP request to the DPA API.
@@ -87,7 +76,7 @@ namespace Application.Features.DPA.DpaAuth
 
                 var newToken = await _authService.RefreshAccessTokenAsync();
 
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", newToken);
 
                 request = new HttpRequestMessage(method, UrlHepler.BuildDpaUrl(_baseUrl, endpoint));
 

@@ -65,7 +65,6 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="DiskSpace.cs" />
     <Compile Include="LargeTable.cs" />
-    <Compile Include="Result.cs" />
     <Compile Include="ProcessFlow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

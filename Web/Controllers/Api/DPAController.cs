@@ -1,25 +1,19 @@
 ﻿using Application.Features.DPA.ServerInfo;
-using Domain;
-using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Web.Controllers.Base;
-using Web.Models;
 
 namespace Web.Controllers.Api
 {
-    [Authorize]
+    //[Authorize]
     [RoutePrefix("api/dpa")]
 
-    public class DPAController : BaseApiController
+    public class DpaController : BaseApiController
     {
-        private readonly DPAService _dpaService;
+        private readonly DpaService _dpaService;
 
-        public DPAController()
+        public DpaController()
         {
-            _dpaService = new DPAService();
+            _dpaService = new DpaService();
         }
 
         [HttpGet]
@@ -72,7 +66,7 @@ namespace Web.Controllers.Api
         public async Task<IHttpActionResult> GetAlertGroupsById(int alertGroupId)
         {
             var result = await _dpaService.GetAlertGroupsByIdAsync(alertGroupId);
-            return Success(result, "Get alert groups successfully");
+            return Success(result, "Get alert group successfully");
         }
 
         [HttpGet]
@@ -85,12 +79,12 @@ namespace Web.Controllers.Api
             }
 
             var result = await _dpaService.GetAlertGroupsByDatabaseIdAsync(databaseId);
-            return Success(result, "Get alert groups successfully");
+            return Success(result, "Get alert groups of database successfully");
         }
 
         [HttpGet]
         [Route("alerts")]
-        public async Task<IHttpActionResult> GetALerts()
+        public async Task<IHttpActionResult> GetAlerts()
         {
             var result = await _dpaService.GetAlertsAsync();
             return Success(result, "Get alerts successfully");
@@ -109,7 +103,7 @@ namespace Web.Controllers.Api
         public async Task<IHttpActionResult> GetAlertsById(int alertId)
         {
             var result = await _dpaService.GetAlertsByIdAsync(alertId);
-            return Success(result, "Get alerts successfully");
+            return Success(result, "Get alert successfully");
         }
 
         [HttpGet]
@@ -121,7 +115,7 @@ namespace Web.Controllers.Api
             var result = await _dpaService.GetAlertsByIdByDatabaseIdAsync(
                 alertId, 
                 databaseId);
-            return Success(result, "Get alerts successfully");
+            return Success(result, "Get Status of specified alert.");
         }
 
         [HttpGet]
@@ -129,7 +123,7 @@ namespace Web.Controllers.Api
         public async Task<IHttpActionResult> GetAlertsByDatabaseId(int databaseId)
         {
             var result = await _dpaService.GetAlertsByDatabaseIdAsync(databaseId);
-            return Success(result, "Get alerts successfully");
+            return Success(result, "Get alerts of database successfully");
         }
 
         [HttpGet]
@@ -213,9 +207,9 @@ namespace Web.Controllers.Api
 
         [HttpGet]
         [Route("databases/{databaseId}/licenses")]
-        public async Task<IHttpActionResult> GetDatbaseLicensesById(int databaseId)
+        public async Task<IHttpActionResult> GetDatabaseLicensesById(int databaseId)
         {
-            var result = await _dpaService.GetDatbaseLicensesByIdAsync(databaseId);
+            var result = await _dpaService.GetDatabaseLicensesByIdAsync(databaseId);
             return Success(result, "Get database licenses by ID successfully");
         }
 

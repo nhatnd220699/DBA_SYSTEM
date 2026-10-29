@@ -5,7 +5,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using Web.Models;
 
-namespace Web.Controllers.Web
+namespace Web.Controllers.Mvc
 {
     public class AuthController : Controller
     {

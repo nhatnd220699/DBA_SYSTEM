@@ -45,16 +45,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Exceptions\FobiddentException.cs" />
+    <Compile Include="Exceptions\ForbiddenException.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Exceptions\ConflictException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Exceptions\ValidationException.cs" />
     <Compile Include="Features\Dashboard\DashboardService.cs" />
     <Compile Include="Features\Dashboard\IDashboardRepository.cs" />
-    <Compile Include="Features\DPA\DPApiClient.cs" />
-    <Compile Include="Features\DPA\DPAuthService.cs" />
-    <Compile Include="Features\DPA\DPAService.cs" />
+    <Compile Include="Features\DPA\DpaClient.cs" />
+    <Compile Include="Features\DPA\DpaAuthService.cs" />
+    <Compile Include="Features\DPA\DpaService.cs" />
     <Compile Include="Helpers\UrlHepler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -28,19 +28,6 @@ namespace Application.Features.DPA.DpaAuth
             _refreshToken = ConfigurationManager.AppSettings["DPA_RefreshToken"];
         }
 
-        /// <summary>
-        /// Builds a full request URL by combining the base URL and endpoint.
-        /// </summary>
-        /// <param name="endpoint">The target DPA endpoint.</param>
-        /// <returns>The complete request URL.</returns>
-        //private string BuildUrl(string endpoint)
-        //{
-        //   return string.Format(
-        //        "{0}/{1}",
-        //        _baseUrl.TrimEnd('/'),
-        //        endpoint.TrimStart('/'));
-        //}
-
         public void ClearToken()
         {
             _accessToken = null;

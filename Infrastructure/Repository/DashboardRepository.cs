@@ -1,4 +1,4 @@
-﻿using Application.Feature.Dashboard;
+﻿using Application.Features.Dashboard;
 using Dapper;
 using Domain;
 using Infrastructure.Database;
@@ -37,7 +37,7 @@ namespace Infrastructure.Repository
             };
         }
 
-        public async Task<List<AlwaysOn>> GetAlwaysOnAsyc(string site = null, string department = null)
+        public async Task<List<AlwaysOn>> GetAlwaysOnAsync(string site = null, string department = null)
         {
             const string sql = @"
                 WITH latest AS (

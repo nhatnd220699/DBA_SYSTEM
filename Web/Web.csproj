@@ -140,22 +140,21 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\Api\DBAController.cs" />
-    <Compile Include="Controllers\Api\DPAController.cs" />
-    <Compile Include="Controllers\Base\BaseApiController.cs" />
-    <Compile Include="Controllers\Web\AuthController.cs" />
-    <Compile Include="Controllers\Web\BaseController.cs" />
-    <Compile Include="Controllers\Web\ErrorController.cs" />
-    <Compile Include="Controllers\Web\HomeController.cs" />
+    <Compile Include="Controllers\Api\DbaController.cs" />
+    <Compile Include="Controllers\Api\DpaController.cs" />
+    <Compile Include="Controllers\Api\BaseApiController.cs" />
+    <Compile Include="Controllers\Mvc\AuthController.cs" />
+    <Compile Include="Controllers\Mvc\BaseController.cs" />
+    <Compile Include="Controllers\Mvc\ErrorController.cs" />
+    <Compile Include="Controllers\Mvc\HomeController.cs" />
     <Compile Include="Factories\ServiceFactory.cs" />
-    <Compile Include="Filters\GlobalExceptionFilter.cs" />
+    <Compile Include="Filters\ApiExceptionFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CurrentUser.cs" />
     <Compile Include="Helpers\SvgIconHelper.cs" />
     <Compile Include="Models\ApiResponse.cs" />
-    <Compile Include="Models\ErrorResponse.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Content\icons\sprite.svg" />
@@ -194,8 +193,6 @@
     <Content Include="Scripts\bootstrap.esm.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Content\tempdata\errors.json" />
-    <None Include="Content\tempdata\summary.json" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\custom\api\api-client.js" />
     <Content Include="Scripts\custom\common\action-lock.js" />
@@ -226,7 +223,6 @@
     <Content Include="Views\Shared\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Shared\_Layout - Copy.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_Sidebar.cshtml" />
     <Content Include="Views\Shared\_Navbar.cshtml" />
@@ -234,15 +230,11 @@
     <Content Include="Views\Auth\Login.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_Layout_Auth.cshtml" />
-    <Content Include="Views\Error\Fobidden.cshtml" />
+    <Content Include="Views\Error\Forbidden.cshtml" />
     <Content Include="Views\Error\InternalServer.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\BaseApi\" />
-    <Folder Include="Views\ContactManagement\" />
-    <Folder Include="Views\Dashboard\" />
-    <Folder Include="Views\Dpa\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

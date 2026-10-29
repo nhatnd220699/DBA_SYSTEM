@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Application.Feature.Dashboard
+namespace Application.Features.Dashboard
 {
     public class DashboardService
     {
@@ -15,41 +15,17 @@ namespace Application.Feature.Dashboard
 
         public async Task<List<AlwaysOn>> GetAlwaysOnAsync(string site = null, string department = null)
         {
-            try
-            {
-                List<AlwaysOn> data = await _repo.GetAlwaysOnAsyc(site, department);
-                return data;
-            }
-            catch
-            {
-                throw;
-            }
+            return await _repo.GetAlwaysOnAsync(site, department);
         }
 
         public async Task<List<LargeTable>> GetLargeTablesAsync(string site = null, string department = null)
         {
-            try
-            {
-                List<LargeTable> data = await _repo.GetLargeTablesAsync(site, department);
-                return data;
-            }
-            catch
-            {
-                throw;
-            }
+            return await _repo.GetLargeTablesAsync(site, department);
         }
 
         public async Task<List<DiskSpace>> GetDiskSpaceAsync(string site = null, string department = null)
         {
-            try
-            {
-                List<DiskSpace> data = await _repo.GetDiskSpaceAsync(site, department);
-                return data;
-            }
-            catch
-            {
-                throw;
-            }
+            return await _repo.GetDiskSpaceAsync(site, department);
         }
     }
 }

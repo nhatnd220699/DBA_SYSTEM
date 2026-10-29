@@ -1,7 +1,8 @@
 ﻿using System.Web.Mvc;
 
-namespace Web.Controllers.Web
+namespace Web.Controllers.Mvc
 {
+    [AllowAnonymous]
     public class ErrorController : Controller
     {
         public ActionResult NotFound()
@@ -10,7 +11,7 @@ namespace Web.Controllers.Web
             return View();
         }
 
-        public ActionResult Fobidden()
+        public ActionResult Forbidden()
         {
             Response.StatusCode = 403;
             return View();

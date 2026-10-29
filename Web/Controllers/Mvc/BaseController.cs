@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace Web.Controllers.Web
+namespace Web.Controllers.Mvc
 {
     public class BaseController : Controller
     {

@@ -6,151 +6,128 @@ using System.Threading.Tasks;
 
 namespace Application.Features.DPA.ServerInfo
 {
-    public class DPAService
+    public class DpaService
     {
-        private readonly DPApiClient _dpaApiClient;
+        private readonly DpaClient _dpaApiClient;
 
-        public DPAService()
+        public DpaService()
         {
-            _dpaApiClient = new DPApiClient();
+            _dpaApiClient = new DpaClient();
         }
 
         public async Task<DpaOptionsSystem> GetOptionsSystemAsync()
         {
-            var result = await _dpaApiClient.GetAsync<DpaOptionsSystem>("options/system");
-            return result;
+            return await _dpaApiClient.GetAsync<DpaOptionsSystem>("options/system");
         }
 
-        public async Task<DpaOptionsSystem> GetOptionsDatabaseByIdAsync(int databaseId)
+        public async Task<DpaOptionsDatabase> GetOptionsDatabaseByIdAsync(int databaseId)
         {
-            var result = await _dpaApiClient.GetAsync<DpaOptionsSystem>($"options/databases/{databaseId}");
-            return result;
+            return await _dpaApiClient.GetAsync<DpaOptionsDatabase>($"options/databases/{databaseId}");
         }
 
         public async Task<List<DpaAlertsTemplates>> GetAlertsTemplatesAsync()
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaAlertsTemplates>>("alerts/templates");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaAlertsTemplates>>("alerts/templates");
         }
 
         public async Task<DpaAlertsTemplates> GetAlertsTemplatesByIdAsync(int templateId)
         {
-            var result = await _dpaApiClient.GetAsync<DpaAlertsTemplates>($"alerts/templates/{templateId}");
-            return result;
+            return await _dpaApiClient.GetAsync<DpaAlertsTemplates>($"alerts/templates/{templateId}");
         }
 
         public async Task<List<DpaAlertGroups>> GetAlertGroupsAsync()
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaAlertGroups>>("alert-groups");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaAlertGroups>>("alert-groups");
         }
 
         public async Task<DpaAlertGroups> GetAlertGroupsByIdAsync(int alertGroupId)
         {
-            var result = await _dpaApiClient.GetAsync<DpaAlertGroups>($"alert-groups/{alertGroupId}");
-            return result;
+            return await _dpaApiClient.GetAsync<DpaAlertGroups>($"alert-groups/{alertGroupId}");
         }
 
         public async Task<List<DpaAlertGroups>> GetAlertGroupsByDatabaseIdAsync(int databaseId)
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaAlertGroups>>($"databases/{databaseId}/alert-groups");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaAlertGroups>>($"databases/{databaseId}/alert-groups");
         }
 
         public async Task<List<DpaAlerts>> GetAlertsAsync()
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaAlerts>>("alerts");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaAlerts>>("alerts");
         }
 
         public async Task<List<DpaAlertsStatuses>> GetAlertsStatusesAsync()
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaAlertsStatuses>>("alerts/statuses");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaAlertsStatuses>>("alerts/statuses");
         }
 
         public async Task<DpaAlerts> GetAlertsByIdAsync(int alertId)
         {
-            var result = await _dpaApiClient.GetAsync<DpaAlerts>($"alerts/{alertId}");
-            return result;
+            return await _dpaApiClient.GetAsync<DpaAlerts>($"alerts/{alertId}");
         }
 
         public async Task<string> GetAlertsByIdByDatabaseIdAsync(int alertId, int databaseId)
         {
-            var result = await _dpaApiClient.GetAsync<string>($"alerts/{alertId}/databases/{databaseId}/status");
-            return result;
+            return await _dpaApiClient.GetAsync<string>($"alerts/{alertId}/databases/{databaseId}/status");
         }
 
         public async Task<List<DpaAlerts>> GetAlertsByDatabaseIdAsync(int databaseId)
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaAlerts>>($"databases/{databaseId}/alerts");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaAlerts>>($"databases/{databaseId}/alerts");
         }
 
         public async Task<List<DpaAnnotations>> GetAnnotationsAsync(int databaseId, string startTime, string endTime)
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaAnnotations>>($"databases/{databaseId}/annotations?endTime={Uri.EscapeDataString(endTime)}&startTime={Uri.EscapeDataString(startTime)}");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaAnnotations>>($"databases/{databaseId}/annotations?endTime={Uri.EscapeDataString(endTime)}&startTime={Uri.EscapeDataString(startTime)}");
         }
 
         public async Task<List<DpaContacts>> GetContactsAsync()
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaContacts>>("contacts");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaContacts>>("contacts");
         }
 
         public async Task<List<DpaContactsGroups>> GetContactsGroupsAsync()
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaContactsGroups>>("contacts/groups");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaContactsGroups>>("contacts/groups");
         }
 
         public async Task<List<DpaContacts>> GetContactsByIdAsync(int contactId)
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaContacts>>($"contacts/{contactId}");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaContacts>>($"contacts/{contactId}");
         }
 
         public async Task<DpaServerInfo> GetServerInfoAsync()
         {
-            var result = await _dpaApiClient.GetAsync<DpaServerInfo>("server-info");
-            return result;
+            return await _dpaApiClient.GetAsync<DpaServerInfo>("server-info");
         }
 
         public async Task<List<DpaDatabaseMonitorInfo>> GetDatabaseMonitorInfoAsync()
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaDatabaseMonitorInfo>>("databases/monitor-information");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaDatabaseMonitorInfo>>("databases/monitor-information");
         }
 
         public async Task<DpaDatabaseMonitorInfo> GetDatabaseMonitorInfoByDatabaseIdAsync(int databaseId)
         {
-            var result = await _dpaApiClient.GetAsync<DpaDatabaseMonitorInfo>($"databases/{databaseId}/monitor-information");
-            return result;
+            return await _dpaApiClient.GetAsync<DpaDatabaseMonitorInfo>($"databases/{databaseId}/monitor-information");
         }
 
         public async Task<DpaEncryption> GetEncryptionAsync()
         {
-            var result = await _dpaApiClient.GetAsync<DpaEncryption>("encryption");
-            return result;
+            return await _dpaApiClient.GetAsync<DpaEncryption>("encryption");
         }
 
         public async Task<List<DpaLicensesInstalled>> GetDatbaseLicensesInstalledAsync()
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaLicensesInstalled>>("databases/licenses/installed");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaLicensesInstalled>>("databases/licenses/installed");
         }
 
-        public async Task<DpaLicenses> GetDatbaseLicensesByIdAsync(int databaseId)
+        public async Task<DpaLicenses> GetDatabaseLicensesByIdAsync(int databaseId)
         {
-            var result = await _dpaApiClient.GetAsync<DpaLicenses>($"databases/{databaseId}/licenses");
-            return result;
+            return await _dpaApiClient.GetAsync<DpaLicenses>($"databases/{databaseId}/licenses");
         }
 
         public async Task<List<DpaVSphereMonitorInfo>> GetVSphereMonitorInfoAsync()
         {
-            var result = await _dpaApiClient.GetAsync<List<DpaVSphereMonitorInfo>>("vsphere/monitor-information");
-            return result;
+            return await _dpaApiClient.GetAsync<List<DpaVSphereMonitorInfo>>("vsphere/monitor-information");
         }
     }
 }
