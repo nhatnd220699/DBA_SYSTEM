@@ -1,5 +1,5 @@
 ﻿using Application.Features.DPA.DpaAuth;
-using Domain;
+using Domain.DPA;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

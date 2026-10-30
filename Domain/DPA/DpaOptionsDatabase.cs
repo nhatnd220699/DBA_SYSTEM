@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Domain
+namespace Domain.DPA
 {
     public class DpaOptionsDatabase
     {

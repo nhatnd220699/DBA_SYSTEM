@@ -1,4 +1,4 @@
-﻿namespace Domain
+﻿namespace Domain.DPA
 {
     public class DpaLicenses
     {
