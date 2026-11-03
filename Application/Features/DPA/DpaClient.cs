@@ -124,11 +124,11 @@ namespace Application.Features.DPA.DpaAuth
                 {
                     var error = JsonConvert.DeserializeObject<DpaErrorResponse>(json);
                     var message = error?.Messages?.FirstOrDefault();
-                    var errorMessage = message != null ? $"Description: {message.Description} (Reason: {message.Reason})" : "Unknown error.";
+                    var errorMessage = message != null ? $"{message.Reason} (Description: {message.Description})" : "Unknown error.";
 
                     throw new Exception(
                         $"DPA API failed. " +
-                        $"StatusCode: {response.StatusCode}. " +
+                        $"StatusCode: {response.StatusCode} ({(int)response.StatusCode}). " +
                         $"RequestId: {error?.RequestId}. " +
                         $"Message: {errorMessage}");
                 }

@@ -604,7 +604,7 @@ async function getIncidentDetailByCategory() {
         if (!result.success) return;
 
         const data = JSON.parse(result.data);
-        //console.log(data);
+        console.log(data);
         if (data) {
 
             //Severity filterbar
