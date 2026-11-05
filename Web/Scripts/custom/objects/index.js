@@ -113,11 +113,12 @@ async function getTemp() {
         };
 
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
+        console.log('temp: ', result);
+
 
         if (!result.success) return;
 
         let data = JSON.parse(result.data);
-        console.log('TEMP: ',data);
 
     } catch (err) {
         console.error(err.message);
@@ -135,6 +136,8 @@ async function getKpis() {
         };
 
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
+        console.log('kpi: ', result);
+
 
         if (!result.success) return;
 
@@ -237,6 +240,7 @@ async function getErrorSummary() {
 
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
         //const result = await ApiClient.get('/Content/tempdata/summary.json');
+        console.log('ERROR SUMMARY: ',result);
 
         const data = JSON.parse(result.data);
         //console.log(data);
@@ -328,8 +332,10 @@ async function getAlwaysOnStatus() {
         };
 
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
+        console.log('Always On Status: ', result);
 
         var data = JSON.parse(result.data);
+        //console.log(data)
 
         if (result.success) {
             if (data && data.length > 0) {
@@ -426,6 +432,7 @@ async function getLargeTable() {
             "InputStr": `\{"Dept": "${dept}"\}`
         }
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
+        console.log('large table: ', result);
 
         var data = JSON.parse(result.data);
 
