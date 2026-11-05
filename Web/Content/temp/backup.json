@@ -1,0 +1,30 @@
+[
+  {
+    "id": 82,
+    "site": "QMH",
+    "department": "CR",
+    "server_ip": "10.36.6.81",
+    "bkserver_path": "\\\\10.36.6.17\\E$\\RemoteBackup_FA1\\10.36.6.86\\DataBase",
+    "database_name": "Report",
+    "backup_type": "LOG",
+    "file_name": "",
+    "created_time": "",
+    "message": "DB [Report] không tìm thấy file LOG backup | DB [Report] 未找到 LOG 备份文件",
+    "status": "OPEN",
+    "inputdatetime": "20261105081512"
+  },
+  {
+    "id": 80,
+    "site": "QMH",
+    "department": "CR",
+    "server_ip": "10.36.6.81",
+    "bkserver_path": "\\\\10.36.6.17\\E$\\RemoteBackup_FA1\\10.36.6.86\\DataBase",
+    "database_name": "Report",
+    "backup_type": "DIFF",
+    "file_name": "",
+    "created_time": "",
+    "message": "DB [Report] không tìm thấy file DIFF backup | DB [Report] 未找到 DIFF 备份文件",
+    "status": "OPEN",
+    "inputdatetime": "20261105081512"
+  }
+]

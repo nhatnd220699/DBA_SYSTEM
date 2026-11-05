@@ -1,4 +1,4 @@
-﻿import { Popup, Toast, ActionLock, ApiClient, renderIcon, NumberUtils } from '../modules/app.js';
+﻿import { Popup, Toast, ActionLock, ApiClient, renderIcon, NumberUtils, StringUtils } from '../modules/app.js';
 
 const
     DBA_ERRORLOG = 'dba_errorlog',
@@ -11,8 +11,12 @@ const appState = {
     selectedSeverity: 'all', // "all", "critical", "high", "medium"
     searchQuery: '',
     expandedGroups: new Set([]), // Group 1 expanded by default
-    expandedIncidents: new Set([]), // Error 1 expanded by default
+    expandedIncidents: new Set([]), // Error 1 expanded by default,
+    expandedErrorLists: new Set()
 };
+
+window.appState = appState;
+
 let serverIpArr = [];
 let toastTimeout = null
 
@@ -95,6 +99,31 @@ function showToast(message, type, duration = 3800) {
     }, duration);
 }
 
+getTemp();
+async function getTemp() {
+    //Get_Monitor_ErrorLog, Get_Job_ErrorLog, Get_DBLock_Log, Get_DBBackup_Log
+
+
+    try {
+        const params = {
+            "BU": "MSSQL",
+            "Station": "AIQuery",
+            "Step": "Get_DBBackup_Log",
+            "InputStr": `\{"Dept": "${dept}"\}`
+        };
+
+        const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
+
+        if (!result.success) return;
+
+        let data = JSON.parse(result.data);
+        console.log('TEMP: ',data);
+
+    } catch (err) {
+        console.error(err.message);
+    }
+}
+
 
 async function getKpis() {
     try {
@@ -110,6 +139,8 @@ async function getKpis() {
         if (!result.success) return;
 
         let data = JSON.parse(result.data);
+        //console.log(data);
+
         if (data && data.length > 0) {
 
             data = data.reduce((acc, item) => {
@@ -208,7 +239,7 @@ async function getErrorSummary() {
         //const result = await ApiClient.get('/Content/tempdata/summary.json');
 
         const data = JSON.parse(result.data);
-        //console.log(data)
+        //console.log(data);
 
         if (!result.success) return;
 
@@ -604,7 +635,7 @@ async function getIncidentDetailByCategory() {
         if (!result.success) return;
 
         const data = JSON.parse(result.data);
-        console.log(data);
+        console.log('Incident Details: ', data);
         if (data) {
 
             //Severity filterbar
@@ -628,45 +659,145 @@ async function getIncidentDetailByCategory() {
 
                 return acc;
             }, []);
-            //console.log(severityData_Beta);
+            //console.log('severityData_Beta: ', severityData_Beta);
 
 
-            //Incident details
+            ////Incident details
+            //incidentGroupsData_Beta = Object.values(
+            //    (data.Incident_Detail || []).reduce((acc, item) => {
+            //        const { incident_type, incident_group, incident_level } = item;
+
+            //        acc[incident_type] ??= {
+            //            incident_type,
+            //            groups: {}
+            //        };
+
+            //        acc[incident_type].groups[incident_group] ??= {
+            //            incident_group,
+            //            critical: 0,
+            //            high: 0,
+            //            medium: 0,
+            //            low: 0,
+            //            incidents: []
+            //        };
+
+            //        const group = acc[incident_type].groups[incident_group];
+
+            //        if (incident_level.toLowerCase() === 'critical') group.critical++;
+            //        if (incident_level.toLowerCase() === 'high') group.high++;
+            //        if (incident_level.toLowerCase() === 'medium') group.medium++;
+            //        if (incident_level.toLowerCase() === 'low') group.low++;
+
+            //        group.incidents.push(item);
+
+            //        return acc;
+            //    }, {})
+            //).map(type => ({
+            //    ...type,
+            //    groups: Object.values(type.groups)
+            //}));
+
             incidentGroupsData_Beta = Object.values(
                 (data.Incident_Detail || []).reduce((acc, item) => {
-                    const { incident_type, incident_group, incident_level } = item;
-
-                    acc[incident_type] ??= {
-                        incident_type,
-                        groups: {}
-                    };
-
-                    acc[incident_type].groups[incident_group] ??= {
+                    const {
                         incident_group,
+                        incident_level,
+                        incidentid,
+                        incident_type
+                    } = item;
+
+                    // Tránh key undefined/null
+                    const groupKey = incident_group || 'Unknown';
+                    const incidentKey = String(incidentid);
+
+                    // Tạo group trực tiếp, không chia theo incident_type
+                    acc[groupKey] ??= {
+                        incident_group: groupKey,
                         critical: 0,
                         high: 0,
                         medium: 0,
                         low: 0,
-                        incidents: []
+                        incidentsById: {}
                     };
 
-                    const group = acc[incident_type].groups[incident_group];
+                    const group = acc[groupKey];
 
-                    if (incident_level.toLowerCase() === 'critical') group.high++;
-                    if (incident_level.toLowerCase() === 'high') group.high++;
-                    if (incident_level.toLowerCase() === 'medium') group.medium++;
-                    if (incident_level.toLowerCase() === 'low') group.low++;
+                    // Thông tin chi tiết của từng lỗi
+                    const errorDetail = {
+                        error_message: item.error_message ?? '',
+                        source_id: item.source_id ?? '',
+                        system_name: item.system_name ?? '',
+                        server_ip: item.server_ip ?? '',
 
-                    group.incidents.push(item);
+                        // Giữ nguồn phát sinh lỗi vì không còn chia theo incident_type
+                        incident_type: incident_type ?? ''
+                    };
+
+                    // Nếu incidentid chưa tồn tại trong group
+                    if (!group.incidentsById[incidentKey]) {
+                        const level = String(incident_level || '').toLowerCase();
+
+                        group.incidentsById[incidentKey] = {
+                            ...item,
+
+                            // Không giữ một incident_type đơn lẻ
+                            // vì incident có thể đến từ nhiều incident_type
+                            incident_types: incident_type
+                                ? [incident_type]
+                                : [],
+
+                            // error_message là danh sách object
+                            error_message: [errorDetail]
+                        };
+
+                        // Xóa incident_type lấy từ ...item để tránh gây hiểu nhầm
+                        delete group.incidentsById[incidentKey].incident_type;
+
+                        // Chỉ đếm level một lần cho mỗi incidentid
+                        if (level === 'critical') group.critical++;
+                        if (level === 'high') group.high++;
+                        if (level === 'medium') group.medium++;
+                        if (level === 'low') group.low++;
+                    } else {
+                        const existingIncident =
+                            group.incidentsById[incidentKey];
+
+                        // Lưu lại tất cả incident_type có liên quan
+                        if (
+                            incident_type &&
+                            !existingIncident.incident_types.includes(incident_type)
+                        ) {
+                            existingIncident.incident_types.push(incident_type);
+                        }
+
+                        // Chống trùng error object
+                        const isDuplicate =
+                            existingIncident.error_message.some(error =>
+                                error.error_message === errorDetail.error_message &&
+                                error.source_id === errorDetail.source_id &&
+                                error.system_name === errorDetail.system_name &&
+                                error.server_ip === errorDetail.server_ip &&
+                                error.incident_type === errorDetail.incident_type
+                            );
+
+                        if (!isDuplicate) {
+                            existingIncident.error_message.push(errorDetail);
+                        }
+                    }
 
                     return acc;
                 }, {})
-            ).map(type => ({
-                ...type,
-                groups: Object.values(type.groups)
-            }));
+            ).map(group => {
+                const { incidentsById, ...groupData } = group;
 
-            //console.log(incidentGroupsData_Beta);
+                return {
+                    ...groupData,
+                    incidents: Object.values(incidentsById)
+                };
+            });
+
+
+            //console.log('incidentGroupsData_Beta: ', incidentGroupsData_Beta);
 
             renderFilterBars();
             renderIncidentDirectory(incidentGroupsData_Beta, appState);
@@ -695,7 +826,7 @@ function renderFilterBars() {
                 return `
                     <button class="${btnClasses}" data-category-id="${cat.id}" data-action="filter-category-offline" type="button">
                     <span>${cat.label}</span>
-                    <span class="${badgeClasses}">${cat.count}</span>
+                    <!--<span class="${badgeClasses}">${cat.count}</span>-->
                     </button>
                 `;
             })
@@ -729,19 +860,16 @@ function renderFilterBars() {
                                     : 'text-gray-600 dark:text-gray-400 border-slate-300 dark:border-slate-700');
                 }
                 return `
-        <button data-severity-id="${sev?.id}" data-action="filter-severity" class="px-2.5 py-1 rounded font-mono text-[11px] flex items-center gap-1.5 border transition-colors ${btnClass}" type="button">
-            <span class="w-1.5 h-1.5 rounded-full ${sev.dotColor}"></span>
-            <span>${sev.label}</span>
-            <span>(${sev.count})</span>
-        </button>
-        `;
+                    <button data-severity-id="${sev?.id}" data-action="filter-severity" class="px-2.5 py-1 rounded font-mono text-[11px] flex items-center gap-1.5 border transition-colors ${btnClass}" type="button">
+                        <span class="w-1.5 h-1.5 rounded-full ${sev.dotColor}"></span>
+                        <span>${sev.label}</span>
+                        <span>(${sev.count})</span>
+                    </button>
+                    `;
             })
             .join('');
 
-        sevContainer.innerHTML = `
-        <span class="font-mono text-[10px] text-slate-600 dark:text-slate-500 uppercase font-semibold">Filter Severity:</span>
-        ${sevButtons}
-        `;
+        sevContainer.innerHTML = `<span class="font-mono text-[10px] text-slate-600 dark:text-slate-500 uppercase font-semibold">Filter Severity:</span>${sevButtons}`;
     }
 }
 // 3. Dynamic 3-Level Accordion Renderer
@@ -778,135 +906,197 @@ function renderIncidentStatusClass(status) {
     return '';
 }
 
-function renderStatusRadio(incidentId, value, currentStatus) {
-    const statusConfig = {
-        Open: {
-            icon: 'radio_button_unchecked',
-            selectedClass: `
-                peer-checked:border-slate-500
-                peer-checked:bg-slate-100
-                peer-checked:text-slate-900
-                peer-checked:ring-2
-                peer-checked:ring-slate-200
-                dark:peer-checked:border-slate-400
-                dark:peer-checked:bg-slate-700
-                dark:peer-checked:text-white
-                dark:peer-checked:ring-slate-700
-            `
-        },
+const renderErrorMessages = (errorMessages, incidentId) => {
+    const messages = Array.isArray(errorMessages)
+        ? errorMessages
+        : errorMessages
+            ? [{
+                error_message: errorMessages,
+                source_id: '',
+                system_name: '',
+                server_ip: ''
+            }]
+            : [];
 
-        Analyze: {
-            icon: 'search',
-            selectedClass: `
-                peer-checked:border-amber-500
-                peer-checked:bg-amber-50
-                peer-checked:text-amber-800
-                peer-checked:ring-2
-                peer-checked:ring-amber-100
-                dark:peer-checked:border-amber-400
-                dark:peer-checked:bg-amber-500/15
-                dark:peer-checked:text-amber-300
-                dark:peer-checked:ring-amber-500/20
-            `
-        },
+    if (messages.length === 0) {
+        return `
+            <div class="px-3 py-4 text-center rounded-lg
+                        bg-slate-50 dark:bg-slate-950
+                        border border-dashed border-slate-300
+                        dark:border-slate-700
+                        text-sm text-slate-500 dark:text-slate-400">
+                No error messages available.
+            </div>
+        `;
+    }
 
-        Doing: {
-            icon: 'sync',
-            selectedClass: `
-                peer-checked:border-blue-500
-                peer-checked:bg-blue-50
-                peer-checked:text-blue-800
-                peer-checked:ring-2
-                peer-checked:ring-blue-100
-                dark:peer-checked:border-blue-400
-                dark:peer-checked:bg-blue-500/15
-                dark:peer-checked:text-blue-300
-                dark:peer-checked:ring-blue-500/20
-            `
-        },
+    const incidentKey = String(incidentId);
 
-        Done: {
-            icon: 'check_circle',
-            selectedClass: `
-                peer-checked:border-emerald-500
-                peer-checked:bg-emerald-50
-                peer-checked:text-emerald-800
-                peer-checked:ring-2
-                peer-checked:ring-emerald-100
-                dark:peer-checked:border-emerald-400
-                dark:peer-checked:bg-emerald-500/15
-                dark:peer-checked:text-emerald-300
-                dark:peer-checked:ring-emerald-500/20
-            `
-        }
-    };
+    const isExpanded =
+        appState.expandedErrorLists.has(incidentKey);
 
-    const config = statusConfig[value];
+    // Mặc định chỉ hiển thị 2 lỗi
+    const visibleMessages = isExpanded
+        ? messages
+        : messages.slice(0, 2);
 
-    const normalizedCurrentStatus = currentStatus
-        ?.toString()
-        .trim()
-        .toLowerCase();
-
-    const normalizedValue = value.toLowerCase();
-
-    const isChecked =
-        normalizedValue === 'open'
-            ? normalizedCurrentStatus?.includes('open', '')
-            : normalizedCurrentStatus === normalizedValue;
+    const hiddenCount = Math.max(
+        messages.length - 2,
+        0
+    );
 
     return `
-        <label class="relative block cursor-pointer select-none">
-            <input
-                type="radio"
-                name="status-${incidentId}"
-                value="${value}"
-                data-field="status"
-                class="peer sr-only"
-                ${isChecked ? 'checked' : ''}
-            />
+        <div
+            class="error-list-container"
+            data-incident-id="${StringUtils.escapeHtml(incidentKey)}"
+        >
+            <div class="space-y-3">
+                ${visibleMessages.map((error, index) => {
 
-            <span
-                class="
-                    px-3 py-2
-                    flex items-center justify-center gap-1.5
-                    rounded-lg
-                    border border-slate-300
-                    dark:border-slate-700
-                    bg-white
-                    dark:bg-[#060b14]
-                    text-slate-600
-                    dark:text-slate-400
-                    font-sans text-sm font-medium
-                    transition-all duration-200
-                    hover:border-slate-400
-                    hover:bg-slate-50
-                    dark:hover:bg-slate-800
-                    peer-focus-visible:ring-2
-                    peer-focus-visible:ring-cyan-500
-                    peer-focus-visible:ring-offset-2
-                    ${config.selectedClass}
-                "
-            >
-                ${renderIcon(
-        config.icon,
-        'w-[17px] h-[17px]'
-    )}
+                    const errorText = StringUtils.escapeHtml(error?.error_message || 'No error message').replace(/\n/g, '<br>');
 
-                <span>${value}</span>
-            </span>
-        </label>
+                    return `
+                            <div
+                                class="error-message-item copy-wrapper rounded-lg overflow-hidden border border-rose-200 dark:border-rose-500/20 bg-white dark:bg-[#0d1626]"
+                            >
+                                <!-- Header -->
+                                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2 px-3 py-2.5 bg-rose-50 dark:bg-rose-500/10 border-b border-rose-200 dark:border-rose-500/20">
+
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0">
+
+                                        <!-- Error number -->
+                                        <div class="flex items-center
+                                                    gap-2 shrink-0">
+                                            <span class="flex items-center justify-center min-w-6 h-6 px-1.5 rounded-full bg-rose-600 dark:bg-rose-500 text-white font-mono text-[11px] font-bold">
+                                                #${index + 1}
+                                            </span>
+
+                                            <span class="font-mono text-xs font-bold text-rose-700 dark:text-rose-400">
+                                                Error ${index + 1}
+                                            </span>
+                                        </div>
+
+                                        <span class="hidden sm:block w-px h-5 bg-rose-200 dark:bg-rose-500/30">
+                                        </span>
+
+                                        <!-- Source ID -->
+                                        <div class="flex items-center gap-1.5">
+                                            ${renderIcon('tag', `w-[15px] h-[15px] text-blue-600dark:text-blue-400`)}
+                                            <span class="font-mono text-[10px] uppercase text-slate-500">
+                                                Source_ID:
+                                            </span>
+
+                                            <span class="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200">
+                                                ${StringUtils.escapeHtml(error?.source_id || 'N/A')}
+                                            </span>
+                                        </div>
+
+                                        <!-- Server IP -->
+                                        <div class="flex items-center gap-1.5">
+                                            ${renderIcon('dns', `w-[15px] h-[15px] text-cyan-600 dark:text-cyan-400`)}
+
+                                            <span class="font-mono text-[10px] uppercase text-slate-500">
+                                                Server IP:
+                                            </span>
+
+                                            <span class="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200">
+                                                ${StringUtils.escapeHtml(error?.server_ip || 'N/A')}
+                                            </span>
+                                        </div>
+
+                                        <!-- System Name -->
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            ${renderIcon('settings', `w-[15px] h-[15px] text-violet-600 dark:text-violet-400`)}
+
+                                            <span class="font-mono text-[10px] uppercase text-slate-500">
+                                                System:
+                                            </span>
+
+                                            <span
+                                                class="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200 max-w-[260px] truncate"
+                                                title="${StringUtils.escapeHtml(error?.system_name || 'N/A')}"
+                                            >
+                                                ${StringUtils.escapeHtml(error?.system_name || 'N/A')}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Copy button -->
+                                    <button
+                                        type="button"
+                                        class="copy-btn flex items-center gap-1.5 shrink-0 self-end lg:self-auto text-slate-600 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 px-2 py-1 rounded-md hover:bg-rose-100 dark:hover:bg-rose-500/10"
+                                        data-action="copy"
+                                        title="Copy error message"
+                                    >
+                                        ${renderIcon('content_copy', 'w-[15px] h-[15px] icon')}
+
+                                        <span class="font-mono text-[10px]">
+                                            Copy
+                                        </span>
+                                    </button>
+                                </div>
+
+                                <!-- Error content -->
+                                <div class="px-4 py-3">
+                                    <div class="copy-message text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-sans whitespace-normal break-words">
+                                        ${errorText}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                }).join('')}
+            </div>
+
+            ${messages.length > 2
+            ? `
+                    <div class="mt-3 flex justify-center">
+                        <button
+                            type="button"
+                            data-action="toggle-error-list"
+                            data-incident-id="${StringUtils.escapeHtml(incidentKey)}"
+                            aria-expanded="${isExpanded}"
+                            class="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-rose-200 dark:border-rose-500/20 bg-rose-50/60 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 font-mono text-[11px] font-semibold transition-colors"
+                        >
+                            ${renderIcon(isExpanded ? 'expand_less' : 'expand_more', 'w-[18px] h-[18px]')}
+
+                            <span>
+                                ${isExpanded ? 'Collapse error list' : `Show ${hiddenCount} more errors`}
+                            </span>
+                        </button>
+                    </div>
+                `
+            : ''
+        }
+        </div>
     `;
+};
+
+function renderGroupSeverityBadge(criticalCount, highCount) {
+
+    if (criticalCount && highCount) {
+        return (Number(criticalCount) + Number(highCount)) + ' CRITICAL / HIGH';
+    }
+    else if (criticalCount && !highCount) {
+        return Number(criticalCount) + ' CRITICAL';
+    } else if (!criticalCount && highCount) {
+        return Number(highCount) + ' HIGH';
+    } else {
+        return `0 CRITCAL / HIGH`
+    }
 }
 
 function renderIncidentDirectory(data, state) {
+
     const root = document.getElementById('accordion-root');
     if (!root) return;
 
-    data = data.find(item => item.incident_type === state.selectedCategory)?.groups || [];
+
+    ////Filter data by category
+    //data = data.find(item => item.incident_type === state.selectedCategory)?.groups || [];
+
 
     // Filter Logic
-    const query = state.searchQuery.trim().toLowerCase();
+    const query = (String(state.searchQuery) || '').trim().toLowerCase();
 
     const filteredGroups = data
         .map((group) => {
@@ -927,10 +1117,39 @@ function renderIncidentDirectory(data, state) {
 
                 // Search Query check
                 if (query) {
-                    const combinedString = `
-                         ${inc.incidentid} ${inc.incident_title} ${inc.status} ${inc.system_name} ${inc.server_ip}
-                         ${inc.error_message} ${inc.rootcause} ${inc.recommendation}
-                        `.toLowerCase();
+                    const errorMessagesText = Array.isArray(inc?.error_message)
+                        ? inc.error_message
+                            .map((error) => {
+                                return [
+                                    error?.error_message,
+                                    error?.source_id,
+                                    error?.server_ip,
+                                    error?.system_name,
+                                    error?.incident_type
+                                ]
+                                    .filter(Boolean)
+                                    .join(' ');
+                            })
+                            .join(' ')
+                        : String(inc?.error_message || '');
+
+                    const combinedString = [
+                        inc?.incidentid,
+                        inc?.incident_title,
+                        inc?.incident_level,
+                        inc?.status,
+                        inc?.department,
+
+                        // Nội dung từ danh sách error_message
+                        errorMessagesText,
+
+                        inc.rootcause,
+                        inc.recommendation
+                    ]
+                        .filter(Boolean)
+                        .join(' ')
+                        .toLowerCase();
+
                     return combinedString.includes(query);
                 }
 
@@ -938,9 +1157,7 @@ function renderIncidentDirectory(data, state) {
             });
 
             // If category matches, or there is a query matching group title
-            const groupMatchesQuery =
-                query &&
-                (group.incident_group.toLowerCase().includes(query));
+            const groupMatchesQuery = query && (group.incident_group.toLowerCase().includes(query));
 
             if (matchingIncidents.length === 0 && !groupMatchesQuery && query) {
                 return null;
@@ -962,8 +1179,8 @@ function renderIncidentDirectory(data, state) {
                 <button data-action="reset-filters" class="mt-3 px-3 py-1.5 rounded bg-blue-600 dark:bg-blue-600 hover:bg-blue-500 dark:hover:bg-blue-500 text-white dark:text-white font-mono text-[11px] transition-colors">
                     Reset Filters
                 </button>
-                </div>
-            `;
+                </div >
+        `;
         return;
     }
 
@@ -988,7 +1205,7 @@ function renderIncidentDirectory(data, state) {
                         <div class="flex flex-col min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="text-[15px] font-semibold text-slate-900 dark:text-slate-100 truncate">${group.incident_group}</span>
-                                <span class="px-2 py-0.5 rounded-full font-mono text-[10px] uppercase font-bold tracking-wider bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-500/20">${(Number(group?.high) + Number(group?.critical)) || 0} CRITICAL/HIGH</span>
+                                <span class="px-2 py-0.5 rounded-full font-mono text-[10px] uppercase font-bold tracking-wider bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-500/20">${renderGroupSeverityBadge(group?.critical, group?.high)}</span>
                             </div>
                             <!--<span class="font-mono text-[12px] text-slate-600 dark:text-slate-400 truncate">${group?.description || 'NA'}</span>-->
                         </div>
@@ -1029,11 +1246,7 @@ function renderIncidentDirectory(data, state) {
                                                     <div class="flex items-center gap-2 text-slate-600 dark:text-slate-500 font-mono text-[11px] mt-0.5 flex-wrap">
                                                         <span class="text-blue-700 dark:text-blue-400 font-medium">Dept: [${incident?.department}]</span>
                                                         <span>•</span>
-                                                        <span class="text-blue-700 dark:text-blue-400 font-medium">Server IP: [${incident?.server_ip}]</span>
-                                                        <span>•</span>
-                                                        <span>[INDCIDENT ID: ${incident?.incidentid}]</span>
-                                                        <span>•</span>
-                                                        <span class="text-rose-700 dark:text-rose-400 font-semibold">System Name: ${incident?.system_name}</span>
+                                                        <span>[Incident ID: ${incident?.incidentid}]</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1058,39 +1271,48 @@ function renderIncidentDirectory(data, state) {
                                                             </button>
                                                         </div>
                                                         <p class="text-sm text-slate-600 px-3 dark:text-slate-400 leading-relaxed font-sans mb-4 copy-message">
-                                                            ${incident?.error_message?.replace(/\n/g, '<br>')}
+                                                            ${renderErrorMessages(incident?.error_message, incident?.incidentid)}
                                                         </p>
-                                                    </div>
-                                                    <div class="copy-wrapper group/line">
-                                                        <div class="flex items-center justify-between gap-2 text-rose-700 dark:text-rose-400 mb-1.5">
-                                                            <div class="flex items-center gap-2">
-                                                                ${renderIcon('report_problem', 'w-[22px] h-[22px]')}
-                                                                <span class="font-mono text-xs font-bold uppercase tracking-wider">Root Cause</span>
-                                                            </div>
-                                                            <button class="copy-btn opacity-0 group-hover/line:opacity-100 text-slate-600 dark:text-slate-400 hover:cursor-pointer transition-opacity px-3 py-1" data-action="copy">
-                                                                ${renderIcon('content_copy', 'w-[16px] h-[16px] icon')}
-                                                            </button>
-                                                        </div>
-                                                        <p class="text-sm text-slate-700 px-3 dark:text-slate-200 leading-relaxed font-sans copy-message">${(incident?.rootcause?.replace(/\n/g, '<br>'))}</p>
-                                                    </div>
-                                                    <div class="mt-2.5 pt-2 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-slate-400">
-                                                        <span>Auto-generated root cause</span>
                                                     </div>
                                                 </div>
 
-                                                <!-- Proposed Action Plan (Giải pháp đề xuất) -->
-                                                <div class="p-3.5 bg-white dark:bg-[#0d1626] rounded-xl border border-emerald-300 dark:border-emerald-500/20 shadow-sm">
-                                                    <div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 mb-1.5">
-                                                        ${renderIcon('lightbulb', 'w-[22px] h-[22px]')}
-                                                        <span class="font-mono text-xs font-bold uppercase tracking-wider">Action Plan</span>
+                                                <div class="gap-3 grid grid-cols-1 md:grid-cols-2">
+
+                                                    <!-- Root Cause -->
+                                                    <div class="md:col-span-1 p-3.5 bg-white dark:bg-[#0d1626] rounded-xl border border-rose-300 dark:border-rose-500/20 shadow-sm">
+                                                        <div class="copy-wrapper group/line">
+                                                            <div class="flex items-center justify-between gap-2 text-rose-700 dark:text-rose-400 mb-1.5">
+                                                                <div class="flex items-center gap-2">
+                                                                    ${renderIcon('report_problem', 'w-[22px] h-[22px]')}
+                                                                    <span class="font-mono text-xs font-bold uppercase tracking-wider">Root Cause</span>
+                                                                </div>
+                                                                <button class="copy-btn opacity-0 group-hover/line:opacity-100 text-slate-600 dark:text-slate-400 hover:cursor-pointer transition-opacity px-3 py-1" data-action="copy">
+                                                                    ${renderIcon('content_copy', 'w-[16px] h-[16px] icon')}
+                                                                </button>
+                                                            </div>
+                                                            <p class="text-sm text-slate-700 px-3 dark:text-slate-200 leading-relaxed font-sans copy-message">${(incident?.rootcause?.replace(/\n/g, '<br>'))}</p>
+                                                        </div>
+                                                        <div class="mt-2.5 pt-2 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-slate-400">
+                                                            <span>Auto-generated root cause</span>
+                                                        </div>
                                                     </div>
-                                                    <p class="text-sm text-slate-700 px-3 dark:text-slate-200 leading-relaxed font-sans">
-                                                            ${incident?.recommendation?.replace(/\n/g, '<br>')}
-                                                    </p>
-                                                    <div class="mt-2.5 pt-2 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-slate-400">
-                                                        <span>Automated remediation available</span>
+
+                                                    <!-- Proposed Action Plan (Giải pháp đề xuất) -->
+                                                    <div class="md:col-span-1 p-3.5 bg-white dark:bg-[#0d1626] rounded-xl border border-emerald-300 dark:border-emerald-500/20 shadow-sm">
+                                                        <div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 mb-1.5">
+                                                            ${renderIcon('lightbulb', 'w-[22px] h-[22px]')}
+                                                            <span class="font-mono text-xs font-bold uppercase tracking-wider">Action Plan</span>
+                                                        </div>
+                                                        <p class="text-sm text-slate-700 px-3 dark:text-slate-200 leading-relaxed font-sans">
+                                                                ${incident?.recommendation?.replace(/\n/g, '<br>')}
+                                                        </p>
+                                                        <div class="mt-2.5 pt-2 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-slate-400">
+                                                            <span>Automated remediation available</span>
+                                                        </div>
                                                     </div>
                                                 </div>
+
+
                                             </div>
 
                                             <div class="p-4 bg-slate-50 dark:bg-[#0a1220] rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -1107,7 +1329,7 @@ function renderIncidentDirectory(data, state) {
                                                     <!-- Processing Status (Trạng thái xử lý) -->
                                                     <div>
                                                         <label class="block text-sm font-mono text-slate-700 dark:text-slate-300 font-medium mb-1.5 flex items-center gap-1.5">
-                                                            ${renderIcon('sync_saved_locally', 'w-[22px] h-[22px]')}
+                                                            ${renderIcon('target_check', 'w-[22px] h-[22px]')}
                                                             <span>Status</span>
                                                         </label>
                                                         <select class="w-full bg-white dark:bg-[#060b14] border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-sans text-sm px-3 py-2 rounded-lg outline-none focus:border-cyan-300 dark:focus:border-cyan-400" id="status-${incident.incidentid}">
@@ -1133,7 +1355,7 @@ function renderIncidentDirectory(data, state) {
                 }
                 </div>
             </div>
-            `;
+    `;
         })
         .join('');
 
@@ -1270,11 +1492,12 @@ function handleSwitchStorageSever(tab) {
     }
 
     //showToast('Switched to storage telemetry of ' + server.server_name + ' (' + server.server_ip + ')', 'info', 1000);
-    Toast.info('Switched to storage telemetry of ' + server.server_name + ' (' + server.server_ip + ')', { position: 'bottom-right'})
+    Toast.info('Switched to storage telemetry of ' + server.server_name + ' (' + server.server_ip + ')', { position: 'bottom-right' })
 }
 
 function handleExpandAll() {
-    const groups = incidentGroupsData_Beta.find(item => item.incident_type === appState.selectedCategory)?.groups;
+    //const groups = incidentGroupsData_Beta.find(item => item.incident_type === appState.selectedCategory)?.groups;
+    const groups = incidentGroupsData_Beta;
 
     groups.forEach((g) => {
         appState.expandedGroups.add(g.incident_group); //mở group
@@ -1346,7 +1569,7 @@ async function handleConfirmIncident(btn) {
             "BU": "MSSQL",
             "Station": "AIQuery",
             "Step": "Update_Incident_Status",
-            "InputStr": `\{"IncidentID": "${incidentId}", "Status": "${status}", "UID": "${handler}"\}`
+            "InputStr": `\{ "IncidentID": "${incidentId}", "Status": "${status}", "UID": "${handler}"\ } `
         }
 
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
@@ -1362,6 +1585,25 @@ async function handleConfirmIncident(btn) {
     } catch (err) {
         console.error(err.message)
     }
+}
+
+function handleToggleErrorList(btn) {
+    const incidentId = String(btn.dataset.incidentId);
+
+    if (!incidentId) return;
+
+    if (
+        appState.expandedErrorLists.has(incidentId)
+    ) {
+        appState.expandedErrorLists.delete(incidentId);
+    } else {
+        appState.expandedErrorLists.add(incidentId);
+    }
+
+    // Thay bằng tên hàm render thực tế của bạn
+    renderIncidentDirectory(incidentGroupsData_Beta, appState);
+
+    return;
 }
 
 async function handleClick(e) {
@@ -1414,13 +1656,16 @@ async function handleClick(e) {
         case 'confirm-incident':
             handleConfirmIncident(actionEl);
             break;
+        case 'toggle-error-list':
+            handleToggleErrorList(actionEl);
+            break;
         default:
             break;
     }
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
-    const REFRESH_INTERVAL = 120 * 60 * 1000;
+    const REFRESH_INTERVAL = 12000 * 60 * 1000;
     let isRefreshing = false;
 
     async function refreshDashboard() {

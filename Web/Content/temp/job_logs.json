@@ -1,0 +1,42 @@
+{
+  "Incident_Summary": [
+    {
+      "incident_type": "dba_job_errorlog",
+      "incident_level": "Critical",
+      "incident_count": 0
+    },
+    {
+      "incident_type": "dba_job_errorlog",
+      "incident_level": "High",
+      "incident_count": 1
+    },
+    {
+      "incident_type": "dba_job_errorlog",
+      "incident_level": "Medium",
+      "incident_count": 0
+    },
+    {
+      "incident_type": "dba_job_errorlog",
+      "incident_level": "Low",
+      "incident_count": 0
+    }
+  ],
+  "Incident_Detail": [
+    {
+      "department": "CR",
+      "incident_level": "High",
+      "incidentid": 114,
+      "status": "Analyzed",
+      "uid": "",
+      "incident_type": "dba_job_errorlog",
+      "server_ip": "10.36.6.81",
+      "incident_group": "LinkedServerConnectivity",
+      "incident_title": "Job QKMS_QISBS_GetOpenWOByLine lỗi linked server 172.26.5.90",
+      "source_id": "13",
+      "system_name": "QKMS_QISBS_GetOpenWOByLine",
+      "error_message": "- Start Time: 20261020112800\n- End Time: 20261020112810\n- Run Status: Failed\n- Job Message: Executed as user: QMH-FA\\dbadministrator. Cannot initialize the data source object of OLE DB provider \"MSDASQL\" for linked server \"172.26.5.90\". [SQLSTATE 42000] (Error 7303)  OLE DB provider \"MSDASQL\" for linked server \"172.26.5.90\" returned message \"[Microsoft][ODBC Driver Manager] Driver's SQLSetConnectAttr failed\". [SQLSTATE 01000] (Error 7412)  OLE DB provider \"MSDASQL\" for linked server \"172.26.5.90\" returned message \"connection to server at \"172.26.5.90\", port 5000 failed: timeout expired \". [SQLSTATE 01000] (Error 7412).  The step failed.",
+      "rootcause": "Job QKMS_QISBS_GetOpenWOByLine thất bại do không khởi tạo được OLE DB provider MSDASQL cho linked server 172.26.5.90 (Error 7303/7412), kết nối tới 172.26.5.90:5000 bị timeout.",
+      "recommendation": "Kiểm tra trạng thái và cấu hình linked server 172.26.5.90\nVerify driver ODBC và network connectivity tới port 5000\nThiết lập retry hoặc alert khi linked server mất kết nối"
+    }
+  ]
+}

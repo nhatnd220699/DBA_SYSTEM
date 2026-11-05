@@ -140,6 +140,9 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Content Include="Content\temp\error_logs.json" />
+    <Content Include="Content\temp\job_logs.json" />
+    <None Include="Content\temp\incident_details.json" />
     <Compile Include="Controllers\Api\DbaController.cs" />
     <Compile Include="Controllers\Api\DpaController.cs" />
     <Compile Include="Controllers\Api\BaseApiController.cs" />
@@ -160,8 +163,10 @@
     <Content Include="Content\icons\sprite.svg" />
     <Content Include="Content\images\hdd_48.png" />
     <Content Include="Scripts\custom\common\toast.js" />
+    <Content Include="Scripts\custom\objects\index - Copy.js" />
     <Content Include="Scripts\custom\objects\index.js" />
     <Content Include="Scripts\custom\modules\app.js" />
+    <Content Include="Scripts\custom\utils\string-utils.js" />
     <Content Include="Scripts\custom\utils\number-utils.js" />
     <Content Include="Scripts\custom\utils\file-utils.js" />
     <Content Include="Scripts\custom\utils\form-utils.js" />
@@ -193,6 +198,8 @@
     <Content Include="Scripts\bootstrap.esm.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Content\temp\dblock.json" />
+    <Content Include="Content\temp\backup.json" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\custom\api\api-client.js" />
     <Content Include="Scripts\custom\common\action-lock.js" />
