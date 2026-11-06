@@ -142,6 +142,10 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Content Include="Content\temp\error_logs.json" />
     <Content Include="Content\temp\job_logs.json" />
+    <Content Include="Content\temp\error_summary.json" />
+    <Content Include="Content\temp\alwayson.json" />
+    <Content Include="Content\temp\large-table.json" />
+    <Content Include="Content\temp\diskspace.json" />
     <None Include="Content\temp\incident_details.json" />
     <Compile Include="Controllers\Api\DbaController.cs" />
     <Compile Include="Controllers\Api\DpaController.cs" />
@@ -200,6 +204,7 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Content\temp\dblock.json" />
     <Content Include="Content\temp\backup.json" />
+    <Content Include="Content\temp\kpi.json" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\custom\api\api-client.js" />
     <Content Include="Scripts\custom\common\action-lock.js" />

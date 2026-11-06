@@ -8,11 +8,14 @@ const
 
 const appState = {
     selectedCategory: DBA_ERRORLOG,
-    selectedSeverity: 'all', // "all", "critical", "high", "medium"
+    //selectedSeverity: 'all', // "all", "critical", "high", "medium"
+    selectedSeverities: [], // "all", "critical", "high", "medium"
     searchQuery: '',
-    expandedGroups: new Set([]), // Group 1 expanded by default
-    expandedIncidents: new Set([]), // Error 1 expanded by default,
-    expandedErrorLists: new Set()
+    expandedGroups: new Set(), // Group 1 expanded by default
+    expandedIncidents: new Set(), // Error 1 expanded by default,
+    expandedErrorLists: new Set(),
+    expandedErrorMessages: new Set()
+
 };
 
 window.appState = appState;
@@ -27,7 +30,7 @@ const filterSummary = {
         { id: DBA_ERRORLOG, label: 'Error Logs', count: 0, icon: 'terminal' },
         { id: DBA_JOB_ERRORLOG, label: 'Agent Jobs', count: 0, icon: 'schedule' },
         { id: DBA_DBLOCK_LOG, label: 'Database Lock', count: 0, icon: 'lock_clock' },
-        { id: DBA_DBBACKUP_LOG, label: 'Backup SLA', count: 0, icon: 'cloud_done' },
+        { id: DBA_DBBACKUP_LOG, label: 'Backup', count: 0, icon: 'cloud_done' },
 
     ],
     severities: [
@@ -36,35 +39,45 @@ const filterSummary = {
             label: 'Critical',
             count: 0,
             dotColor: 'bg-red-400 dark:bg-red-400',
-            textColor: 'text-red-700 dark:text-red-400',
-            activeBg: 'bg-red-100 dark:bg-red-500/20 border-red-300 dark:border-red-500/40',
+            //textColor: 'text-red-700 dark:text-red-400',
+            //activeBg: 'bg-red-100 dark:bg-red-500/20 border-red-300 dark:border-red-500/40',
+            textColor: 'text-red-800 dark:text-red-400',
+            activeBg: 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-500/40',
         },
         {
             id: 'high',
             label: 'High',
             count: 0,
-            dotColor: 'bg-rose-400 dark:bg-rose-400',
-            textColor: 'text-rose-700 dark:text-rose-400',
-            activeBg: 'bg-rose-100 dark:bg-rose-500/20 border-rose-300 dark:border-rose-500/40',
+            //dotColor: 'bg-rose-400 dark:bg-rose-400',
+            //textColor: 'text-rose-700 dark:text-rose-400',
+            //activeBg: 'bg-rose-100 dark:bg-rose-500/20 border-rose-300 dark:border-rose-500/40',
+            dotColor: 'bg-orange-400 dark:bg-orange-400',
+            textColor: 'text-orange-800 dark:text-orange-400',
+            activeBg: 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-500/40',
         },
         {
             id: 'medium',
             label: 'Medium',
             count: 0,
-            dotColor: 'bg-amber-400 dark:bg-amber-400',
-            textColor: 'text-amber-700 dark:text-amber-400',
-            activeBg: 'bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40',
+            //dotColor: 'bg-amber-400 dark:bg-amber-400',
+            //textColor: 'text-amber-700 dark:text-amber-400',
+            //activeBg: 'bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40',
+            dotColor: 'bg-blue-400 dark:bg-blue-400',
+            textColor: 'text-blue-800 dark:text-blue-400',
+            activeBg: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-500/40',
         },
         {
             id: 'low',
             label: 'Low',
             count: 0,
             dotColor: 'bg-gray-400 dark:bg-gray-400',
-            textColor: 'text-gray-700 dark:text-gray-400',
-            activeBg: 'bg-gray-100 dark:bg-gray-500/20 border-gray-300 dark:border-gray-500/40',
+            textColor: 'text-gray-800 dark:text-gray-400',
+            activeBg: 'bg-gray-100 dark:bg-gray-500/30 border-gray-300 dark:border-gray-500/40',
         },
     ],
 };
+
+window.filterSummary = filterSummary;
 
 // Toast Notification
 function showToast(message, type, duration = 3800) {
@@ -99,32 +112,6 @@ function showToast(message, type, duration = 3800) {
     }, duration);
 }
 
-getTemp();
-async function getTemp() {
-    //Get_Monitor_ErrorLog, Get_Job_ErrorLog, Get_DBLock_Log, Get_DBBackup_Log
-
-
-    try {
-        const params = {
-            "BU": "MSSQL",
-            "Station": "AIQuery",
-            "Step": "Get_DBBackup_Log",
-            "InputStr": `\{"Dept": "${dept}"\}`
-        };
-
-        const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
-        console.log('temp: ', result);
-
-
-        if (!result.success) return;
-
-        let data = JSON.parse(result.data);
-
-    } catch (err) {
-        console.error(err.message);
-    }
-}
-
 
 async function getKpis() {
     try {
@@ -136,7 +123,8 @@ async function getKpis() {
         };
 
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
-        console.log('kpi: ', result);
+        //const result = await ApiClient.get('/Content/temp/kpi.json');
+        //console.log('Kpi response: ', result);
 
 
         if (!result.success) return;
@@ -239,8 +227,8 @@ async function getErrorSummary() {
         };
 
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
-        //const result = await ApiClient.get('/Content/tempdata/summary.json');
-        console.log('ERROR SUMMARY: ',result);
+        //const result = await ApiClient.get('/Content/temp/error_summary.json');
+        //console.log('ErrorSummary response: ', result);
 
         const data = JSON.parse(result.data);
         //console.log(data);
@@ -332,7 +320,8 @@ async function getAlwaysOnStatus() {
         };
 
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
-        console.log('Always On Status: ', result);
+        //const result = await ApiClient.get('/Content/temp/alwayson.json');
+        //console.log('AlwaysOn response: ', result);
 
         var data = JSON.parse(result.data);
         //console.log(data)
@@ -432,9 +421,11 @@ async function getLargeTable() {
             "InputStr": `\{"Dept": "${dept}"\}`
         }
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
-        console.log('large table: ', result);
+        //const result = await ApiClient.get('/Content/temp/large-table.json');
+        //console.log('LargeTable response: ', result);
 
         var data = JSON.parse(result.data);
+        //console.log('LargeTable data: ', data);
 
         if (result.success) {
             if (data && data.length > 0) {
@@ -477,8 +468,12 @@ async function getDiskSpace() {
         }
 
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
+        //const result = await ApiClient.get('/Content/temp/diskspace.json');
+        //console.log('DiskSpace response: ', result);
 
         var data = JSON.parse(result.data);
+        //console.log('DiskSpace data: ', data);
+
         if (result.success) {
             if (data && data.length > 0) {
                 //const serverIpArr = [...new Map(data.map(item => [`${item?.server_ip}_${item?.server_name}`, { server_ip: item.server_ip, server_name: item.server_name }])).values()];
@@ -627,7 +622,314 @@ async function getDiskSpace() {
 let incidentGroupsData_Beta = [];
 let severityData_Beta = [];
 
-async function getIncidentDetailByCategory() {
+async function getIncidentDetailsByCategory() {
+    try {
+        const params = {
+            "BU": "MSSQL",
+            "Station": "AIQuery",
+            "InputStr": `\{"Dept": "${dept}"\}`
+        };
+
+        if (appState.selectedCategory === DBA_ERRORLOG) {
+            params["Step"] = 'Get_Monitor_ErrorLog'
+        } else if (appState.selectedCategory === DBA_JOB_ERRORLOG) {
+            params["Step"] = 'Get_Job_ErrorLog'
+        } else if (appState.selectedCategory === DBA_DBLOCK_LOG) {
+            params["Step"] = 'Get_DBLock_Log'
+        } else if (appState.selectedCategory === DBA_DBBACKUP_LOG) {
+            params["Step"] = 'Get_DBBackup_Log';
+        }
+
+        const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
+        //const result = await ApiClient.get('/Content/temp/category_incident_details.json');
+        //console.log('Category IncidentDetails response: ', result);
+
+        if (!result.success) return;
+
+        const data = JSON.parse(result.data);
+        console.log('Category IncidentDetails data: ', data);
+
+        if (data) {
+            severityData_Beta = (data?.Incident_Summary || []).reduce((acc, item) => {
+                acc[item?.incident_level?.toLowerCase()] = item.incident_count;
+                return acc;
+            }, {});
+
+            incidentGroupsData_Beta = appState.selectedCategory !== DBA_DBBACKUP_LOG ? (data?.Incident_Detail || []) : data ?? [];
+
+            renderFilterBars(true);
+            renderIncidentDetailByCategory(incidentGroupsData_Beta, appState);
+        }
+    } catch (err) {
+        console.error(err.message);
+    }
+}
+
+function renderIncidentDetailByCategory(data, state) {
+
+    const root = document.getElementById('accordion-root');
+    if (!root) return;
+
+    const query = (String(state.searchQuery) || '').trim().toLowerCase();
+
+    data = data.filter((inc) => {
+        // Severity filter
+        const selectedSeverities = state.selectedSeverities || [];
+
+        if (
+            selectedSeverities.length > 0 &&
+            !selectedSeverities.includes(
+                String(inc.incident_level || '').toLowerCase()
+            )
+        ) {
+            return false;
+        }
+
+        // Search filter
+        if (query) {
+            const combinedString = [
+                inc.incidentid,
+                inc.incident_title,
+                inc.incident_level,
+                inc.status,
+                inc.department,
+                inc.incident_group,
+                inc.incident_type,
+                inc.source_id,
+                inc.system_name,
+                inc.server_ip,
+                inc.error_message,
+                inc.rootcause,
+                inc.recommendation
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+
+            return combinedString.includes(query);
+        }
+
+        return true;
+    });
+
+    if (data.length === 0) {
+        root.innerHTML = `
+            <div class="rounded-xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-12 text-center flex flex-col items-center justify-center gap-2">
+                ${renderIcon('search_off', 'w-[36px] h-[36px] text-slate-600 dark:text-slate-500')}
+                <div class="text-[15px] font-semibold text-slate-700 dark:text-slate-300">No incident diagnostic matches found</div>
+                <div class="text-[12px] font-mono text-slate-600 dark:text-slate-500">Try adjusting your category tabs, severity filter, or search query.</div>
+            </div >
+        `;
+        return;
+    }
+
+    const table = document.createElement('table');
+    table.id = 'tbl-incident-details-by-category';
+    table.className = `min-w-full border-collapse text-sm text-left text-gray-700 dark:text-gray-300`;
+
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+
+    if (!data?.length) {
+        const colspan = Object.keys(columnMap).length;
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="${colspan}" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    No data found
+                </td>
+            </tr>
+        `;
+
+        table.appendChild(tbody);
+        root.innerHTML = '';
+        root.appendChild(table);
+        return;
+    }
+
+    let columnMap;
+
+    if (appState.selectedCategory !== DBA_DBBACKUP_LOG) {
+        columnMap = {
+            ordinal: {
+                title: 'No.',
+                thClass: 'text-center',
+                render: (value) => {
+                    return `<span class="inline-block w-full text-center text-slate-400">${value}</span>`;
+                }
+            },
+            source_id: {
+                title: 'Source ID',
+                thClass: 'text-center',
+                render: (value) => {
+                    return `<span class="w-full inline-block text-center font-semibold text-blue-500 dark:text-blue-300">${value}</span>`
+                }
+            },
+            incidentid: {
+                title: 'Incident ID',
+                thClass: 'text-center',
+                render: (value) => {
+                    return `<span class="inline-block w-full font-semibold text-center">${value}</span>`;
+                }
+            },
+            incident_title: {
+                title: 'Incident title'
+            },
+            error_message: {
+                title: 'Error message',
+                render: (value, item) => {
+                    const text = value || '';
+                    const shortText =
+                        text.length > 120
+                            ? `${text.substring(0, 120)}...`
+                            : text;
+
+                    return `
+                    <div class="max-w-[400px]">
+                        <div class="line-clamp-2 text-sm text-slate-700 dark:text-slate-300">
+                            ${StringUtils.escapeHtml(shortText)}
+                        </div>
+
+                        ${text.length > 120
+                            ? `
+                            <button
+                                class="mt-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                                data-action="show-error-message"
+                                data-incident-id="${item.incidentid}"
+                            >
+                                View detail
+                            </button>
+                        `
+                            : ''
+                        }
+                    </div>
+                `;
+                }
+            },
+            incident_level: {
+                title: 'Severity',
+                thClass: 'text-center',
+                tdClass: 'text-center',
+                render: (value) => {
+                    const severity = String(value || '').toLowerCase();
+
+                    const colorMap = {
+                        critical: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+                        high: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+                        warning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+                        medium: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+                        low: 'bg-gray-100 dark:bg-gray-500/30 text-gray-800 dark:text-gray-400 border-gray-300 dark:border-gray-500/40'
+                    };
+
+                    return `
+                        <span class=" inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold
+                            ${colorMap[severity] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'}
+                        ">
+                            ${value}
+                        </span>
+                    `;
+                }
+            },
+            system_name: {
+                title: 'System name'
+            },
+            incident_group: {
+                title: "Incident group"
+            }
+        };
+    } else {
+        columnMap = {
+            ordinal: {
+                title: 'No.',
+                thClass: 'text-center',
+                render: (value) => {
+                    return `<span class="inline-block w-full text-center text-slate-400 dark:text-slate-400">${value}</span>`;
+                }
+            },
+            site: {
+                title: 'Site',
+            },
+            server_ip: {
+                title: 'Sever IP'
+            },
+            database_name: {
+                title: 'Database name'
+            },
+            id: {
+                title: 'ID',
+                thClass: 'text-center',
+                render: (value) => {
+                    const id = String(value || '');
+                    return `<span class="w-full inline-block text-center font-semibold text-blue-500 dark:text-blue-300">${id}</span>`
+                }
+            },
+            message: {
+                title: 'Message'
+            },
+            bkserver_path: {
+                title: 'Backup Sever Path'
+            },
+            status: {
+                title: 'Status'
+            },
+            created_time: {
+                title: 'Created at'
+            }
+        };
+    }
+
+
+    thead.className = `sticky top-0 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100`;
+    thead.innerHTML = `
+        <tr>
+            ${Object.entries(columnMap)
+            .map(([key, col]) => `
+                <th class="
+                    px-4 py-3
+                    border-b
+                    border-gray-200
+                    dark:border-gray-700
+                    ${col.thClass || ''}
+                ">
+                    ${col.title}
+                </th>
+            `).join('')}
+        </tr>
+    `;
+
+    data.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML =
+            Object.entries(columnMap)
+                .map(([key, col]) => {
+
+                    const value = key === 'ordinal'
+                        ? index + 1
+                        : item[key];
+
+                    const content = col.render
+                        ? col.render(value, item, index)
+                        : (value ?? '');
+
+                    return `
+                    <td class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 ${col.tdClass || ''}">
+                        ${content}
+                    </td>
+                `;
+                })
+                .join('');
+
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+
+    root.innerHTML = '';
+    root.appendChild(table);
+}
+
+async function getIncidentDetailByKpi() {
     try {
         const params = {
             "BU": "MSSQL",
@@ -637,75 +939,27 @@ async function getIncidentDetailByCategory() {
         }
 
         const result = await ApiClient.post('https://QMSAIPortal.quantacn.com/qmhapiportal/api/APIPortal/execute', params);
-        //const result = await ApiClient.get('/Content/tempdata/errors.json');
+        //const result = await ApiClient.get('/Content/temp/incident_details.json');
+        //console.log('KPI IncidentDetails response: ', result);
 
         if (!result.success) return;
 
         const data = JSON.parse(result.data);
-        console.log('Incident Details: ', data);
+        //console.log('KPI IncidentDetails data: ', data);
+
         if (data) {
 
             //Severity filterbar
-            severityData_Beta = (data.Incident_Summary || []).reduce((acc, item) => {
-                let group = acc.find(x => x.incident_type === item.incident_type);
-
-                if (!group) {
-                    group = {
-                        incident_type: item.incident_type,
-                        severities: {
-                            critical: 0,
-                            high: 0,
-                            medium: 0,
-                            low: 0
-                        }
-                    };
-                    acc.push(group);
-                }
-
-                group.severities[item.incident_level.toLowerCase()] = item.incident_count;
-
+            severityData_Beta = (data?.Incident_Summary || []).reduce((acc, item) => {
+                acc[item?.incident_level?.toLowerCase()] = item.incident_count;
                 return acc;
-            }, []);
+            }, {});
             //console.log('severityData_Beta: ', severityData_Beta);
 
 
             ////Incident details
-            //incidentGroupsData_Beta = Object.values(
-            //    (data.Incident_Detail || []).reduce((acc, item) => {
-            //        const { incident_type, incident_group, incident_level } = item;
-
-            //        acc[incident_type] ??= {
-            //            incident_type,
-            //            groups: {}
-            //        };
-
-            //        acc[incident_type].groups[incident_group] ??= {
-            //            incident_group,
-            //            critical: 0,
-            //            high: 0,
-            //            medium: 0,
-            //            low: 0,
-            //            incidents: []
-            //        };
-
-            //        const group = acc[incident_type].groups[incident_group];
-
-            //        if (incident_level.toLowerCase() === 'critical') group.critical++;
-            //        if (incident_level.toLowerCase() === 'high') group.high++;
-            //        if (incident_level.toLowerCase() === 'medium') group.medium++;
-            //        if (incident_level.toLowerCase() === 'low') group.low++;
-
-            //        group.incidents.push(item);
-
-            //        return acc;
-            //    }, {})
-            //).map(type => ({
-            //    ...type,
-            //    groups: Object.values(type.groups)
-            //}));
-
             incidentGroupsData_Beta = Object.values(
-                (data.Incident_Detail || []).reduce((acc, item) => {
+                (data?.Incident_Detail || []).reduce((acc, item) => {
                     const {
                         incident_group,
                         incident_level,
@@ -816,10 +1070,22 @@ async function getIncidentDetailByCategory() {
 }
 
 // 2. Filter Bar Renders
-function renderFilterBars() {
+function renderFilterBars(hasCategory = false) {
     // Render Category Tabs
+    if (appState.selectedCategory) {
+
+        document.getElementById('btn-expand-all').classList.add('hidden');
+        document.getElementById('btn-collapse-all').classList.add('hidden');
+
+        if (appState.selectedCategory === DBA_DBBACKUP_LOG) {
+            document.getElementById('severity-filter-bar').innerHTML = ''; //Reset
+        }
+    } else {
+        document.getElementById('btn-expand-all').classList.remove('hidden');
+        document.getElementById('btn-collapse-all').classList.remove('hidden');
+    }
     const catContainer = document.getElementById('category-filter-bar');
-    if (catContainer) {
+    if (hasCategory && catContainer) {
         catContainer.innerHTML = filterSummary.categories
             .map((cat) => {
                 const isActive = appState.selectedCategory === cat.id;
@@ -840,44 +1106,48 @@ function renderFilterBars() {
             .join('');
     }
 
-    // Render Severity Buttons
-    const allSeveritySummary = severityData_Beta.find(item => item.incident_type === appState.selectedCategory);
-    filterSummary.severities = filterSummary.severities.map(severity => ({
-        ...severity,
-        count: allSeveritySummary?.severities?.[severity.id] ?? 0
-    }));
+    if (appState.selectedCategory !== DBA_DBBACKUP_LOG) {
 
-    const sevContainer = document.getElementById('severity-filter-bar');
-    if (sevContainer) {
-        const sevButtons = filterSummary.severities
-            .map((sev) => {
-                const isSelected = appState.selectedSeverity === sev.id;
-                let btnClass = '';
-                if (isSelected) {
-                    btnClass = `${sev.activeBg} ${sev.textColor} font-semibold`;
-                } else {
-                    btnClass =
-                        'bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 ' +
-                        (sev.id === 'critical'
-                            ? 'text-red-700 dark:text-red-400/80 border-slate-300 dark:border-slate-700'
-                            : sev.id === 'high'
-                                ? 'text-rose-700 dark:text-rose-400/80 border-slate-300 dark:border-slate-700'
-                                : sev.id === 'medium'
-                                    ? 'text-amber-600 dark:text-amber-400 border-slate-300 dark:border-slate-700'
-                                    : 'text-gray-600 dark:text-gray-400 border-slate-300 dark:border-slate-700');
-                }
-                return `
-                    <button data-severity-id="${sev?.id}" data-action="filter-severity" class="px-2.5 py-1 rounded font-mono text-[11px] flex items-center gap-1.5 border transition-colors ${btnClass}" type="button">
-                        <span class="w-1.5 h-1.5 rounded-full ${sev.dotColor}"></span>
-                        <span>${sev.label}</span>
-                        <span>(${sev.count})</span>
-                    </button>
+        // Render Severity Buttons
+        const allSeveritySummary = severityData_Beta;
+        filterSummary.severities = filterSummary.severities.map(severity => ({
+            ...severity,
+            count: allSeveritySummary?.[severity?.id?.toLocaleLowerCase()] ?? 0
+        }));
+
+        const sevContainer = document.getElementById('severity-filter-bar');
+        if (sevContainer) {
+            const sevButtons = filterSummary.severities
+                .map((sev) => {
+                    const isSelected = appState.selectedSeverities?.includes(sev.id);
+                    let btnClass = '';
+                    if (isSelected) {
+                        btnClass = `${sev.activeBg} ${sev.textColor} font-semibold`;
+                    } else {
+                        btnClass =
+                            'bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 ' +
+                            (sev.id === 'critical'
+                                ? 'text-red-700 dark:text-red-400/80 border-slate-300 dark:border-slate-700'
+                                : sev.id === 'high'
+                                    ? 'text-orange-700 dark:text-orange-400/80 border-slate-300 dark:border-slate-700'
+                                    : sev.id === 'medium'
+                                        ? 'text-blue-700 dark:text-blue-400 border-slate-300 dark:border-slate-700'
+                                        : 'text-gray-700 dark:text-gray-400 border-slate-300 dark:border-slate-700');
+                    }
+                    return `
+                        <button data-severity-id="${sev?.id}" data-action="filter-severity" class="px-2.5 py-1 rounded font-mono text-[11px] flex items-center gap-1.5 border transition-colors ${btnClass}" type="button">
+                            <span class="w-1.5 h-1.5 rounded-full ${sev.dotColor}"></span>
+                            <span>${sev.label}</span>
+                            <span>(${sev.count})</span>
+                        </button>
                     `;
-            })
-            .join('');
+                })
+                .join('');
 
-        sevContainer.innerHTML = `<span class="font-mono text-[10px] text-slate-600 dark:text-slate-500 uppercase font-semibold">Filter Severity:</span>${sevButtons}`;
+            sevContainer.innerHTML = `<span class="font-mono text-[10px] text-slate-600 dark:text-slate-500 uppercase font-semibold">Filter Severity:</span>${sevButtons}`;
+        }
     }
+
 }
 // 3. Dynamic 3-Level Accordion Renderer
 
@@ -885,13 +1155,13 @@ function renderSeverityClass(sev) {
     sev = sev?.toLowerCase();
 
     if (sev.includes('critical')) {
-        return `bg-red-600 dark:bg-red-600 text-white dark:text-white font-bold`;
+        return `bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border-red-300 dark:border-red-500/40`;
     } else if (sev.includes('high')) {
-        return `bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 font-bold border border-rose-300 dark:border-rose-500/30`;
+        return `bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400 border-orange-300 dark:border-orange-500/40`;
     } else if (sev.includes('medium')) {
-        return `bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold border border-amber-300 dark:border-amber-500/30`;
+        return `bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border-blue-300 dark:border-blue-500/40`;
     } else if (sev.includes('low')) {
-        return `bg-gray-100 dark:bg-gray-500/20 text-gray-700 dark:text-gray-400 font-bold border border-gray-300 dark:border-gray-500/30`;
+        return `bg-gray-100 dark:bg-gray-500/30 text-gray-800 dark:text-gray-400 border-gray-300 dark:border-gray-500/40`;
     }
 
     return '';
@@ -908,6 +1178,26 @@ function renderIncidentStatusClass(status) {
         return `bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-400 font-mono text-[10px] font-mono border border-cyan-300 dark:border-cyan-800`;
     } else if (status.includes('done')) {
         return `bg-emeral-100 dark:bg-emeral-500/20 text-emeral-700 dark:text-emeral-400 font-bold border border-emeral-300 dark:border-emeral-500/30`;
+    }
+
+    return '';
+}
+
+function renderGroupSeverityBadge(criticalCount, highCount) {
+
+    const colorSeverity = {
+        critical: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-300 dark:border-red-500/40',
+        high: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border-orange-300 dark:border-orange-500/40'
+    };
+
+    if (criticalCount && highCount) {
+        return `<span class="px-2 py-0.5 rounded-full font-mono text-[10px] uppercase font-bold tracking-wider ${colorSeverity.critical}">${Number(criticalCount)} CRITICAL</span>`
+            + '/ ' +
+            `<span class="px-2 py-0.5 rounded-full font-mono text-[10px] uppercase font-bold tracking-wider ${colorSeverity.high}"">${Number(highCount)} HIGH</span>`
+    } else if (criticalCount && !highCount) {
+        return `<span class="px-2 py-0.5 rounded-full font-mono text-[10px] uppercase font-bold tracking-wider ${colorSeverity.critical}">${Number(criticalCount)} CRITICAL</span>`
+    } else if (!criticalCount && highCount) {
+        return `<span class="px-2 py-0.5 rounded-full font-mono text-[10px] uppercase font-bold tracking-wider ${colorSeverity.high}"">${Number(highCount)} HIGH</span>`
     }
 
     return '';
@@ -942,7 +1232,6 @@ const renderErrorMessages = (errorMessages, incidentId) => {
     const isExpanded =
         appState.expandedErrorLists.has(incidentKey);
 
-    // Mặc định chỉ hiển thị 2 lỗi
     const visibleMessages = isExpanded
         ? messages
         : messages.slice(0, 2);
@@ -959,99 +1248,147 @@ const renderErrorMessages = (errorMessages, incidentId) => {
         >
             <div class="space-y-3">
                 ${visibleMessages.map((error, index) => {
+        const rawMessage =
+            error?.error_message || 'No error message';
 
-                    const errorText = StringUtils.escapeHtml(error?.error_message || 'No error message').replace(/\n/g, '<br>');
+        const escapedFullMessage =
+            StringUtils.escapeHtml(rawMessage)
+                .replace(/\n/g, '<br>');
 
-                    return `
-                            <div
-                                class="error-message-item copy-wrapper rounded-lg overflow-hidden border border-rose-200 dark:border-rose-500/20 bg-white dark:bg-[#0d1626]"
-                            >
-                                <!-- Header -->
-                                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2 px-3 py-2.5 bg-rose-50 dark:bg-rose-500/10 border-b border-rose-200 dark:border-rose-500/20">
+        const expandedKey =
+            `${incidentKey}_${index}`;
 
-                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0">
+        const isExpandedMessage = appState.expandedErrorMessages?.has(expandedKey);
 
-                                        <!-- Error number -->
-                                        <div class="flex items-center
-                                                    gap-2 shrink-0">
-                                            <span class="flex items-center justify-center min-w-6 h-6 px-1.5 rounded-full bg-rose-600 dark:bg-rose-500 text-white font-mono text-[11px] font-bold">
-                                                #${index + 1}
-                                            </span>
+        const MAX_LENGTH = 100;
 
-                                            <span class="font-mono text-xs font-bold text-rose-700 dark:text-rose-400">
-                                                Error ${index + 1}
-                                            </span>
-                                        </div>
+        const isLongMessage =
+            rawMessage.length > MAX_LENGTH;
 
-                                        <span class="hidden sm:block w-px h-5 bg-rose-200 dark:bg-rose-500/30">
+        const shortMessage =
+            StringUtils.escapeHtml(
+                rawMessage.substring(0, MAX_LENGTH)
+            ).replace(/\n/g, '<br>');
+
+        return `
+                        <div
+                            class="error-message-item copy-wrapper rounded-lg overflow-hidden border border-rose-200 dark:border-rose-500/20 bg-white dark:bg-[#0d1626]"
+                        >
+
+                            <!-- Header -->
+                            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2 px-3 py-2.5 bg-rose-50 dark:bg-rose-500/10 border-b border-rose-200 dark:border-rose-500/20">
+
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-2 min-w-0">
+
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <span class="flex items-center justify-center min-w-6 h-6 px-1.5 rounded-full bg-rose-600 dark:bg-rose-500 text-white font-mono text-[11px] font-bold">
+                                            #${index + 1}
                                         </span>
 
-                                        <!-- Source ID -->
-                                        <div class="flex items-center gap-1.5">
-                                            ${renderIcon('tag', `w-[15px] h-[15px] text-blue-600dark:text-blue-400`)}
-                                            <span class="font-mono text-[10px] uppercase text-slate-500">
-                                                Source_ID:
-                                            </span>
-
-                                            <span class="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200">
-                                                ${StringUtils.escapeHtml(error?.source_id || 'N/A')}
-                                            </span>
-                                        </div>
-
-                                        <!-- Server IP -->
-                                        <div class="flex items-center gap-1.5">
-                                            ${renderIcon('dns', `w-[15px] h-[15px] text-cyan-600 dark:text-cyan-400`)}
-
-                                            <span class="font-mono text-[10px] uppercase text-slate-500">
-                                                Server IP:
-                                            </span>
-
-                                            <span class="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200">
-                                                ${StringUtils.escapeHtml(error?.server_ip || 'N/A')}
-                                            </span>
-                                        </div>
-
-                                        <!-- System Name -->
-                                        <div class="flex items-center gap-1.5 min-w-0">
-                                            ${renderIcon('settings', `w-[15px] h-[15px] text-violet-600 dark:text-violet-400`)}
-
-                                            <span class="font-mono text-[10px] uppercase text-slate-500">
-                                                System:
-                                            </span>
-
-                                            <span
-                                                class="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200 max-w-[260px] truncate"
-                                                title="${StringUtils.escapeHtml(error?.system_name || 'N/A')}"
-                                            >
-                                                ${StringUtils.escapeHtml(error?.system_name || 'N/A')}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Copy button -->
-                                    <button
-                                        type="button"
-                                        class="copy-btn flex items-center gap-1.5 shrink-0 self-end lg:self-auto text-slate-600 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 px-2 py-1 rounded-md hover:bg-rose-100 dark:hover:bg-rose-500/10"
-                                        data-action="copy"
-                                        title="Copy error message"
-                                    >
-                                        ${renderIcon('content_copy', 'w-[15px] h-[15px] icon')}
-
-                                        <span class="font-mono text-[10px]">
-                                            Copy
+                                        <span class="font-mono text-xs font-bold text-rose-700 dark:text-rose-400">
+                                            Error ${index + 1}
                                         </span>
-                                    </button>
-                                </div>
+                                    </div>
 
-                                <!-- Error content -->
-                                <div class="px-4 py-3">
-                                    <div class="copy-message text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-sans whitespace-normal break-words">
-                                        ${errorText}
+                                    <span class="hidden sm:block w-px h-5 bg-rose-200 dark:bg-rose-500/30"></span>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-mono text-[10px] uppercase text-slate-500">
+                                            Source_ID:
+                                        </span>
+
+                                        <span class="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200">
+                                            ${StringUtils.escapeHtml(error?.source_id || 'N/A')}
+                                        </span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-mono text-[10px] uppercase text-slate-500">
+                                            Server IP:
+                                        </span>
+
+                                        <span class="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200">
+                                            ${StringUtils.escapeHtml(error?.server_ip || 'N/A')}
+                                        </span>
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <span class="font-mono text-[10px] uppercase text-slate-500">
+                                            System:
+                                        </span>
+
+                                        <span
+                                            class="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200 max-w-[260px] truncate"
+                                            title="${StringUtils.escapeHtml(error?.system_name || 'N/A')}"
+                                        >
+                                            ${StringUtils.escapeHtml(error?.system_name || 'N/A')}
+                                        </span>
                                     </div>
                                 </div>
+
+                                <button
+                                    type="button"
+                                    class="copy-btn flex items-center gap-1.5 shrink-0 self-end lg:self-auto text-slate-600 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 px-2 py-1 rounded-md hover:bg-rose-100 dark:hover:bg-rose-500/10"
+                                    data-action="copy"
+                                    title="Copy error message"
+                                >
+                                    ${renderIcon('content_copy', 'w-[15px] h-[15px] icon')}
+                                    <span class="font-mono text-[10px]">
+                                        Copy
+                                    </span>
+                                </button>
                             </div>
-                        `;
-                }).join('')}
+
+                            <!-- Error Content -->
+                            <div class="px-4 py-3">
+
+                                <div class="
+                                    copy-message
+                                    text-sm
+                                    text-slate-700
+                                    dark:text-slate-300
+                                    leading-relaxed
+                                    font-sans
+                                    whitespace-normal
+                                    break-words
+                                ">
+                                    ${isExpandedMessage || !isLongMessage
+                ? escapedFullMessage
+                : `${shortMessage}...`
+            }
+                                </div>
+
+                                ${isLongMessage
+                ? `
+                                            <button
+                                                type="button"
+                                                data-action="toggle-error-message"
+                                                data-error-key="${expandedKey}"
+                                                class="
+                                                    mt-3
+                                                    inline-flex
+                                                    items-center
+                                                    gap-1
+                                                    text-xs
+                                                    font-medium
+                                                    text-blue-600
+                                                    dark:text-blue-400
+                                                    hover:underline
+                                                "
+                                            >
+                                               
+
+                                                ${isExpandedMessage ? 'Show less' : 'View detail'
+                }
+                                            </button>
+                                        `
+                : ''
+            }
+
+                            </div>
+                        </div>
+                    `;
+    }).join('')}
             </div>
 
             ${messages.length > 2
@@ -1064,10 +1401,18 @@ const renderErrorMessages = (errorMessages, incidentId) => {
                             aria-expanded="${isExpanded}"
                             class="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-rose-200 dark:border-rose-500/20 bg-rose-50/60 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 font-mono text-[11px] font-semibold transition-colors"
                         >
-                            ${renderIcon(isExpanded ? 'expand_less' : 'expand_more', 'w-[18px] h-[18px]')}
+                            ${renderIcon(
+                isExpanded
+                    ? 'expand_less'
+                    : 'expand_more',
+                'w-[18px] h-[18px]'
+            )}
 
                             <span>
-                                ${isExpanded ? 'Collapse error list' : `Show ${hiddenCount} more errors`}
+                                ${isExpanded
+                ? 'Collapse error list'
+                : `Show ${hiddenCount} more errors`
+            }
                             </span>
                         </button>
                     </div>
@@ -1078,19 +1423,6 @@ const renderErrorMessages = (errorMessages, incidentId) => {
     `;
 };
 
-function renderGroupSeverityBadge(criticalCount, highCount) {
-
-    if (criticalCount && highCount) {
-        return (Number(criticalCount) + Number(highCount)) + ' CRITICAL / HIGH';
-    }
-    else if (criticalCount && !highCount) {
-        return Number(criticalCount) + ' CRITICAL';
-    } else if (!criticalCount && highCount) {
-        return Number(highCount) + ' HIGH';
-    } else {
-        return `0 CRITCAL / HIGH`
-    }
-}
 
 function renderIncidentDirectory(data, state) {
 
@@ -1115,9 +1447,13 @@ function renderIncidentDirectory(data, state) {
             // Filter incidents inside group
             const matchingIncidents = group.incidents.filter((inc) => {
                 // Severity filter check
+                // Severity filter
+                const selectedSeverities = state.selectedSeverities || [];
                 if (
-                    state.selectedSeverity !== 'all' &&
-                    inc.incident_level.toLowerCase() !== state.selectedSeverity.toLowerCase()
+                    //state.selectedSeverity !== 'all' &&
+                    //inc.incident_level.toLowerCase() !== state.selectedSeverity.toLowerCase()
+                    selectedSeverities.length > 0 &&
+                    !selectedSeverities.includes(inc.incident_level.toLowerCase())
                 ) {
                     return false;
                 }
@@ -1146,10 +1482,7 @@ function renderIncidentDirectory(data, state) {
                         inc?.incident_level,
                         inc?.status,
                         inc?.department,
-
-                        // Nội dung từ danh sách error_message
                         errorMessagesText,
-
                         inc.rootcause,
                         inc.recommendation
                     ]
@@ -1179,14 +1512,14 @@ function renderIncidentDirectory(data, state) {
 
     if (filteredGroups.length === 0) {
         root.innerHTML = `
-                <div class="rounded-xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-12 text-center flex flex-col items-center justify-center gap-2">
+            <div class="rounded-xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-12 text-center flex flex-col items-center justify-center gap-2">
                 ${renderIcon('search_off', 'w-[36px] h-[36px] text-slate-600 dark:text-slate-500')}
                 <div class="text-[15px] font-semibold text-slate-700 dark:text-slate-300">No incident diagnostic matches found</div>
                 <div class="text-[12px] font-mono text-slate-600 dark:text-slate-500">Try adjusting your category tabs, severity filter, or search query.</div>
                 <button data-action="reset-filters" class="mt-3 px-3 py-1.5 rounded bg-blue-600 dark:bg-blue-600 hover:bg-blue-500 dark:hover:bg-blue-500 text-white dark:text-white font-mono text-[11px] transition-colors">
                     Reset Filters
                 </button>
-                </div >
+            </div >
         `;
         return;
     }
@@ -1212,7 +1545,8 @@ function renderIncidentDirectory(data, state) {
                         <div class="flex flex-col min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="text-[15px] font-semibold text-slate-900 dark:text-slate-100 truncate">${group.incident_group}</span>
-                                <span class="px-2 py-0.5 rounded-full font-mono text-[10px] uppercase font-bold tracking-wider bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-500/20">${renderGroupSeverityBadge(group?.critical, group?.high)}</span>
+                                <!--<span class="px-2 py-0.5 rounded-full font-mono text-[10px] uppercase font-bold tracking-wider bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-500/20"></span>-->
+                                ${renderGroupSeverityBadge(group?.critical, group?.high)}
                             </div>
                             <!--<span class="font-mono text-[12px] text-slate-600 dark:text-slate-400 truncate">${group?.description || 'NA'}</span>-->
                         </div>
@@ -1229,7 +1563,7 @@ function renderIncidentDirectory(data, state) {
                     ${incidentsToRender.length === 0
                     ? `
                             <div class="p-4 text-center font-mono text-[12px] text-slate-600 dark:text-slate-500">
-                                No incidents match severity '${state.selectedSeverity}' in this group.
+                                No incidents match severity '${appState?.selectedSeverities?.toString()}' in this group.
                             </div>
                             `
                     : incidentsToRender
@@ -1273,9 +1607,9 @@ function renderIncidentDirectory(data, state) {
                                                                 ${renderIcon('error', 'w-[22px] h-[22px]')}
                                                                 <span class="font-mono text-xs font-bold uppercase tracking-wider">Error Message</span>
                                                             </div>
-                                                            <button class="copy-btn opacity-0 group-hover/line:opacity-100 text-slate-600 dark:text-slate-400 hover:cursor-pointer transition-opacity px-3" data-action="copy">
+                                                            <!--<button class="copy-btn opacity-0 group-hover/line:opacity-100 text-slate-600 dark:text-slate-400 hover:cursor-pointer transition-opacity px-3" data-action="copy">
                                                                 ${renderIcon('content_copy', 'w-[16px] h-[16px] icon')}
-                                                            </button>
+                                                            </button>-->
                                                         </div>
                                                         <p class="text-sm text-slate-600 px-3 dark:text-slate-400 leading-relaxed font-sans mb-4 copy-message">
                                                             ${renderErrorMessages(incident?.error_message, incident?.incidentid)}
@@ -1284,7 +1618,6 @@ function renderIncidentDirectory(data, state) {
                                                 </div>
 
                                                 <div class="gap-3 grid grid-cols-1 md:grid-cols-2">
-
                                                     <!-- Root Cause -->
                                                     <div class="md:col-span-1 p-3.5 bg-white dark:bg-[#0d1626] rounded-xl border border-rose-300 dark:border-rose-500/20 shadow-sm">
                                                         <div class="copy-wrapper group/line">
@@ -1318,8 +1651,6 @@ function renderIncidentDirectory(data, state) {
                                                         </div>
                                                     </div>
                                                 </div>
-
-
                                             </div>
 
                                             <div class="p-4 bg-slate-50 dark:bg-[#0a1220] rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -1439,11 +1770,24 @@ function handleOpenErrorModal(selector) {
 }
 
 function handleCloseErrorModal(btnClose) {
+    resetModalError();
     const modal = btnClose.closest('#error-modal');
     if (modal) {
         modal.classList.add('hidden');
         unlockScroll();
     }
+}
+
+function resetModalError() {
+    appState.selectedCategory = '';
+    appState.selectedSeverities.length = 0;
+    appState.searchQuery = '';
+    appState.expandedGroups = new Set();
+    appState.expandedIncidents = new Set();
+    appState.expandedErrorLists = new Set();
+    document.getElementById('accordion-root').innerHTML = '';
+    document.getElementById('severity-filter-bar').innerHTML = '';
+    document.getElementById('category-filter-bar').innerHTML = '';
 }
 
 function handleSwitchStorageSever(tab) {
@@ -1526,7 +1870,8 @@ function handleFilterByCategory(catId, isOnline = true) {
 
     appState.selectedCategory = catId;
     if (isOnline) {
-        getIncidentDetailByCategory();
+        //getIncidentDetailByKpi();
+        getIncidentDetailsByCategory();
     } else {
         renderFilterBars();
         renderIncidentDirectory(incidentGroupsData_Beta, appState);
@@ -1534,19 +1879,31 @@ function handleFilterByCategory(catId, isOnline = true) {
 }
 
 function handleFilterBySeverity(sevId) {
-    if (appState.selectedSeverity === sevId) {
-        appState.selectedSeverity = 'all'; // toggle off
+    const index = appState.selectedSeverities.indexOf(sevId);
+
+    if (index > -1) {
+        appState.selectedSeverities.splice(index, 1)
     } else {
-        appState.selectedSeverity = sevId;
+        appState.selectedSeverities.push(sevId);
     }
-    renderFilterBars();
-    renderIncidentDirectory(incidentGroupsData_Beta, appState);
+    //if (appState.selectedSeverity === sevId) {
+    //    appState.selectedSeverity = 'all'; // toggle off
+    //} else {
+    //    appState.selectedSeverity = sevId;
+    //}
+    renderFilterBars(appState.selectedCategory ? true : false);
+
+    appState.selectedCategory
+        ? renderIncidentDetailByCategory(incidentGroupsData_Beta, appState)
+        : renderIncidentDirectory(incidentGroupsData_Beta, appState);
 }
 
 // Filter by query string
 function handlefilterBySearch(query) {
     appState.searchQuery = query;
-    renderIncidentDirectory(incidentGroupsData_Beta, appState);
+    appState.selectedCategory
+        ? renderIncidentDetailByCategory(incidentGroupsData_Beta, appState)
+        : renderIncidentDirectory(incidentGroupsData_Beta, appState);
 }
 
 
@@ -1585,7 +1942,7 @@ async function handleConfirmIncident(btn) {
             Toast.success('Incident status updated successfully.', { position: 'top-center' });
             getKpis();
             getErrorSummary();
-            getIncidentDetailByCategory();
+            getIncidentDetailByKpi();
         } else {
             Toast.error('Failed to update incident status', { position: 'top-center' });
         }
@@ -1607,10 +1964,74 @@ function handleToggleErrorList(btn) {
         appState.expandedErrorLists.add(incidentId);
     }
 
-    // Thay bằng tên hàm render thực tế của bạn
     renderIncidentDirectory(incidentGroupsData_Beta, appState);
 
     return;
+}
+
+function handleKpi(el) {
+    const severity = el?.dataset?.severity;
+    if (!severity) return;
+
+    appState.selectedSeverities.length = 0;
+
+    if (severity.toLocaleLowerCase() === 'critical_high') {
+        appState.selectedSeverities = ['critical', 'high'];
+    } else if (severity.toLocaleLowerCase() === 'medium_low') {
+        appState.selectedSeverities = ['medium', 'low'];
+    }
+
+    const modal = document.getElementById('error-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        lockScroll();
+        getIncidentDetailByKpi()
+    }
+
+}
+
+function handleShowErrorMessageModal(incident) {
+    const modal = document.createElement('div');
+
+    modal.className = `
+        fixed inset-0 z-50
+        flex items-center justify-center
+        bg-black/50
+    `;
+
+    modal.innerHTML = `
+        <div class="w-[90%] max-w-4xl max-h-[80vh] bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden
+        ">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="font-semibold">
+                    Error Message
+                </h3>
+
+                <button class="text-slate-500 hover:text-red-500" data-action="close-modal">✕</button>
+            </div>
+
+            <div class="p-4 overflow-auto max-h-[65vh]">
+                <div class="mb-3 text-sm">
+                    <strong>Incident:</strong>
+                    ${StringUtils.escapeHtml(incident.incident_title)}
+                </div>
+
+                <pre class="whitespace-pre-wrap break-words text-xs leading-6 bg-slate-100 dark:bg-slate-800 rounded-lg p-4 overflow-auto
+                ">${StringUtils.escapeHtml(incident.error_message || '')}</pre>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', (e) => {
+        if (
+            e.target === modal ||
+            e.target.closest('[data-action="close-modal"]')
+        ) {
+            modal.remove();
+        }
+    });
 }
 
 async function handleClick(e) {
@@ -1620,6 +2041,9 @@ async function handleClick(e) {
     const action = actionEl?.dataset?.action;
 
     switch (action) {
+        case 'kpi-incident-details':
+            handleKpi(actionEl);
+            break;
         case 'copy':
             await handleCopy(actionEl);
             break;
@@ -1650,8 +2074,8 @@ async function handleClick(e) {
             break;
         case 'filter-category-offline':
             var catId = actionEl?.dataset?.categoryId;
-            const isOnline = false;
-            handleFilterByCategory(catId, isOnline);
+            //const isOnline = false;
+            handleFilterByCategory(catId);
             break;
         case 'filter-severity':
             const sevId = actionEl?.dataset?.severityId;
@@ -1665,6 +2089,29 @@ async function handleClick(e) {
             break;
         case 'toggle-error-list':
             handleToggleErrorList(actionEl);
+            break;
+        case 'show-error-message':
+            const incidentId = actionEl.dataset.incidentId;
+
+            const incident = incidentGroupsData_Beta.find(
+                x => String(x.incidentid) === incidentId
+            );
+
+            if (!incident) return;
+            handleShowErrorMessageModal(incident);
+            break;
+        case 'toggle-error-message':
+            const errorKey = actionEl.dataset.errorKey;
+
+            if (
+                appState.expandedErrorMessages.has(errorKey)
+            ) {
+                appState.expandedErrorMessages.delete(errorKey);
+            } else {
+                appState.expandedErrorMessages.add(errorKey);
+            }
+
+            renderIncidentDirectory(incidentGroupsData_Beta, appState);
             break;
         default:
             break;
@@ -1706,6 +2153,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         REFRESH_INTERVAL
     );
 
+    document.getElementById('kpi-container').addEventListener('click', handleClick);
     document.getElementById('error-summary').addEventListener('click', handleClick);
     document.getElementById('san-server-tabs').addEventListener('click', handleClick);
     document.getElementById('error-modal').addEventListener('click', handleClick);
