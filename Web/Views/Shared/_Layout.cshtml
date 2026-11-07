@@ -23,7 +23,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
               rel="stylesheet" />*@
     @*<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-          rel="stylesheet" />*@
+        rel="stylesheet" />*@
 
     @*<link href="@Url.Content("~/Content/tailwind/tailwind-core.css")" rel="stylesheet" />*@
     <script src="@Url.Content("~/Scripts/libs/tailwind/tailwind.js")"></script>
@@ -52,8 +52,11 @@
             },
         };
     </script>
+    <script>
+        window.appRoot = '@Url.Content("~/")';
+    </script>
     <style>
-        
+
 
         :root {
             --scrollbar-track: #e2e8f0; /* slate-200 */
