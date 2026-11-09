@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Member.cs" />
     <Compile Include="AlwaysOn.cs" />
     <Compile Include="DPA\DpaAlertGroups.cs" />
     <Compile Include="DPA\DpaAlerts.cs" />

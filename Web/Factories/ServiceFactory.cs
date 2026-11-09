@@ -1,4 +1,5 @@
 ﻿using Application.Features.Dashboard;
+using Application.Features.User;
 using Infrastructure.Database;
 using Infrastructure.Repository;
 using System.Configuration;
@@ -35,6 +36,13 @@ namespace Web.Factories
         {
             return new DashboardService(
                 new DashboardRepository(
+                    CreateConnectionFactory()));
+        }
+
+        public static MemberService CreateMemberService()
+        {
+            return new MemberService(
+                new MemberRepository(
                     CreateConnectionFactory()));
         }
     }

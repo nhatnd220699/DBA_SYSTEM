@@ -55,6 +55,8 @@
     <Compile Include="Features\DPA\DpaClient.cs" />
     <Compile Include="Features\DPA\DpaAuthService.cs" />
     <Compile Include="Features\DPA\DpaService.cs" />
+    <Compile Include="Features\Member\IMemberRepository.cs" />
+    <Compile Include="Features\Member\MemberService.cs" />
     <Compile Include="Helpers\UrlHepler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
