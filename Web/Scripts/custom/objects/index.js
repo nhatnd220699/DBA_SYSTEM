@@ -1948,37 +1948,197 @@ function handleKpi(el) {
 
 }
 
+//function handleShowErrorMessageModal(incident) {
+//    console.log(incident)
+//    const modal = document.createElement('div');
+
+//    modal.className = `
+//        fixed inset-0 z-50
+//        flex items-center justify-center
+//        bg-black/50
+//    `;
+
+//    modal.innerHTML = `
+//        <div class="w-[90%] max-w-4xl max-h-[80vh] bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden
+//        ">
+//            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+//                <h3 class="font-semibold">
+//                    Error Message
+//                </h3>
+
+//                <button class="text-slate-500 hover:text-red-500" data-action="close-modal">✕</button>
+//            </div>
+
+//            <div class="p-4 overflow-auto max-h-[65vh]">
+//                <div class="mb-3 text-sm">
+//                    <strong>Incident:</strong>
+//                    ${StringUtils.escapeHtml(incident.incident_title)}
+//                </div>
+
+//                <pre class="whitespace-pre-wrap break-words text-xs leading-6 bg-slate-100 dark:bg-slate-800 rounded-lg p-4 overflow-auto
+//                ">${StringUtils.escapeHtml(incident.error_message || '')}</pre>
+//            </div>
+//        </div>
+//    `;
+
+
 function handleShowErrorMessageModal(incident) {
     const modal = document.createElement('div');
+
+    const incidentTitle = incident?.incident_title || 'N/A';
+    const errorMessage = incident?.error_message || 'No error message provided.';
+    const actionPlan = incident?.recommendation || 'No action place provided.';
+    const rootCause = incident?.rootcause || 'No root cause provided.';
 
     modal.className = `
         fixed inset-0 z-50
         flex items-center justify-center
         bg-black/50
+        p-4
     `;
 
     modal.innerHTML = `
-        <div class="w-[90%] max-w-4xl max-h-[80vh] bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden
-        ">
-            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
-                <h3 class="font-semibold">
-                    Error Message
+        <div
+            class="
+                w-full max-w-4xl max-h-[85vh]
+                bg-white dark:bg-slate-900
+                text-slate-900 dark:text-slate-100
+                rounded-xl shadow-xl overflow-hidden
+            "
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="error-message-modal-title"
+        >
+            <div
+                class="
+                    flex items-center justify-between
+                    px-5 py-4
+                    border-b border-slate-200 dark:border-slate-700
+                "
+            >
+                <h3
+                    id="error-message-modal-title"
+                    class="text-lg font-semibold"
+                >
+                    Incident Details
                 </h3>
 
-                <button class="text-slate-500 hover:text-red-500" data-action="close-modal">✕</button>
+                <button
+                    type="button"
+                    class="
+                        inline-flex items-center justify-center
+                        w-8 h-8 rounded-lg
+                        text-slate-500
+                        hover:text-red-500
+                        hover:bg-slate-100
+                        dark:hover:bg-slate-800
+                    "
+                    data-action="close-modal"
+                    aria-label="Close"
+                >
+                    ✕
+                </button>
             </div>
 
-            <div class="p-4 overflow-auto max-h-[65vh]">
-                <div class="mb-3 text-sm">
-                    <strong>Incident:</strong>
-                    ${StringUtils.escapeHtml(incident.incident_title)}
-                </div>
+            <div class="p-5 overflow-y-auto max-h-[72vh] space-y-5">
+                <section>
+                    <h4
+                        class="
+                            mb-2 text-xs font-semibold uppercase
+                            tracking-wide text-slate-500
+                            dark:text-slate-400
+                        "
+                    >
+                        Incident
+                    </h4>
 
-                <pre class="whitespace-pre-wrap break-words text-xs leading-6 bg-slate-100 dark:bg-slate-800 rounded-lg p-4 overflow-auto
-                ">${StringUtils.escapeHtml(incident.error_message || '')}</pre>
+                    <div
+                        class="
+                            rounded-lg border
+                            border-slate-200 dark:border-slate-700
+                            bg-slate-50 dark:bg-slate-800
+                            px-4 py-3 text-sm
+                        "
+                    >
+                        ${StringUtils.escapeHtml(incidentTitle)}
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <section>
+                        <h4
+                            class="
+                                mb-2 text-xs font-semibold uppercase
+                                tracking-wide text-slate-500
+                                dark:text-slate-400
+                            "
+                        >
+                            Action Plan
+                        </h4>
+
+                        <div
+                            class="
+                                min-h-[100px]
+                                whitespace-pre-wrap break-words
+                                rounded-lg border
+                                border-blue-200 dark:border-blue-900
+                                bg-blue-50 dark:bg-blue-950/30
+                                px-4 py-3 text-sm
+                                text-blue-900 dark:text-blue-200
+                            "
+                        >${StringUtils.escapeHtml(actionPlan)}</div>
+                    </section>
+
+                    <section>
+                        <h4
+                            class="
+                                mb-2 text-xs font-semibold uppercase
+                                tracking-wide text-slate-500
+                                dark:text-slate-400
+                            "
+                        >
+                            Root Cause
+                        </h4>
+
+                        <div
+                            class="
+                                min-h-[100px]
+                                whitespace-pre-wrap break-words
+                                rounded-lg border
+                                border-amber-200 dark:border-amber-900
+                                bg-amber-50 dark:bg-amber-950/30
+                                px-4 py-3 text-sm
+                                text-amber-900 dark:text-amber-200
+                            "
+                        >${StringUtils.escapeHtml(rootCause)}</div>
+                    </section>
+                </div>
+                <section>
+                    <h4
+                        class="
+                            mb-2 text-xs font-semibold uppercase
+                            tracking-wide text-slate-500
+                            dark:text-slate-400
+                        "
+                    >
+                        Error Message
+                    </h4>
+
+                    <pre
+                        class="
+                            whitespace-pre-wrap break-words
+                            text-xs leading-6
+                            bg-red-50 dark:bg-red-950/30
+                            text-red-800 dark:text-red-200
+                            border border-red-200 dark:border-red-900
+                            rounded-lg p-4 overflow-auto
+                        "
+                    >${StringUtils.escapeHtml(errorMessage)}</pre>
+                </section>
             </div>
         </div>
     `;
+
 
     document.body.appendChild(modal);
 
