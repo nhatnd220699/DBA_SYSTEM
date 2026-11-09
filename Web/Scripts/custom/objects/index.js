@@ -1606,7 +1606,7 @@ function renderIncidentDirectory(data, state) {
                                                 </div>
                                             </div>
 
-                                            <div class="p-4 bg-slate-50 dark:bg-[#0a1220] rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                                            <div class="p-4 bg-slate-100 dark:bg-[#0a1220] rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-end justify-between gap-4">
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 flex-1">
                                                     <!-- Assignee / Handler (Người xử lý) -->
                                                     <div>
