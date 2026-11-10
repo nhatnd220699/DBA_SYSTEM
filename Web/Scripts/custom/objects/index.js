@@ -1620,12 +1620,11 @@ function renderIncidentDirectory(data, state) {
                                                     <!-- Processing Status (Trạng thái xử lý) -->
                                                     <div>
                                                         <label class="block text-sm font-mono text-slate-700 dark:text-slate-300 font-medium mb-1.5 flex items-center gap-1.5">
-                                                            ${renderIcon('target_check', 'w-[22px] h-[22px]')}
+                                                            ${renderIcon('check_list_rtl', 'w-[22px] h-[22px] shrink-0')}
                                                             <span>Status</span>
                                                         </label>
                                                         <select class="w-full bg-white dark:bg-[#060b14] border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-sans text-sm px-3 py-2 rounded-lg outline-none focus:border-cyan-300 dark:focus:border-cyan-400" id="status-${incident.incidentid}">
-                                                            <option value="Open" ${(incident?.status).includes('OPEN', '') ? 'selected' : ''}>Open</option>
-                                                            <option value="Analyzed" ${incident?.status?.toUpperCase() === 'ANALYZED' ? 'selected' : ''}>Analyzed</option>
+                                                            <option value="">Select status</option>
                                                             <option value="Doing" ${incident?.status?.toUpperCase() === 'DOING' ? 'selected' : ''}>Doing</option>
                                                             <option value="Done" ${incident?.status?.toUpperCase() === 'DONE' ? 'selected' : ''}>Done</option>
                                                         </select>

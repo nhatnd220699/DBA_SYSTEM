@@ -45,63 +45,71 @@ namespace Web.Controllers.Mvc
             string password,
             string returnUrl)
         {
-
-            Member member = await _service.GetMemberByIdAsync(username, password);
-
-            if (member == null)
+            try
             {
-                ViewBag.ReturnUrl = returnUrl;
-                ViewBag.Error = "The account information or password is incorrect";
+
+                Member member = await _service.GetMemberByIdAsync(username, password);
+
+                if (member == null)
+                {
+                    ViewBag.ReturnUrl = returnUrl;
+                    ViewBag.Error = "The account information or password is incorrect.";
+                    return View();
+                }
+
+                // Validate password
+                UserInfo userInfo = new UserInfo
+                {
+                    EmployeeId = member.Id,
+                    EmployeeCode = member.Username,
+                    EmployeeName = member.Fullname,
+                    Email = member.Email,
+                    Department = member.Department,
+                    Role = member.Role
+                };
+
+                // Tạo FormsAuthenticationTicket
+                //FormsAuthentication.SetAuthCookie( username, false);
+
+                // Ghép dữ liệu cần lưu
+                var userData = JsonConvert.SerializeObject(userInfo);
+
+                var ticket = new FormsAuthenticationTicket(
+                    1,
+                    username, // User.Identity.Name
+                    DateTime.Now,
+                    DateTime.Now.AddMinutes(FormsAuthentication.Timeout.TotalMinutes),
+                    false,
+                    userData);
+
+                string encryptedTicket = FormsAuthentication.Encrypt(ticket);
+
+                var cookie = new HttpCookie(
+                    FormsAuthentication.FormsCookieName,
+                    encryptedTicket);
+
+                cookie.HttpOnly = true;
+
+                if (Request.IsSecureConnection)
+                {
+                    cookie.Secure = true;
+                }
+
+                Response.Cookies.Add(cookie);
+
+                if (!string.IsNullOrEmpty(returnUrl)
+                    && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.Message;
                 return View();
             }
-
-            // Validate password
-            UserInfo userInfo = new UserInfo
-            {
-                EmployeeId = member.Id,
-                EmployeeCode = member.Username,
-                EmployeeName = member.Fullname,
-                Email = member.Email,
-                Department = member.Department,
-                Role = member.Role
-            };
-
-            // Tạo FormsAuthenticationTicket
-            //FormsAuthentication.SetAuthCookie( username, false);
-
-            // Ghép dữ liệu cần lưu
-            var userData = JsonConvert.SerializeObject(userInfo);
-
-            var ticket = new FormsAuthenticationTicket(
-                1,
-                username, // User.Identity.Name
-                DateTime.Now,
-                DateTime.Now.AddMinutes(FormsAuthentication.Timeout.TotalMinutes),
-                false,
-                userData);
-
-            string encryptedTicket = FormsAuthentication.Encrypt(ticket);
-
-            var cookie = new HttpCookie(
-                FormsAuthentication.FormsCookieName,
-                encryptedTicket);
-
-            cookie.HttpOnly = true;
-
-            if (Request.IsSecureConnection)
-            {
-                cookie.Secure = true;
-            }
-
-            Response.Cookies.Add(cookie);
-
-            if (!string.IsNullOrEmpty(returnUrl)
-                && Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-
-            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

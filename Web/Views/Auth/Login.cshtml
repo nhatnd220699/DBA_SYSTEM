@@ -100,10 +100,19 @@
                 </div>
 
                 <div class="mt-5 pt-2">
+                    @*<button class="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition duration-200 flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                id="login-btn"
+                type="submit">
+            <span class="">Log in</span>
+        </button>*@
                     <button class="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition duration-200 flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                             id="login-btn"
                             type="submit">
-                        <span class="">Log in</span>
+                        <span id="loading-icon" class="hidden animate-spin">
+                            @Html.Icon("progress_activity", "w-[18px] h-[18px] shrink-0")
+                        </span>
+
+                        <span id="login-text">Log in</span>
                     </button>
                 </div>
 
@@ -155,5 +164,30 @@
                 ? '@Html.Raw(Html.Icon("visibility_off", "w-[18px] h-[18px] shrink-0"))'
                 : '@Html.Raw(Html.Icon("visibility", "w-[18px] h-[18px] shrink-0"))';
         });
+
+        const form = document.querySelector("form");
+        const loginBtn = document.getElementById("login-btn");
+        const loginText = document.getElementById("login-text");
+        const spinner = document.getElementById("login-spinner");
+        const loadingIcon = document.getElementById("loading-icon");
+
+        if (form) {
+            form.addEventListener("submit", function () {
+
+                if (!form.checkValidity()) {
+                    return;
+                }
+
+                loginBtn.disabled = true;
+
+                loginBtn.classList.add(
+                    "opacity-70",
+                    "cursor-not-allowed"
+                );
+
+                loadingIcon.classList.remove("hidden");
+                loginText.textContent = "Logging in...";
+            });
+        }
     });
 </script>
