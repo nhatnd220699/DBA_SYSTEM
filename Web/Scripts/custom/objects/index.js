@@ -557,7 +557,7 @@ async function getDiskSpace() {
                     <div class="flex flex-col justify-between bg-white dark:bg-[#121c2d] hover:bg-slate-100 dark:hover:bg-[#18263e] shadow-md p-3.5 rounded-xl transition-all duration-200">
                         <div class="flex flex-col items-center w-full text-center">
                             <div class="relative mb-2.5 filter">
-                                <img src="/Content/images/hdd_48.png" alt="disk" />
+                                <img src="${window.appRoot}Content/images/hdd_48.png" alt="disk" />
                             </div>
                             <!-- Drive Label & Role -->
                             <span class="font-mono font-bold text-slate-900 dark:text-white text-xs tracking-tight">Disk (${storage?.volume_point})</span>

@@ -26,6 +26,9 @@
         rel="stylesheet" />*@
 
     @*<link href="@Url.Content("~/Content/tailwind/tailwind-core.css")" rel="stylesheet" />*@
+    <script>
+        window.appRoot = '@Url.Content("~/")';
+    </script>
     <script src="@Url.Content("~/Scripts/libs/tailwind/tailwind.js")"></script>
     <script>
         tailwind.config = {
@@ -51,9 +54,6 @@
                 },
             },
         };
-    </script>
-    <script>
-        window.appRoot = '@Url.Content("~/")';
     </script>
     <style>
 
