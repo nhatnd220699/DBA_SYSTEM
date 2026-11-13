@@ -1,9 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Security.Principal;
+using System.Threading;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using System.Web.Security;
+using Web.Models;
 
 namespace Web
 {
@@ -45,6 +50,44 @@ namespace Web
                 Response.StatusCode = 404;
 
                 Server.TransferRequest("~/Error/NotFound");
+            }
+        }
+
+        protected void Application_PostAuthenticateRequest(object sender, EventArgs e)
+        {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+
+            if (authCookie == null)
+                return;
+
+            try
+            {
+                var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
+
+                if (authTicket == null || authTicket.Expired)
+                    return;
+
+                var userInfo = JsonConvert.DeserializeObject<UserInfo>(
+                    authTicket.UserData
+                );
+
+                if (userInfo == null)
+                    return;
+
+                var roles = string.IsNullOrWhiteSpace(userInfo.Role)
+                   ? new string[0]
+                   : new[] { userInfo.Role };
+
+                var identity = new FormsIdentity(authTicket);
+
+                var principal = new GenericPrincipal(identity, roles);
+
+                HttpContext.Current.User = principal;
+                Thread.CurrentPrincipal = principal;
+            }
+            catch
+            {
+                FormsAuthentication.SignOut();
             }
         }
     }

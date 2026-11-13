@@ -140,6 +140,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Content Include="Content\css\app.css" />
     <Content Include="Content\temp\error_logs.json" />
     <Content Include="Content\temp\job_logs.json" />
     <Content Include="Content\temp\error_summary.json" />
@@ -156,6 +157,8 @@
     <Compile Include="Controllers\Mvc\HomeController.cs" />
     <Compile Include="Factories\ServiceFactory.cs" />
     <Compile Include="Filters\ApiExceptionFilter.cs" />
+    <Compile Include="Filters\ApiAuthorizeAttribute.cs" />
+    <Compile Include="Filters\AppAuthorizeAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -205,6 +208,8 @@
     <Content Include="Content\temp\dblock.json" />
     <Content Include="Content\temp\backup.json" />
     <Content Include="Content\temp\kpi.json" />
+    <Content Include="package.json" />
+    <Content Include="package-lock.json" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\custom\api\api-client.js" />
     <Content Include="Scripts\custom\common\action-lock.js" />
@@ -224,6 +229,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\libs\tailwind\tailwind.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="tailwind.config.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -247,6 +253,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\dist\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
@@ -289,6 +296,19 @@
       <Name>Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
+  <!-- Exclude node_modules khỏi Content và None -->
+  <ItemGroup>
+	<Content Remove="node_modules\**\*" />
+	<None Remove="node_modules\**\*" />
+
+	<Content Remove="wwwroot\**\node_modules\**\*" />
+	<None Remove="wwwroot\**\node_modules\**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -322,6 +342,14 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- Exclude node_modules khỏi Publish -->
+  <Target Name="ExcludeNodeModulesFromPublish" BeforeTargets="ComputeFilesToPublish">
+	<ItemGroup>
+		<ResolvedFileToPublish
+			Remove="@(ResolvedFileToPublish)"
+			Condition="$([System.String]::Copy('%(ResolvedFileToPublish.Identity)').Contains('\node_modules\'))" />
+	</ItemGroup>
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -76,7 +76,7 @@ namespace Web.Controllers.Mvc
 
                 var ticket = new FormsAuthenticationTicket(
                     1,
-                    username, // User.Identity.Name
+                    member.Username, // User.Identity.Name
                     DateTime.Now,
                     DateTime.Now.AddMinutes(FormsAuthentication.Timeout.TotalMinutes),
                     false,
@@ -86,14 +86,20 @@ namespace Web.Controllers.Mvc
 
                 var cookie = new HttpCookie(
                     FormsAuthentication.FormsCookieName,
-                    encryptedTicket);
-
-                cookie.HttpOnly = true;
-
-                if (Request.IsSecureConnection)
+                    encryptedTicket)
                 {
-                    cookie.Secure = true;
-                }
+                    HttpOnly = true,
+                    Secure = Request.IsSecureConnection,
+                    Path = FormsAuthentication.FormsCookiePath
+                };
+
+
+                //cookie.HttpOnly = true;
+
+                //if (Request.IsSecureConnection)
+                //{
+                //cookie.Secure = true;
+                //}
 
                 Response.Cookies.Add(cookie);
 

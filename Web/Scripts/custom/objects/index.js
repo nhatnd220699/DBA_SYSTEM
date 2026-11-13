@@ -1,4 +1,4 @@
-﻿import { Popup, Toast, ActionLock, ApiClient, renderIcon, NumberUtils, StringUtils } from '../modules/app.js';
+﻿import { Toast, ApiClient, renderIcon, NumberUtils, StringUtils } from '../modules/app.js';
 
 const
     DBA_ERRORLOG = 'dba_errorlog',
@@ -31,6 +31,7 @@ const CATEGORY_STEP = Object.freeze({
 function buildApiParams(step, input) {
     return { ...API_CONTEXT, Step: step, InputStr: JSON.stringify(input) };
 }
+
 function parseApiData(result, fallback = null) {
     if (!result?.success) {
         console.error(
@@ -251,6 +252,7 @@ async function getErrorSummary() {
 
     } catch (err) {
         console.error(err.message);
+        Toast.error('Unable to load error summary');
     }
 }
 
@@ -376,6 +378,7 @@ async function getAlwaysOnStatus() {
         }
     } catch (err) {
         html = `<tr><td colspan="50" class="px-3 py-2.5 whitespace-nowrap font-bold text-rose-700 dark:text-rose-400">${err.message}</td></tr>`;
+        Toast.error('Unable to load always on');
     }
 
     alwaysonBadge.textContent = data && data.length >= 0 ? data.length + ' REPLICAS' : 'REPLICAS';
@@ -458,6 +461,7 @@ async function getLargeTable() {
         }
     } catch (err) {
         html = `<tr><td colspan="50" class="px-3 py-2.5 whitespace-nowrap font-bold text-rose-700 dark:text-rose-400">${err.message}</td></tr>`;
+        Toast.error('Unable to load large table');
     }
 
     tableLargeBadge.textContent = data && data.length >= 0 ? data.length + ' LARGE TABLES' : 'LARGE TABLES';
@@ -611,6 +615,7 @@ async function getDiskSpace() {
 
     } catch (err) {
         console.error(err.message);
+        Toast.error('Unable to load disk space');
     }
 }
 
@@ -1746,7 +1751,7 @@ function handleSwitchStorageSever(tab) {
     if (!serverKey) return;
 
     const server = storageServers.find(item => item.server_ip === serverKey.replace(/_/g, '.'));
-    console.log(server)
+   /* console.log(server)*/
 
     // 1. Update Bootstrap Tabs styling
     const tabButtons = document.querySelectorAll('.storage-server-tab');
@@ -1905,6 +1910,7 @@ async function handleConfirmIncident(btn) {
         }
     } catch (err) {
         console.error(err.message)
+        Toast.error('Unable to confirm incident');
     }
 }
 
@@ -2300,4 +2306,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         }
     });
+
+    //const result = await ApiClient.get('api/dba/alwayson');
+    //console.log(result);
 });

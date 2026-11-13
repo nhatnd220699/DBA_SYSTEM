@@ -18,8 +18,8 @@ const DEFAULTS = {
     duration: 3800,
     maxVisible: 5,
     gap: 12,
-    closeButton: true,
-    pauseOnHover: true,
+    closeButton: false,
+    pauseOnHover: false,
     newestOnTop: true,
     animationDuration: 300
 };
@@ -368,10 +368,26 @@ function show(message, options = {}) {
         });
     }
 
+    //if (config.newestOnTop) {
+    //    container.prepend(element);
+    //} else {
+    //    container.appendChild(element);
+    //}
+
+    const isTop = position.startsWith('top');
+
     if (config.newestOnTop) {
-        container.prepend(element);
+        if (isTop) {
+            container.prepend(element);
+        } else {
+            container.appendChild(element);
+        }
     } else {
-        container.appendChild(element);
+        if (isTop) {
+            container.appendChild(element);
+        } else {
+            container.prepend(element);
+        }
     }
 
     toasts.set(id, record);
@@ -457,13 +473,38 @@ function clearImmediately() {
     }
 }
 
+//function update(id, message, options = {}) {
+//    const previous = toasts.get(id);
+
+//    if (!previous) return show(message, { ...options, id });
+
+//    const position = options.position ?? previous.position;
+//    const type = options.type ?? 'info';
+//    const duration = options.duration ?? previous.duration;
+
+//    removeRecord(previous);
+
+//    return show(message, {
+//        ...options,
+//        id,
+//        type,
+//        position,
+//        duration
+//    });
+//}
 function update(id, message, options = {}) {
     const previous = toasts.get(id);
 
-    if (!previous) return show(message, { ...options, id });
+    if (!previous) {
+        return show(message, { ...options, id });
+    }
 
     const position = options.position ?? previous.position;
-    const type = options.type ?? 'info';
+
+    const type = options.type ??
+        previous.type ??
+        'info';
+
     const duration = options.duration ?? previous.duration;
 
     removeRecord(previous);

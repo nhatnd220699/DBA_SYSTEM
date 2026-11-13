@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Web.Factories;
+using Web.Filters;
 
 namespace Web.Controllers.Api
 {
-    [Authorize]
+    [ApiAuthorize]
     [RoutePrefix("api/dba")]
     public class DbaController : BaseApiController
     {
@@ -23,6 +24,7 @@ namespace Web.Controllers.Api
             _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
+        //[ApiAuthorize(Roles = "Manager")]
         [HttpGet]
         [Route("alwayson")]
         public async Task<IHttpActionResult> GetAlwaysOn(

@@ -1,10 +1,11 @@
 ﻿using Application.Features.DPA.ServerInfo;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Web.Filters;
 
 namespace Web.Controllers.Api
 {
-    //[Authorize]
+    //[AppAuthorize]
     [RoutePrefix("api/dpa")]
 
     public class DpaController : BaseApiController
