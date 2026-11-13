@@ -605,7 +605,7 @@ async function getDiskSpace() {
             const gridColumns = storageData.length > 3 ? 4 : 3;
 
             htmlStorageTabs += `
-                <div class="gap-3 grid grid-cols-2 md:grid-cols-${gridColumns} storage-pane transition-opacity duration-300 opacity-100 ${isActive ? 'opacity-100' : 'hidden opacity-0'}"
+                <div class="gap-3 grid grid-cols-2 md:grid-cols-3 storage-pane transition-opacity duration-300 opacity-100 ${isActive ? 'opacity-100' : 'hidden opacity-0'}"
                         id="pane-${serverIp}">
                         ${storages}
                 </div>
